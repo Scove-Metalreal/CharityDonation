@@ -8,9 +8,14 @@ public class PasswordUtils {
     }
 
     public static boolean checkPassword(String password, String hashedPassword) {
-        if (hashedPassword == null || !hashedPassword.startsWith("$2a$")) {
+        try {
+            if (hashedPassword == null || !hashedPassword.startsWith("$2a$") || hashedPassword.length() < 30) {
+                return false;
+            }
+            return BCrypt.checkpw(password, hashedPassword);
+        } catch (Exception e) {
+            System.err.println("ERROR: Mat khau trong DB khong dung dinh dang BCrypt: " + e.getMessage());
             return false;
         }
-        return BCrypt.checkpw(password, hashedPassword);
     }
 }

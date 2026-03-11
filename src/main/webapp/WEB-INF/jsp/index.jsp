@@ -1,34 +1,119 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-    <title>Trang chủ - Quyên Góp Từ Thiện</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ - CharityDonation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
+    <style>
+        .campaign-card-img { height: 200px; object-fit: cover; border-radius: 12px 12px 0 0; }
+        .organizer-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
+    </style>
 </head>
-<body>
+<body class="bg-light">
+    <div class="container">
+        <div class="row">
+            <!-- Left Sidebar (X.com Style) -->
+            <div class="col-lg-3 d-none d-lg-block">
+                <div class="sidebar-x">
+                    <div class="mb-4 ps-3">
+                        <i class="fas fa-hand-holding-heart fa-2x text-primary"></i>
+                    </div>
+                    
+                    <nav class="nav flex-column mb-4">
+                        <a class="nav-link active" href="${pageContext.request.contextPath}/"><i class="fas fa-home"></i> Trang chủ</a>
+                        <a class="nav-link" href="#"><i class="fas fa-bullhorn"></i> Chiến dịch</a>
+                        <a class="nav-link" href="#"><i class="fas fa-handshake"></i> Nhà đồng hành</a>
+                        <a class="nav-link" href="#"><i class="fas fa-chart-pie"></i> Tổng quan</a>
+                        <a class="nav-link" href="#"><i class="fas fa-question-circle"></i> Q&A</a>
+                    </nav>
 
-    <header>
-        <h1>Website Quyên Góp Từ Thiện</h1>
-    </header>
+                    <button class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm mb-4">QUYÊN GÓP NGAY</button>
 
-    <main>
-        <h2>Các chiến dịch quyên góp</h2>
-        <div class="campaign-list">
-            <c:if test="${empty campaigns}">
-                <p>Hiện chưa có chiến dịch nào.</p>
-            </c:if>
-            <c:forEach var="campaign" items="${campaigns}">
-                <div class="campaign-card">
-                    <h3><c:out value="${campaign.name}"/></h3>
-                    <p><c:out value="${campaign.background}"/></p>
-                    <p>Mục tiêu: <c:out value="${campaign.targetMoney}"/> VNĐ</p>
-                    <p>Hiện tại: <c:out value="${campaign.currentMoney}"/> VNĐ</p>
-                    <a href="${pageContext.request.contextPath}/campaign/${campaign.id}">Chi tiết</a>
+                    <!-- User Mini Profile -->
+                    <c:choose>
+                        <c:when test="${not empty sessionScope.loggedInUser}">
+                            <div class="sidebar-user-mini d-flex align-items-center" onclick="window.location.href='${pageContext.request.contextPath}/user/profile'">
+                                <img src="https://ui-avatars.com/api/?name=${sessionScope.loggedInUser.fullName}&background=10B981&color=fff" class="rounded-circle me-3" width="40" height="40">
+                                <div class="overflow-hidden">
+                                    <div class="fw-bold text-dark text-truncate">${sessionScope.loggedInUser.fullName}</div>
+                                    <div class="text-muted small text-truncate">@user_${sessionScope.loggedInUser.id}</div>
+                                </div>
+                                <i class="fas fa-ellipsis-h ms-auto text-muted"></i>
+                            </div>
+                        </c:when>
+                        <c:otherwise>
+                            <div class="p-3">
+                                <a href="${pageContext.request.contextPath}/auth/login" class="btn btn-outline-primary w-100 rounded-pill mb-2">Đăng nhập</a>
+                                <a href="${pageContext.request.contextPath}/auth/register" class="btn btn-primary w-100 rounded-pill">Đăng ký</a>
+                            </div>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
-            </c:forEach>
-        </div>
-    </main>
+            </div>
 
+            <!-- Main Content -->
+            <div class="col-lg-9 py-4 border-start border-end bg-white min-vh-100 shadow-sm px-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="fw-bold mb-0">Hành trình nhân ái</h2>
+                    <div class="d-lg-none">
+                        <c:if test="${not empty sessionScope.loggedInUser}">
+                             <a href="${pageContext.request.contextPath}/user/profile">
+                                <img src="https://ui-avatars.com/api/?name=${sessionScope.loggedInUser.fullName}&background=10B981&color=fff" class="rounded-circle" width="35" height="35">
+                             </a>
+                        </c:if>
+                    </div>
+                </div>
+
+                <div class="row row-cols-1 row-cols-md-2 g-4">
+                    <c:if test="${empty campaigns}">
+                        <div class="col-12 text-center py-5">
+                            <p class="alert alert-info border-0 shadow-sm">Hiện chưa có chiến dịch nào đang diễn ra.</p>
+                        </div>
+                    </c:if>
+                    <c:forEach var="campaign" items="${campaigns}">
+                        <div class="col">
+                            <div class="card h-100">
+                                <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="card-img-top campaign-card-img" alt="campaign">
+                                <div class="card-body">
+                                    <h5 class="card-title fw-bold mb-2 text-dark"><c:out value="${campaign.name}"/></h5>
+                                    <div class="d-flex align-items-center mb-3">
+                                        <img src="https://ui-avatars.com/api/?name=Admin&background=random" class="organizer-avatar me-2">
+                                        <small class="text-muted">Bởi <strong>Ban Quản Trị</strong></small>
+                                    </div>
+                                    <p class="card-text text-muted small mb-3"><c:out value="${campaign.background}"/></p>
+                                    
+                                    <div class="mb-2">
+                                        <c:set var="percent" value="${(campaign.currentMoney / campaign.targetMoney) * 100}"/>
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span class="fw-bold text-primary">${percent}% hoàn thành</span>
+                                            <span class="text-muted">${campaign.targetMoney}đ mục tiêu</span>
+                                        </div>
+                                        <div class="progress bg-light" style="height: 8px;">
+                                            <div class="progress-bar" role="progressbar" style="width: ${percent}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center pb-3 pt-0">
+                                    <div class="small">
+                                        <span class="fw-bold text-dark">${campaign.currentMoney}đ</span>
+                                        <span class="text-muted"> quyên góp</span>
+                                    </div>
+                                    <a href="${pageContext.request.contextPath}/campaign/${campaign.id}" class="btn btn-accent btn-sm px-4 rounded-pill">Chi tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                    </c:forEach>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

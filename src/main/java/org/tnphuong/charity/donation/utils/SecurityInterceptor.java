@@ -3,22 +3,40 @@ package org.tnphuong.charity.donation.utils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.tnphuong.charity.donation.entity.User;
+import org.tnphuong.charity.donation.service.UserService;
+
+import java.util.Optional;
 
 @Component
 public class SecurityInterceptor implements HandlerInterceptor {
 
+    @Autowired
+    private UserService userService;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         HttpSession session = request.getSession();
-        User user = (User) session.getAttribute("loggedInUser");
-        String path = request.getRequestURI();
+        Integer userId = (Integer) session.getAttribute("userId");
+        
+        // Lay duong dan hien tai (loai bo context path)
+        String path = request.getRequestURI().substring(request.getContextPath().length());
+
+        User user = null;
+        if (userId != null) {
+            Optional<User> userOpt = userService.getUserById(userId);
+            if (userOpt.isPresent()) {
+                user = userOpt.get();
+                session.setAttribute("loggedInUser", user);
+            }
+        }
 
         // Chặn truy cập Admin
         if (path.startsWith("/admin")) {
-            if (user == null || !"ADMIN".equals(user.getRole().getRoleName())) {
+            if (user == null || user.getRole() == null || !"ADMIN".equalsIgnoreCase(user.getRole().getRoleName())) {
                 response.sendRedirect(request.getContextPath() + "/auth/login?error=access-denied");
                 return false;
             }

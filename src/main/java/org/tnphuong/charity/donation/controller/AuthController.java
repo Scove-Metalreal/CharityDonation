@@ -31,19 +31,29 @@ public class AuthController {
 
     @PostMapping("/register")
     public String registerUser(@ModelAttribute("user") User user, Model model) {
-        if (userService.getUserByEmail(user.getEmail()).isPresent()) {
-            model.addAttribute("error", "Email đã tồn tại!");
+        String email = user.getEmail().trim();
+        String phone = user.getPhoneNumber() != null ? user.getPhoneNumber().trim() : "";
+
+        if (userService.getUserByEmail(email).isPresent()) {
+            model.addAttribute("error", "Email này đã được sử dụng!");
             return "register";
         }
 
-        // Mặc định role là USER khi đăng ký
+        // Kiem tra trung so dien thoai
+        if (!phone.isEmpty() && userService.getAllUsers().stream().anyMatch(u -> phone.equals(u.getPhoneNumber()))) {
+            model.addAttribute("error", "Số điện thoại này đã được sử dụng!");
+            return "register";
+        }
+
         Optional<Role> userRole = roleRepository.findByRoleName("USER");
         if (userRole.isPresent()) {
             user.setRole(userRole.get());
         }
 
+        user.setEmail(email);
+        user.setPhoneNumber(phone);
         user.setPassword(PasswordUtils.hashPassword(user.getPassword()));
-        user.setStatus(1); // Active
+        user.setStatus(1); 
         userService.saveUser(user);
 
         return "redirect:/auth/login?success=register";
@@ -57,19 +67,27 @@ public class AuthController {
     @PostMapping("/login")
     public String loginUser(@RequestParam String email, @RequestParam String password, 
                            HttpSession session, Model model) {
-        Optional<User> userOpt = userService.getUserByEmail(email);
+        String cleanEmail = email.trim();
+        System.out.println("DEBUG: Dang nhap voi email: [" + cleanEmail + "]");
+        
+        Optional<User> userOpt = userService.getUserByEmail(cleanEmail);
         
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             if (PasswordUtils.checkPassword(password, user.getPassword())) {
-                if (user.getStatus() == 0) {
+                if (user.getStatus() != null && user.getStatus() == 0) {
                     model.addAttribute("error", "Tài khoản của bạn đã bị khóa!");
                     return "login";
                 }
                 
-                session.setAttribute("loggedInUser", user);
+                // Luu userId vao session thay vi ca object User de tranh loi Hibernate
+                session.setAttribute("userId", user.getId());
+                // Van giu loggedInUser neu cac trang JSP dang dung, nhung Interceptor se check theo userId
+                session.setAttribute("loggedInUser", user); 
                 
-                if ("ADMIN".equals(user.getRole().getRoleName())) {
+                System.out.println("DEBUG: Dang nhap thanh cong. Role: " + (user.getRole() != null ? user.getRole().getRoleName() : "NULL"));
+                
+                if (user.getRole() != null && "ADMIN".equalsIgnoreCase(user.getRole().getRoleName())) {
                     return "redirect:/admin/dashboard";
                 } else {
                     return "redirect:/";
