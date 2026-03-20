@@ -88,7 +88,7 @@
                     <small class="text-muted fw-bold">TỔNG QUYÊN GÓP</small>
                     <h2 class="mt-2 mb-0 fw-bold text-dark">850M đ</h2>
                     <small class="text-success"><i class="fas fa-arrow-up"></i> 5% hôm nay</small>
-                </div>
+                </div> 
             </div>
             <div class="col-md-3">
                 <div class="card stat-card p-4 shadow-sm border-0 h-100" style="border-left-color: #ef4444;">

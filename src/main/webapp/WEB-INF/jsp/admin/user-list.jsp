@@ -125,14 +125,30 @@
             </div>
 
             <!-- Pagination -->
+            <c:if test="${totalPages > 0}">
             <nav class="d-flex justify-content-end mt-4">
                 <ul class="pagination pagination-sm mb-0">
-                    <li class="page-item disabled"><a class="page-link border-0 rounded-circle mx-1" href="#"><i class="fas fa-chevron-left"></i></a></li>
-                    <li class="page-item active"><a class="page-link border-0 rounded-circle mx-1 bg-primary text-white" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link border-0 rounded-circle mx-1" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link border-0 rounded-circle mx-1" href="#"><i class="fas fa-chevron-right"></i></a></li>
+                    <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                        <a class="page-link border-0 rounded-circle mx-1" href="${pageContext.request.contextPath}/admin/users?page=${currentPage - 1}&keyword=${keyword}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    
+                    <c:forEach var="i" begin="1" end="${totalPages}">
+                        <li class="page-item ${currentPage == i ? 'active' : ''}">
+                            <a class="page-link border-0 rounded-circle mx-1 ${currentPage == i ? 'bg-primary text-white' : ''}" 
+                               href="${pageContext.request.contextPath}/admin/users?page=${i}&keyword=${keyword}">${i}</a>
+                        </li>
+                    </c:forEach>
+                    
+                    <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                        <a class="page-link border-0 rounded-circle mx-1" href="${pageContext.request.contextPath}/admin/users?page=${currentPage + 1}&keyword=${keyword}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
                 </ul>
             </nav>
+            </c:if>
         </div>
     </div>
 </body>

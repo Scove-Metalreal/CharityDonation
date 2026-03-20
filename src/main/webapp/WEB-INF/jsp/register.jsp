@@ -48,20 +48,20 @@
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <div class="form-floating">
-                                    <input type="text" name="fullName" class="form-control" id="fullName" placeholder="Nguyễn Văn A" required>
+                                    <input type="text" name="fullName" class="form-control" id="fullName" placeholder="Nguyễn Văn A" required value="${user.fullName}">
                                     <label for="fullName">Họ và tên</label>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating">
-                                    <input type="tel" name="phoneNumber" class="form-control" id="phone" placeholder="09xxx" required pattern="^(0|84)(3|5|7|8|9)[0-9]{8}$">
+                                    <input type="tel" name="phoneNumber" class="form-control" id="phone" placeholder="09xxx" required pattern="^(0|84)(3|5|7|8|9)[0-9]{8}$" value="${user.phoneNumber}">
                                     <label for="phone">Số điện thoại</label>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-floating mb-3">
-                            <input type="email" name="email" class="form-control" id="email" placeholder="name@example.com" required>
+                            <input type="email" name="email" class="form-control" id="email" placeholder="name@example.com" required value="${user.email}">
                             <label for="email">Địa chỉ Email</label>
                         </div>
 

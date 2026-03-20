@@ -42,7 +42,7 @@
 
                     <form action="${pageContext.request.contextPath}/auth/login" method="post">
                         <div class="form-floating mb-3">
-                            <input type="email" name="email" class="form-control" id="email" placeholder="name@example.com" required>
+                            <input type="email" name="email" class="form-control" id="email" placeholder="name@example.com" required value="${param.email}">
                             <label for="email">Địa chỉ Email</label>
                         </div>
                         <div class="form-floating mb-4">

@@ -56,7 +56,7 @@ public class AuthController {
         user.setStatus(1); 
         userService.saveUser(user);
 
-        return "redirect:/auth/login?success=register";
+        return "redirect:/auth/login?success=register&email=" + email;
     }
 
     @GetMapping("/login")

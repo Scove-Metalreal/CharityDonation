@@ -1,13 +1,14 @@
 package org.tnphuong.charity.donation.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.tnphuong.charity.donation.entity.User;
 import org.tnphuong.charity.donation.service.UserService;
-
-import java.util.List;
 
 @Controller
 @RequestMapping("/admin")
@@ -22,15 +23,27 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public String listUsers(@RequestParam(required = false) String keyword, Model model) {
-        List<User> users;
-        if (keyword != null && !keyword.isEmpty()) {
-            users = userService.searchUsers(keyword);
+    public String listUsers(@RequestParam(required = false) String keyword, 
+                           @RequestParam(defaultValue = "1") int page, 
+                           Model model) {
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+        Page<User> userPage;
+        
+        String trimmedKeyword = (keyword != null) ? keyword.trim() : "";
+        
+        if (!trimmedKeyword.isEmpty()) {
+            userPage = userService.searchUsers(trimmedKeyword, pageable);
         } else {
-            users = userService.getAllUsers();
+            userPage = userService.getAllUsers(pageable);
         }
-        model.addAttribute("users", users);
-        model.addAttribute("keyword", keyword);
+        
+        model.addAttribute("userPage", userPage);
+        model.addAttribute("users", userPage.getContent());
+        model.addAttribute("keyword", trimmedKeyword);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", userPage.getTotalPages());
+        
         return "admin/user-list";
     }
 

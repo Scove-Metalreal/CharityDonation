@@ -1,6 +1,8 @@
 package org.tnphuong.charity.donation.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.tnphuong.charity.donation.dao.UserRepository;
 import org.tnphuong.charity.donation.entity.User;
@@ -16,6 +18,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    @Override
+    public Page<User> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable);
     }
 
     @Override
@@ -39,7 +46,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Optional<User> getUserByPhoneNumber(String phoneNumber) {
+        return userRepository.findByPhoneNumber(phoneNumber);
+    }
+
+    @Override
     public List<User> searchUsers(String keyword) {
         return userRepository.searchUsers(keyword);
+    }
+
+    @Override
+    public Page<User> searchUsers(String keyword, Pageable pageable) {
+        return userRepository.searchUsers(keyword, pageable);
     }
 }

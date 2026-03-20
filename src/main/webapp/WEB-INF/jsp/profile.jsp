@@ -51,6 +51,7 @@
                 <div class="profile-avatar-wrapper d-flex justify-content-between align-items-end pe-4">
                     <img src="https://ui-avatars.com/api/?name=${user.fullName}&background=10B981&color=fff&size=256" class="rounded-circle profile-avatar shadow-sm">
                     <div class="mb-2">
+                        <a href="${pageContext.request.contextPath}/auth/logout" class="btn btn-outline-danger rounded-pill fw-bold me-2">Đăng xuất</a>
                         <button class="btn btn-outline-primary rounded-pill fw-bold" data-bs-toggle="modal" data-bs-target="#editProfileModal">Chỉnh sửa hồ sơ</button>
                     </div>
                 </div>
@@ -58,6 +59,41 @@
                 <div class="px-4 mt-3 mb-5">
                     <h3 class="fw-bold mb-0 text-dark">${user.fullName}</h3>
                     <p class="text-muted mb-3"><i class="fas fa-user-tag me-1 small"></i> ${user.role.roleName}</p>
+                    
+                    <c:if test="${not empty param.message}">
+                        <div class="alert alert-success alert-dismissible fade show small py-2 mb-3" role="alert">
+                            Cập nhật thông tin thành công!
+                            <button type="button" class="btn-close py-2" data-bs-dismiss="alert"></button>
+                        </div>
+                    </c:if>
+                    <c:if test="${not empty param.error}">
+                        <div class="alert alert-danger alert-dismissible fade show small py-2 mb-3" role="alert">
+                            <c:choose>
+                                <c:when test="${param.error eq 'duplicate-email'}">Email này đã được sử dụng bởi người khác!</c:when>
+                                <c:when test="${param.error eq 'duplicate-phone'}">Số điện thoại này đã được sử dụng bởi người khác!</c:when>
+                                <c:otherwise>Có lỗi xảy ra, vui lòng thử lại!</c:otherwise>
+                            </c:choose>
+                            <button type="button" class="btn-close py-2" data-bs-dismiss="alert"></button>
+                        </div>
+                    </c:if>
+                    <c:if test="${not empty param.messagePw}">
+                        <div class="alert alert-success alert-dismissible fade show small py-2 mb-3" role="alert">
+                            Đổi mật khẩu thành công!
+                            <button type="button" class="btn-close py-2" data-bs-dismiss="alert"></button>
+                        </div>
+                    </c:if>
+                    <c:if test="${not empty param.errorPw}">
+                        <div class="alert alert-danger alert-dismissible fade show small py-2 mb-3" role="alert">
+                            <c:choose>
+                                <c:when test="${param.errorPw eq 'wrong-old'}">Mật khẩu hiện tại không chính xác!</c:when>
+                                <c:when test="${param.errorPw eq 'same-password'}">Mật khẩu mới không được trùng với mật khẩu cũ!</c:when>
+                                <c:when test="${param.errorPw eq 'mismatch'}">Mật khẩu xác nhận không khớp!</c:when>
+                                <c:otherwise>Có lỗi xảy ra, vui lòng thử lại!</c:otherwise>
+                            </c:choose>
+                            <button type="button" class="btn-close py-2" data-bs-dismiss="alert"></button>
+                        </div>
+                    </c:if>
+
                     <div class="d-flex flex-wrap gap-4 text-muted small">
                         <span><i class="fas fa-map-marker-alt me-1"></i> ${not empty user.address ? user.address : 'Chưa cập nhật địa chỉ'}</span>
                         <span><i class="fas fa-phone me-1"></i> ${user.phoneNumber}</span>
@@ -154,6 +190,10 @@
                             <input type="text" name="fullName" class="form-control" value="${user.fullName}" required>
                         </div>
                         <div class="mb-3">
+                            <label class="form-label small fw-bold">Email</label>
+                            <input type="email" name="email" class="form-control" value="${user.email}" required>
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label small fw-bold">Số điện thoại</label>
                             <input type="tel" name="phoneNumber" class="form-control" value="${user.phoneNumber}">
                         </div>
@@ -167,12 +207,15 @@
                     <hr class="my-4 opacity-10">
                     
                     <h6 class="fw-bold mb-3">Đổi mật khẩu</h6>
-                    <form action="${pageContext.request.contextPath}/user/change-password" method="post">
+                    <form action="${pageContext.request.contextPath}/user/change-password" method="post" id="changePasswordForm">
                         <div class="mb-3">
                             <input type="password" name="oldPassword" class="form-control" placeholder="Mật khẩu hiện tại" required>
                         </div>
                         <div class="mb-3">
-                            <input type="password" name="newPassword" class="form-control" placeholder="Mật khẩu mới" required>
+                            <input type="password" name="newPassword" id="newPassword" class="form-control" placeholder="Mật khẩu mới" required minlength="6">
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" name="confirmPassword" id="confirmPassword" class="form-control" placeholder="Xác nhận mật khẩu mới" required>
                         </div>
                         <button type="submit" class="btn btn-light w-100 rounded-pill border py-2">Cập nhật mật khẩu</button>
                     </form>
@@ -182,5 +225,15 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
+            const newPw = document.getElementById('newPassword').value;
+            const confirmPw = document.getElementById('confirmPassword').value;
+            if (newPw !== confirmPw) {
+                alert('Mật khẩu xác nhận không khớp!');
+                e.preventDefault();
+            }
+        });
+    </script>
 </body>
 </html>
