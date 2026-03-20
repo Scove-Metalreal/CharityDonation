@@ -2,6 +2,7 @@ package org.tnphuong.charity.donation.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.tnphuong.charity.donation.dao.DonationRepository;
 import org.tnphuong.charity.donation.entity.Donation;
 import java.util.List;
@@ -12,6 +13,9 @@ public class DonationServiceImpl implements DonationService {
 
     @Autowired
     private DonationRepository donationRepository;
+    
+    @Autowired
+    private CampaignService campaignService;
 
     @Override
     public List<Donation> getAllDonations() {
@@ -36,5 +40,38 @@ public class DonationServiceImpl implements DonationService {
     @Override
     public List<Donation> getDonationsByUserId(Integer userId) {
         return donationRepository.findByUserId(userId);
+    }
+
+    @Override
+    @Transactional
+    public void confirmDonation(Integer donationId) {
+        Optional<Donation> donationOpt = donationRepository.findById(donationId);
+        if (donationOpt.isPresent()) {
+            Donation donation = donationOpt.get();
+            if (donation.getStatus() == Donation.STATUS_PENDING) {
+                donation.setStatus(Donation.STATUS_CONFIRMED);
+                donationRepository.save(donation);
+                
+                // Update Campaign current money
+                campaignService.addCurrentMoney(donation.getCampaign().getId(), donation.getAmount());
+            }
+        }
+    }
+
+    @Override
+    public void rejectDonation(Integer donationId) {
+        Optional<Donation> donationOpt = donationRepository.findById(donationId);
+        if (donationOpt.isPresent()) {
+            Donation donation = donationOpt.get();
+            if (donation.getStatus() == Donation.STATUS_PENDING) {
+                donation.setStatus(Donation.STATUS_REJECTED);
+                donationRepository.save(donation);
+            }
+        }
+    }
+
+    @Override
+    public List<Donation> getConfirmedDonationsByCampaignId(Integer campaignId) {
+        return donationRepository.findByCampaignIdAndStatus(campaignId, Donation.STATUS_CONFIRMED);
     }
 }

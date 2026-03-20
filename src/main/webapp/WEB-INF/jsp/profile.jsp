@@ -29,10 +29,12 @@
                     </div>
                     <nav class="nav flex-column mb-4">
                         <a class="nav-link" href="${pageContext.request.contextPath}/"><i class="fas fa-home"></i> Trang chủ</a>
-                        <a class="nav-link" href="#"><i class="fas fa-bullhorn"></i> Chiến dịch</a>
+                        <a class="nav-link" href="${pageContext.request.contextPath}/?status=1"><i class="fas fa-bullhorn"></i> Chiến dịch</a>
+                        <c:if test="${sessionScope.loggedInUser.role.roleName == 'ADMIN'}">
+                            <a class="nav-link text-danger fw-bold" href="${pageContext.request.contextPath}/admin/dashboard"><i class="fas fa-user-shield"></i> Admin Panel</a>
+                        </c:if>
                         <a class="nav-link" href="#"><i class="fas fa-handshake"></i> Nhà đồng hành</a>
                         <a class="nav-link active" href="${pageContext.request.contextPath}/user/profile"><i class="fas fa-user"></i> Hồ sơ</a>
-                        <a class="nav-link" href="#"><i class="fas fa-cog"></i> Cài đặt</a>
                     </nav>
                     <div class="sidebar-user-mini d-flex align-items-center bg-light">
                         <img src="https://ui-avatars.com/api/?name=${user.fullName}&background=10B981&color=fff" class="rounded-circle me-3" width="40" height="40">
@@ -127,13 +129,6 @@
                 <div class="px-4 pb-5">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="fw-bold mb-0">Lịch sử quyên góp</h5>
-                        <div class="dropdown">
-                            <button class="btn btn-light btn-sm dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown">Tất cả</button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-menu small" href="#">Thành công</a></li>
-                                <li><a class="dropdown-menu small" href="#">Đang xử lý</a></li>
-                            </ul>
-                        </div>
                     </div>
 
                     <c:choose>
@@ -155,15 +150,19 @@
                                         </div>
                                         <div class="flex-grow-1 overflow-hidden">
                                             <div class="fw-bold text-dark text-truncate small">${d.campaign.name}</div>
-                                            <div class="text-muted small">ID: #${d.id} • ${d.createdAt}</div>
+                                            <div class="text-muted small">ID: #${d.id} • <fmt:formatDate value="${d.createdAt}" pattern="dd/MM/yyyy HH:mm"/></div>
                                         </div>
                                         <div class="text-center px-3 d-none d-md-block">
-                                            <div class="small text-muted">Phương thức</div>
-                                            <div class="small fw-bold">${d.paymentMethod.methodName}</div>
+                                            <div class="small text-muted">Trạng thái</div>
+                                            <c:choose>
+                                                <c:when test="${d.status == 0}"><span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-2" style="font-size: 0.6rem;">Chờ xác nhận</span></c:when>
+                                                <c:when test="${d.status == 1}"><span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2" style="font-size: 0.6rem;">Đã xác nhận</span></c:when>
+                                                <c:when test="${d.status == 2}"><span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-2" style="font-size: 0.6rem;">Từ chối</span></c:when>
+                                            </c:choose>
                                         </div>
                                         <div class="text-end">
                                             <div class="fw-bold text-primary"><fmt:formatNumber value="${d.amount}" type="number"/> đ</div>
-                                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3" style="font-size: 0.65rem;">Thành công</span>
+                                            <span class="small text-muted">${d.paymentMethod.methodName}</span>
                                         </div>
                                     </div>
                                 </c:forEach>

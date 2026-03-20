@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -12,6 +13,7 @@
     <style>
         .campaign-card-img { height: 200px; object-fit: cover; border-radius: 12px 12px 0 0; }
         .organizer-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
+        .status-badge { font-size: 0.7rem; padding: 4px 12px; border-radius: 20px; }
     </style>
 </head>
 <body class="bg-light">
@@ -26,9 +28,11 @@
                     
                     <nav class="nav flex-column mb-4">
                         <a class="nav-link active" href="${pageContext.request.contextPath}/"><i class="fas fa-home"></i> Trang chủ</a>
-                        <a class="nav-link" href="#"><i class="fas fa-bullhorn"></i> Chiến dịch</a>
+                        <a class="nav-link" href="${pageContext.request.contextPath}/?status=1"><i class="fas fa-bullhorn"></i> Chiến dịch</a>
+                        <c:if test="${sessionScope.loggedInUser.role.roleName == 'ADMIN'}">
+                            <a class="nav-link text-danger fw-bold" href="${pageContext.request.contextPath}/admin/dashboard"><i class="fas fa-user-shield"></i> Admin Panel</a>
+                        </c:if>
                         <a class="nav-link" href="#"><i class="fas fa-handshake"></i> Nhà đồng hành</a>
-                        <a class="nav-link" href="#"><i class="fas fa-chart-pie"></i> Tổng quan</a>
                         <a class="nav-link" href="#"><i class="fas fa-question-circle"></i> Q&A</a>
                     </nav>
 
@@ -69,51 +73,84 @@
                     </div>
                 </div>
 
-                <div class="row row-cols-1 row-cols-md-2 g-4">
+                <!-- Filters -->
+                <div class="d-flex gap-2 mb-4 overflow-auto pb-2">
+                    <a href="${pageContext.request.contextPath}/?status=1" class="btn ${currentStatus == 1 ? 'btn-primary' : 'btn-light'} rounded-pill btn-sm px-3">Đang diễn ra</a>
+                    <a href="${pageContext.request.contextPath}/?status=0" class="btn ${currentStatus == 0 ? 'btn-primary' : 'btn-light'} rounded-pill btn-sm px-3">Mới tạo</a>
+                    <a href="${pageContext.request.contextPath}/?status=2" class="btn ${currentStatus == 2 ? 'btn-primary' : 'btn-light'} rounded-pill btn-sm px-3">Đã kết thúc</a>
+                    <a href="${pageContext.request.contextPath}/?status=3" class="btn ${currentStatus == 3 ? 'btn-primary' : 'btn-light'} rounded-pill btn-sm px-3">Đóng quỹ</a>
+                </div>
+
+                <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
                     <c:if test="${empty campaigns}">
                         <div class="col-12 text-center py-5">
-                            <p class="alert alert-info border-0 shadow-sm">Hiện chưa có chiến dịch nào đang diễn ra.</p>
+                            <p class="alert alert-info border-0 shadow-sm">Hiện chưa có chiến dịch nào.</p>
                         </div>
                     </c:if>
                     <c:forEach var="campaign" items="${campaigns}">
                         <div class="col">
-                            <div class="card h-100">
-                                <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="card-img-top campaign-card-img" alt="campaign">
+                            <div class="card h-100 border-0 shadow-sm hover-shadow">
+                                <img src="${not empty campaign.imageUrl ? campaign.imageUrl : 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}" class="card-img-top campaign-card-img" alt="campaign">
                                 <div class="card-body">
-                                    <h5 class="card-title fw-bold mb-2 text-dark"><c:out value="${campaign.name}"/></h5>
-                                    <div class="d-flex align-items-center mb-3">
-                                        <img src="https://ui-avatars.com/api/?name=Admin&background=random" class="organizer-avatar me-2">
-                                        <small class="text-muted">Bởi <strong>Ban Quản Trị</strong></small>
+                                    <div class="mb-2">
+                                        <c:choose>
+                                            <c:when test="${campaign.status == 0}"><span class="badge bg-info status-badge">Mới tạo</span></c:when>
+                                            <c:when test="${campaign.status == 1}"><span class="badge bg-success status-badge">Đang diễn ra</span></c:when>
+                                            <c:when test="${campaign.status == 2}"><span class="badge bg-warning status-badge">Đã kết thúc</span></c:when>
+                                            <c:when test="${campaign.status == 3}"><span class="badge bg-secondary status-badge">Đóng quỹ</span></c:when>
+                                        </c:choose>
                                     </div>
-                                    <p class="card-text text-muted small mb-3"><c:out value="${campaign.background}"/></p>
+                                    <h5 class="card-title fw-bold mb-2 text-dark"><c:out value="${campaign.name}"/></h5>
+                                    <p class="card-text text-muted small mb-3 text-truncate-2"><c:out value="${campaign.background}"/></p>
                                     
                                     <div class="mb-2">
-                                        <c:set var="percent" value="${(campaign.currentMoney / campaign.targetMoney) * 100}"/>
+                                        <c:set var="target" value="${campaign.targetMoney != null ? campaign.targetMoney : 1}"/>
+                                        <c:set var="current" value="${campaign.currentMoney != null ? campaign.currentMoney : 0}"/>
+                                        <c:set var="percent" value="${(current / target) * 100}"/>
+                                        <c:if test="${percent > 100}"><c:set var="percent" value="100"/></c:if>
+                                        
                                         <div class="d-flex justify-content-between small mb-1">
-                                            <span class="fw-bold text-primary">${percent}% hoàn thành</span>
-                                            <span class="text-muted">${campaign.targetMoney}đ mục tiêu</span>
+                                            <span class="fw-bold text-primary"><fmt:formatNumber value="${percent}" maxFractionDigits="1"/>% hoàn thành</span>
+                                            <span class="text-muted"><fmt:formatNumber value="${campaign.targetMoney}" type="number"/>đ</span>
                                         </div>
-                                        <div class="progress bg-light" style="height: 8px;">
+                                        <div class="progress bg-light" style="height: 6px;">
                                             <div class="progress-bar" role="progressbar" style="width: ${percent}%"></div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center pb-3 pt-0">
                                     <div class="small">
-                                        <span class="fw-bold text-dark">${campaign.currentMoney}đ</span>
-                                        <span class="text-muted"> quyên góp</span>
+                                        <span class="fw-bold text-dark"><fmt:formatNumber value="${campaign.currentMoney}" type="number"/>đ</span>
+                                        <span class="text-muted small"> quyên góp</span>
                                     </div>
-                                    <a href="${pageContext.request.contextPath}/campaign/${campaign.id}" class="btn btn-accent btn-sm px-4 rounded-pill">Chi tiết</a>
+                                    <a href="${pageContext.request.contextPath}/campaign/${campaign.id}" class="btn btn-primary btn-sm px-3 rounded-pill">Chi tiết</a>
                                 </div>
                             </div>
                         </div>
                     </c:forEach>
                 </div>
+
+                <!-- Pagination -->
+                <c:if test="${totalPages > 1}">
+                    <nav class="mt-5 d-flex justify-content-center">
+                        <ul class="pagination pagination-sm">
+                            <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                                <a class="page-link rounded-circle mx-1" href="${pageContext.request.contextPath}/?status=${currentStatus}&page=${currentPage - 1}"><i class="fas fa-chevron-left"></i></a>
+                            </li>
+                            <c:forEach var="i" begin="1" end="${totalPages}">
+                                <li class="page-item ${currentPage == i ? 'active' : ''}">
+                                    <a class="page-link rounded-circle mx-1" href="${pageContext.request.contextPath}/?status=${currentStatus}&page=${i}">${i}</a>
+                                </li>
+                            </c:forEach>
+                            <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                                <a class="page-link rounded-circle mx-1" href="${pageContext.request.contextPath}/?status=${currentStatus}&page=${currentPage + 1}"><i class="fas fa-chevron-right"></i></a>
+                            </li>
+                        </ul>
+                    </nav>
+                </c:if>
             </div>
         </div>
     </div>
-
-    <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

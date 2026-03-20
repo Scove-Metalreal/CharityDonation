@@ -10,4 +10,9 @@ public interface DonationService {
     Donation saveDonation(Donation donation);
     List<Donation> getDonationsByCampaignId(Integer campaignId);
     List<Donation> getDonationsByUserId(Integer userId);
+    
+    void confirmDonation(Integer donationId);
+    void rejectDonation(Integer donationId);
+    
+    List<Donation> getConfirmedDonationsByCampaignId(Integer campaignId);
 }

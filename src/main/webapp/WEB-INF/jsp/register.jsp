@@ -30,11 +30,15 @@
             </div>
 
             <!-- Right Column: Register Form -->
-            <div class="col-md-7 d-flex align-items-center justify-content-center bg-white p-5 overflow-auto">
+            <div class="col-md-7 d-flex align-items-center justify-content-center bg-white p-5 overflow-auto position-relative">
+                <a href="${pageContext.request.contextPath}/" class="btn btn-light rounded-circle position-absolute top-0 end-0 m-4 shadow-sm" title="Quay lại trang chủ">
+                    <i class="fas fa-times"></i>
+                </a>
+
                 <div class="w-100" style="max-width: 500px;">
                     <div class="text-center mb-4">
                         <div class="mb-2">
-                            <i class="fas fa-user-plus fa-2x text-primary"></i>
+                            <a href="${pageContext.request.contextPath}/"><i class="fas fa-user-plus fa-2x text-primary"></i></a>
                         </div>
                         <h2 class="fw-bold">Tạo tài khoản mới</h2>
                         <p class="text-muted small">Hãy trở thành một phần của cộng đồng thiện nguyện</p>

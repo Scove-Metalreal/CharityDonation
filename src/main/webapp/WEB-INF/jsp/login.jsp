@@ -23,11 +23,15 @@
             </div>
 
             <!-- Right Column: Login Form -->
-            <div class="col-md-6 d-flex align-items-center justify-content-center bg-white p-5">
+            <div class="col-md-6 d-flex align-items-center justify-content-center bg-white p-5 position-relative">
+                <a href="${pageContext.request.contextPath}/" class="btn btn-light rounded-circle position-absolute top-0 end-0 m-4 shadow-sm" title="Quay lại trang chủ">
+                    <i class="fas fa-times"></i>
+                </a>
+
                 <div class="w-100" style="max-width: 400px;">
                     <div class="text-center mb-5">
                         <div class="mb-3">
-                            <i class="fas fa-hand-holding-heart fa-3x text-primary"></i>
+                            <a href="${pageContext.request.contextPath}/"><i class="fas fa-hand-holding-heart fa-3x text-primary"></i></a>
                         </div>
                         <h2 class="fw-bold">Chào mừng trở lại</h2>
                         <p class="text-muted">Đăng nhập để tiếp tục hành trình nhân ái</p>

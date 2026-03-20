@@ -32,11 +32,15 @@
         <a href="${pageContext.request.contextPath}/admin/users" class="nav-link-admin">
             <i class="fas fa-users"></i> Quản lý Người dùng
         </a>
-        <a href="#" class="nav-link-admin">
+        <a href="${pageContext.request.contextPath}/admin/campaigns" class="nav-link-admin">
             <i class="fas fa-bullhorn"></i> Quản lý Chiến dịch
         </a>
-        <a href="#" class="nav-link-admin">
-            <i class="fas fa-cog"></i> Cài đặt
+        <a href="${pageContext.request.contextPath}/admin/donations" class="nav-link-admin">
+            <i class="fas fa-check-circle"></i> Xác nhận quyên góp
+        </a>
+        <hr class="mx-3 opacity-10">
+        <a href="${pageContext.request.contextPath}/" class="nav-link-admin">
+            <i class="fas fa-external-link-alt"></i> Xem Trang chủ
         </a>
         
         <div class="position-absolute bottom-0 w-100 p-3">

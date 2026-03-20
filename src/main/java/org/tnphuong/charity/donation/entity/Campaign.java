@@ -1,6 +1,7 @@
 package org.tnphuong.charity.donation.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import java.math.BigDecimal;
@@ -10,11 +11,18 @@ import java.util.List;
 
 @Entity
 @Table(name = "campaigns")
-@Getter
-@Setter
+@Data
 public class Campaign {
+
+    // Status constants
+    public static final int STATUS_NEW = 0;
+    public static final int STATUS_IN_PROGRESS = 1;
+    public static final int STATUS_ENDED = 2;
+    public static final int STATUS_CLOSED = 3;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Integer id;
 
     @Column(name = "code", length = 50, nullable = false, unique = true)
@@ -46,6 +54,9 @@ public class Campaign {
 
     @Column(name = "current_money", precision = 15, scale = 2)
     private BigDecimal currentMoney = BigDecimal.ZERO;
+
+    @Column(name = "beneficiary_phone", length = 20)
+    private String beneficiaryPhone;
 
     @Column(name = "status")
     private Integer status = 0;

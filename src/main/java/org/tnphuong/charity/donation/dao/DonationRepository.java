@@ -7,4 +7,5 @@ import java.util.List;
 public interface DonationRepository extends JpaRepository<Donation, Integer> {
     List<Donation> findByCampaignId(Integer campaignId);
     List<Donation> findByUserId(Integer userId);
+    List<Donation> findByCampaignIdAndStatus(Integer campaignId, Integer status);
 }

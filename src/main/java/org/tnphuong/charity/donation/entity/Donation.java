@@ -1,16 +1,19 @@
 package org.tnphuong.charity.donation.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "donations")
-@Getter
-@Setter
+@Data
 public class Donation {
+
+    public static final int STATUS_PENDING = 0;
+    public static final int STATUS_CONFIRMED = 1;
+    public static final int STATUS_REJECTED = 2;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
