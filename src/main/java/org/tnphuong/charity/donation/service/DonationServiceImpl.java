@@ -1,6 +1,7 @@
 package org.tnphuong.charity.donation.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tnphuong.charity.donation.dao.DonationRepository;
@@ -73,5 +74,15 @@ public class DonationServiceImpl implements DonationService {
     @Override
     public List<Donation> getConfirmedDonationsByCampaignId(Integer campaignId) {
         return donationRepository.findByCampaignIdAndStatus(campaignId, Donation.STATUS_CONFIRMED);
+    }
+
+    @Override
+    public List<Donation> getTopDonorsByCampaignId(Integer campaignId, int limit) {
+        return donationRepository.findTopDonors(campaignId, PageRequest.of(0, limit));
+    }
+
+    @Override
+    public List<Donation> getRecentDonorsByCampaignId(Integer campaignId, int limit) {
+        return donationRepository.findRecentDonors(campaignId, PageRequest.of(0, limit));
     }
 }

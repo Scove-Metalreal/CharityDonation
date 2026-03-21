@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -11,143 +11,169 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
     <style>
-        .campaign-card-img { height: 200px; object-fit: cover; border-radius: 12px 12px 0 0; }
-        .organizer-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
-        .status-badge { font-size: 0.7rem; padding: 4px 12px; border-radius: 20px; }
+        html { scroll-behavior: smooth; }
+        .scrollable-main { height: 100vh; overflow-y: auto; scrollbar-width: none; }
+        .scrollable-main::-webkit-scrollbar { display: none; }
+        
+        /* Section 1: Hero Banner */
+        .hero-banner {
+            background: linear-gradient(135deg, var(--color-primary) 0%, #065f46 100%);
+            border-radius: 24px;
+            margin: 20px;
+            padding: 60px 40px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-title { font-size: 2.8rem; line-height: 1.2; z-index: 1; position: relative; }
+
+        /* Section 2: Stats */
+        .stat-item { padding: 20px; border-radius: 16px; background: white; border: 1px solid var(--color-border); }
+        .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--color-primary); }
+
+        /* Partners */
+        .partner-card { background: #f3f4f6; border-radius: 16px; padding: 24px; text-align: center; border: 1px solid transparent; }
+        .partner-logo { height: 50px; object-fit: contain; filter: grayscale(1); transition: 0.3s; margin-bottom: 15px; }
+        .partner-card:hover .partner-logo { filter: grayscale(0); }
+
+        .feature-icon { width: 50px; height: 50px; border-radius: 50%; background: var(--color-primary); color: white; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
     </style>
 </head>
 <body class="bg-light">
-    <div class="container">
-        <div class="row">
-            <!-- Left Sidebar (X.com Style) -->
-            <div class="col-lg-3 d-none d-lg-block">
-                <div class="sidebar-x">
-                    <div class="mb-4 ps-3">
-                        <i class="fas fa-hand-holding-heart fa-2x text-primary"></i>
-                    </div>
-                    
-                    <nav class="nav flex-column mb-4">
-                        <a class="nav-link active" href="${pageContext.request.contextPath}/"><i class="fas fa-home"></i> Trang chủ</a>
-                        <a class="nav-link" href="${pageContext.request.contextPath}/?status=1"><i class="fas fa-bullhorn"></i> Chiến dịch</a>
-                        <c:if test="${sessionScope.loggedInUser.role.roleName == 'ADMIN'}">
-                            <a class="nav-link text-danger fw-bold" href="${pageContext.request.contextPath}/admin/dashboard"><i class="fas fa-user-shield"></i> Admin Panel</a>
-                        </c:if>
-                        <a class="nav-link" href="#"><i class="fas fa-handshake"></i> Nhà đồng hành</a>
-                        <a class="nav-link" href="#"><i class="fas fa-question-circle"></i> Q&A</a>
-                    </nav>
-
-                    <button class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm mb-4">QUYÊN GÓP NGAY</button>
-
-                    <!-- User Mini Profile -->
-                    <c:choose>
-                        <c:when test="${not empty sessionScope.loggedInUser}">
-                            <div class="sidebar-user-mini d-flex align-items-center" onclick="window.location.href='${pageContext.request.contextPath}/user/profile'">
-                                <img src="https://ui-avatars.com/api/?name=${sessionScope.loggedInUser.fullName}&background=10B981&color=fff" class="rounded-circle me-3" width="40" height="40">
-                                <div class="overflow-hidden">
-                                    <div class="fw-bold text-dark text-truncate">${sessionScope.loggedInUser.fullName}</div>
-                                    <div class="text-muted small text-truncate">@user_${sessionScope.loggedInUser.id}</div>
-                                </div>
-                                <i class="fas fa-ellipsis-h ms-auto text-muted"></i>
-                            </div>
-                        </c:when>
-                        <c:otherwise>
-                            <div class="p-3">
-                                <a href="${pageContext.request.contextPath}/auth/login" class="btn btn-outline-primary w-100 rounded-pill mb-2">Đăng nhập</a>
-                                <a href="${pageContext.request.contextPath}/auth/register" class="btn btn-primary w-100 rounded-pill">Đăng ký</a>
-                            </div>
-                        </c:otherwise>
-                    </c:choose>
-                </div>
+    <div class="container-fluid">
+        <div class="row flex-nowrap">
+            <!-- Fixed Left Sidebar -->
+            <div class="col-auto p-0 border-end" style="z-index: 1000;">
+                <c:set var="currentPage" value="home" scope="request"/>
+                <jsp:include page="fragments/sidebar.jsp"/>
             </div>
 
-            <!-- Main Content -->
-            <div class="col-lg-9 py-4 border-start border-end bg-white min-vh-100 shadow-sm px-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="fw-bold mb-0">Hành trình nhân ái</h2>
-                    <div class="d-lg-none">
-                        <c:if test="${not empty sessionScope.loggedInUser}">
-                             <a href="${pageContext.request.contextPath}/user/profile">
-                                <img src="https://ui-avatars.com/api/?name=${sessionScope.loggedInUser.fullName}&background=10B981&color=fff" class="rounded-circle" width="35" height="35">
-                             </a>
-                        </c:if>
-                    </div>
-                </div>
-
-                <!-- Filters -->
-                <div class="d-flex gap-2 mb-4 overflow-auto pb-2">
-                    <a href="${pageContext.request.contextPath}/?status=1" class="btn ${currentStatus == 1 ? 'btn-primary' : 'btn-light'} rounded-pill btn-sm px-3">Đang diễn ra</a>
-                    <a href="${pageContext.request.contextPath}/?status=0" class="btn ${currentStatus == 0 ? 'btn-primary' : 'btn-light'} rounded-pill btn-sm px-3">Mới tạo</a>
-                    <a href="${pageContext.request.contextPath}/?status=2" class="btn ${currentStatus == 2 ? 'btn-primary' : 'btn-light'} rounded-pill btn-sm px-3">Đã kết thúc</a>
-                    <a href="${pageContext.request.contextPath}/?status=3" class="btn ${currentStatus == 3 ? 'btn-primary' : 'btn-light'} rounded-pill btn-sm px-3">Đóng quỹ</a>
-                </div>
-
-                <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
-                    <c:if test="${empty campaigns}">
-                        <div class="col-12 text-center py-5">
-                            <p class="alert alert-info border-0 shadow-sm">Hiện chưa có chiến dịch nào.</p>
-                        </div>
-                    </c:if>
-                    <c:forEach var="campaign" items="${campaigns}">
-                        <div class="col">
-                            <div class="card h-100 border-0 shadow-sm hover-shadow">
-                                <img src="${not empty campaign.imageUrl ? campaign.imageUrl : 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}" class="card-img-top campaign-card-img" alt="campaign">
-                                <div class="card-body">
-                                    <div class="mb-2">
-                                        <c:choose>
-                                            <c:when test="${campaign.status == 0}"><span class="badge bg-info status-badge">Mới tạo</span></c:when>
-                                            <c:when test="${campaign.status == 1}"><span class="badge bg-success status-badge">Đang diễn ra</span></c:when>
-                                            <c:when test="${campaign.status == 2}"><span class="badge bg-warning status-badge">Đã kết thúc</span></c:when>
-                                            <c:when test="${campaign.status == 3}"><span class="badge bg-secondary status-badge">Đóng quỹ</span></c:when>
-                                        </c:choose>
+            <!-- Scrollable Main Content -->
+            <div class="col scrollable-main p-0 bg-white" style="min-width: 0;">
+                
+                <!-- 1. Hero Banner Section -->
+                <section id="hero" class="hero-banner shadow-lg">
+                    <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            <div class="carousel-item active">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h1 class="hero-title fw-bold mb-4">TRIỆU NGƯỜI CHUNG TAY QUYÊN GÓP<br><span class="text-warning">Vì một Việt Nam tốt đẹp hơn!</span></h1>
+                                        <p class="lead opacity-75 mb-4">Mỗi đóng góp của bạn, dù nhỏ nhất, cũng góp phần thắp sáng hy vọng cho những hoàn cảnh khó khăn.</p>
+                                        <a href="#campaigns" class="btn btn-warning rounded-pill px-5 py-3 fw-bold shadow">QUYÊN GÓP NGAY</a>
                                     </div>
-                                    <h5 class="card-title fw-bold mb-2 text-dark"><c:out value="${campaign.name}"/></h5>
-                                    <p class="card-text text-muted small mb-3 text-truncate-2"><c:out value="${campaign.background}"/></p>
-                                    
-                                    <div class="mb-2">
-                                        <c:set var="target" value="${campaign.targetMoney != null ? campaign.targetMoney : 1}"/>
-                                        <c:set var="current" value="${campaign.currentMoney != null ? campaign.currentMoney : 0}"/>
-                                        <c:set var="percent" value="${(current / target) * 100}"/>
-                                        <c:if test="${percent > 100}"><c:set var="percent" value="100"/></c:if>
-                                        
-                                        <div class="d-flex justify-content-between small mb-1">
-                                            <span class="fw-bold text-primary"><fmt:formatNumber value="${percent}" maxFractionDigits="1"/>% hoàn thành</span>
-                                            <span class="text-muted"><fmt:formatNumber value="${campaign.targetMoney}" type="number"/>đ</span>
-                                        </div>
-                                        <div class="progress bg-light" style="height: 6px;">
-                                            <div class="progress-bar" role="progressbar" style="width: ${percent}%"></div>
-                                        </div>
+                                    <div class="col-md-4 d-none d-md-block text-center">
+                                        <i class="fas fa-heart fa-10x text-white opacity-25"></i>
                                     </div>
-                                </div>
-                                <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center pb-3 pt-0">
-                                    <div class="small">
-                                        <span class="fw-bold text-dark"><fmt:formatNumber value="${campaign.currentMoney}" type="number"/>đ</span>
-                                        <span class="text-muted small"> quyên góp</span>
-                                    </div>
-                                    <a href="${pageContext.request.contextPath}/campaign/${campaign.id}" class="btn btn-primary btn-sm px-3 rounded-pill">Chi tiết</a>
                                 </div>
                             </div>
                         </div>
-                    </c:forEach>
-                </div>
+                    </div>
+                </section>
 
-                <!-- Pagination -->
-                <c:if test="${totalPages > 1}">
-                    <nav class="mt-5 d-flex justify-content-center">
-                        <ul class="pagination pagination-sm">
-                            <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                <a class="page-link rounded-circle mx-1" href="${pageContext.request.contextPath}/?status=${currentStatus}&page=${currentPage - 1}"><i class="fas fa-chevron-left"></i></a>
-                            </li>
-                            <c:forEach var="i" begin="1" end="${totalPages}">
-                                <li class="page-item ${currentPage == i ? 'active' : ''}">
-                                    <a class="page-link rounded-circle mx-1" href="${pageContext.request.contextPath}/?status=${currentStatus}&page=${i}">${i}</a>
-                                </li>
-                            </c:forEach>
-                            <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
-                                <a class="page-link rounded-circle mx-1" href="${pageContext.request.contextPath}/?status=${currentStatus}&page=${currentPage + 1}"><i class="fas fa-chevron-right"></i></a>
-                            </li>
-                        </ul>
-                    </nav>
-                </c:if>
+                <!-- 2. Intro & Stats Section -->
+                <section id="intro" class="py-5 px-4">
+                    <div class="row align-items-center g-5">
+                        <div class="col-lg-7">
+                            <h2 class="fw-bold mb-3 text-primary">Nền tảng quyên góp tin cậy</h2>
+                            <p class="text-muted mb-4 fs-5">Chúng tôi kết nối những trái tim nhân ái với những dự án cộng đồng ý nghĩa, đảm bảo sự minh bạch và tác động thực sự.</p>
+                            <div class="row g-3 mb-5">
+                                <div class="col-6 col-md-3"><div class="stat-item text-center"><div class="stat-value">1+ ngàn</div><div class="text-muted small">dự án</div></div></div>
+                                <div class="col-6 col-md-3"><div class="stat-item text-center"><div class="stat-value">106+ tỷ</div><div class="text-muted small">đồng</div></div></div>
+                                <div class="col-6 col-md-3"><div class="stat-item text-center"><div class="stat-value">1+ tỷ</div><div class="text-muted small">heo vàng</div></div></div>
+                                <div class="col-6 col-md-3"><div class="stat-item text-center"><div class="stat-value">163+ triệu</div><div class="text-muted small">lượt</div></div></div>
+                            </div>
+                            <div class="d-flex gap-3">
+                                <a href="#campaigns" class="btn btn-primary rounded-pill px-4 py-2 fw-bold">Quyên góp</a>
+                                <a href="#about" class="btn btn-outline-primary rounded-pill px-4 py-2 fw-bold">Giới thiệu</a>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 text-center">
+                            <img src="https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?auto=format&fit=crop&w=500&q=80" class="img-fluid rounded-4 shadow-sm" alt="Stats">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. Donation Campaigns Section -->
+                <section id="campaigns" class="py-5 bg-light px-4">
+                    <div class="text-center mb-5">
+                        <h2 class="fw-bold">Các hoàn cảnh quyên góp</h2>
+                        <p class="text-muted">Mọi sự giúp đỡ đều quý giá</p>
+                    </div>
+
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 mb-5">
+                        <c:forEach var="campaign" items="${campaigns}">
+                            <div class="col">
+                                <c:set var="campaign" value="${campaign}" scope="request"/>
+                                <c:set var="isCompact" value="false" scope="request"/>
+                                <jsp:include page="fragments/donation-card.jsp"/>
+                            </div>
+                        </c:forEach>
+                    </div>
+                </section>
+
+                <!-- 4. Partners Section -->
+                <section id="partners" class="py-5 px-4">
+                    <div class="text-center mb-5">
+                        <h2 class="fw-bold text-primary">Các đối tác đồng hành</h2>
+                        <p class="text-muted">Cùng nhau lan tỏa yêu thương</p>
+                    </div>
+                    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4 mb-5">
+                        <div class="col"><div class="partner-card"><img src="https://momo.vn/static/momo-upload-api/2021/04/09/momo-logo.png" class="partner-logo" alt="P"><div class="fw-bold small">MoMo</div></div></div>
+                        <div class="col"><div class="partner-card"><img src="https://www.unicef.org/themes/custom/unicef_bem/logo.svg" class="partner-logo" alt="P"><div class="fw-bold small">UNICEF</div></div></div>
+                        <div class="col"><div class="partner-card"><img src="https://static.vnecdn.net/hoichuthapdo/v1/logo.png" class="partner-logo" alt="P"><div class="fw-bold small">Hội Chữ thập đỏ</div></div></div>
+                        <div class="col"><div class="partner-card"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7A_4vIq1G_Xz-V-P8D8C7S-7T7T7T7T7T7A" class="partner-logo" alt="P"><div class="fw-bold small">VinaCapital</div></div></div>
+                    </div>
+                </section>
+
+                <!-- 5. Feature Highlights -->
+                <section id="highlights" class="py-5 bg-light px-4">
+                    <div class="text-center mb-5"><h2 class="fw-bold">Quyên góp đơn giản, minh bạch</h2></div>
+                    <div class="row align-items-center g-4">
+                        <div class="col-md-4">
+                            <div class="text-md-end mb-4">
+                                <div class="feature-icon ms-md-auto"><i class="fas fa-shield-alt"></i></div>
+                                <h5 class="fw-bold text-primary">Minh bạch 100%</h5>
+                                <p class="text-muted small">Mọi giao dịch đều được công khai.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=300&q=80" class="img-fluid rounded-5 shadow-lg border" alt="App">
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-4">
+                                <div class="feature-icon"><i class="fas fa-users"></i></div>
+                                <h5 class="fw-bold text-primary">Cộng đồng lớn</h5>
+                                <p class="text-muted small">Kết nối hàng triệu nhà hảo tâm.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. About -->
+                <section id="about" class="py-5 px-4 text-center">
+                    <div style="max-width: 800px; margin: 0 auto;">
+                        <h2 class="fw-bold mb-4">Khi thiện nguyện là nguồn hạnh phúc</h2>
+                        <p class="text-muted lead">Làm việc thiện không chỉ là giúp đỡ người khác, mà còn là cách để chúng ta tìm thấy ý nghĩa trong cuộc sống.</p>
+                    </div>
+                </section>
+
+                <!-- 7. FAQ -->
+                <section id="faq" class="py-5 bg-light px-4">
+                    <div class="row g-4">
+                        <div class="col-lg-5"><h2 class="fw-bold text-primary mb-4">Câu hỏi thường gặp</h2></div>
+                        <div class="col-lg-7">
+                            <div class="accordion" id="faqAccordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header"><button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">Quyên góp có an toàn không?</button></h2>
+                                    <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion"><div class="accordion-body small text-muted">Hệ thống của chúng tôi sử dụng công nghệ bảo mật đa tầng.</div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <jsp:include page="fragments/footer.jsp"/>
             </div>
         </div>
     </div>

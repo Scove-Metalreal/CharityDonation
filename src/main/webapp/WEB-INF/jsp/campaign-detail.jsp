@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -11,121 +11,160 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
     <style>
-        .detail-header-img { width: 100%; height: 400px; object-fit: cover; border-radius: 20px; }
-        .donor-avatar { width: 40px; height: 40px; border-radius: 50%; }
-        .sticky-donation-card { position: sticky; top: 100px; }
+        .scrollable-main { height: 100vh; overflow-y: auto; scrollbar-width: none; }
+        .scrollable-main::-webkit-scrollbar { display: none; }
+        .campaign-title { font-size: 2.2rem; line-height: 1.3; }
+        .main-feature-img { width: 100%; height: 400px; object-fit: cover; border-radius: 20px; }
+        .thumb-img { width: 100%; height: 80px; object-fit: cover; border-radius: 12px; cursor: pointer; opacity: 0.6; transition: 0.3s; }
+        .thumb-img:hover, .thumb-img.active { opacity: 1; border: 2px solid var(--color-primary); }
+        .donation-action-card { background: #1a1a1a; color: white; border-radius: 24px; padding: 30px; position: sticky; top: 20px; }
+        .sticky-tab-bar { position: sticky; top: 0; background: white; z-index: 100; border-bottom: 1px solid var(--color-border); margin-top: 40px; }
+        .nav-tabs-custom .nav-link { border: none; color: var(--color-text-muted); font-weight: 600; padding: 15px 25px; position: relative; }
+        .nav-tabs-custom .nav-link.active { color: var(--color-primary); background: transparent; }
+        .nav-tabs-custom .nav-link.active::after { content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--color-primary); border-radius: 3px; }
+        .donor-container { background: #f9fafb; border: 1px solid var(--color-border); border-radius: 20px; overflow: hidden; }
+        .donor-row { padding: 15px 20px; display: flex; align-items: center; border-bottom: 1px solid var(--color-border); }
     </style>
 </head>
 <body class="bg-light">
-    <div class="container py-5">
-        <div class="row g-5">
-            <!-- Left Side: Detail Content -->
-            <div class="col-lg-8">
-                <nav aria-label="breadcrumb" class="mb-4">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/">Trang chủ</a></li>
-                        <li class="breadcrumb-item active">${campaign.name}</li>
-                    </ol>
-                </nav>
-
-                <c:if test="${param.success eq 'donated'}">
-                    <div class="alert alert-success border-0 shadow-sm mb-4 rounded-4 py-3">
-                        <i class="fas fa-check-circle me-2"></i> Quyên góp thành công! Khoản đóng góp của bạn đang chờ quản trị viên xác nhận.
-                    </div>
-                </c:if>
-
-                <img src="${not empty campaign.imageUrl ? campaign.imageUrl : 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'}" class="detail-header-img mb-5 shadow-sm" alt="header">
-
-                <div class="d-flex align-items-center mb-4">
-                    <c:choose>
-                        <c:when test="${campaign.status == 0}"><span class="badge bg-info rounded-pill px-3 py-2 me-3">Mới tạo</span></c:when>
-                        <c:when test="${campaign.status == 1}"><span class="badge bg-success rounded-pill px-3 py-2 me-3">Đang diễn ra</span></c:when>
-                        <c:when test="${campaign.status == 2}"><span class="badge bg-warning rounded-pill px-3 py-2 me-3">Đã kết thúc</span></c:when>
-                        <c:when test="${campaign.status == 3}"><span class="badge bg-secondary rounded-pill px-3 py-2 me-3">Đóng quỹ</span></c:when>
-                    </c:choose>
-                    <span class="text-muted"><i class="far fa-calendar-alt me-2"></i>${campaign.startDate} - ${campaign.endDate}</span>
-                </div>
-
-                <h1 class="fw-bold text-dark mb-4">${campaign.name}</h1>
-                <div class="lead text-muted mb-5">${campaign.background}</div>
-
-                <div class="content-body text-secondary mb-5">
-                    ${campaign.content}
-                </div>
-
-                <hr class="my-5 opacity-10">
-
-                <h4 class="fw-bold mb-4">Danh sách nhà hảo tâm (${donors.size()})</h4>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle border-0">
-                        <tbody>
-                            <c:if test="${empty donors}">
-                                <tr><td class="text-center py-4 text-muted">Chưa có lượt quyên góp nào được xác nhận.</td></tr>
-                            </c:if>
-                            <c:forEach var="d" items="${donors}">
-                                <tr>
-                                    <td style="width: 50px;">
-                                        <img src="https://ui-avatars.com/api/?name=${d.isAnonymous == 1 ? 'Anonymous' : d.user.fullName}&background=random" class="donor-avatar">
-                                    </td>
-                                    <td>
-                                        <div class="fw-bold">${d.isAnonymous == 1 ? 'Nhà hảo tâm ẩn danh' : d.user.fullName}</div>
-                                        <small class="text-muted"><fmt:formatDate value="${d.createdAt}" pattern="dd/MM/yyyy HH:mm"/></small>
-                                    </td>
-                                    <td class="text-end">
-                                        <div class="fw-bold text-primary">+<fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
-                </div>
+    <div class="container-fluid">
+        <div class="row flex-nowrap">
+            <div class="col-auto p-0 border-end" style="z-index: 1000;">
+                <jsp:include page="fragments/sidebar.jsp"/>
             </div>
 
-            <!-- Right Side: Progress & Donation Box -->
-            <div class="col-lg-4">
-                <div class="card border-0 shadow-sm rounded-4 p-4 sticky-donation-card">
-                    <c:set var="target" value="${campaign.targetMoney != null ? campaign.targetMoney : 1}"/>
-                    <c:set var="current" value="${campaign.currentMoney != null ? campaign.currentMoney : 0}"/>
-                    <c:set var="percent" value="${(current / target) * 100}"/>
-                    <c:if test="${percent > 100}"><c:set var="percent" value="100"/></c:if>
-
-                    <h3 class="fw-bold text-dark mb-2"><fmt:formatNumber value="${campaign.currentMoney}" type="number"/>đ</h3>
-                    <div class="text-muted small mb-3">mục tiêu <fmt:formatNumber value="${campaign.targetMoney}" type="number"/>đ</div>
-
-                    <div class="progress bg-light mb-3" style="height: 10px;">
-                        <div class="progress-bar" role="progressbar" style="width: ${percent}%"></div>
-                    </div>
-
-                    <div class="d-flex justify-content-between mb-4">
-                        <div class="text-center">
-                            <div class="fw-bold"><fmt:formatNumber value="${percent}" maxFractionDigits="1"/>%</div>
-                            <small class="text-muted">Hoàn thành</small>
-                        </div>
-                        <div class="text-center">
-                            <div class="fw-bold">${donors.size()}</div>
-                            <small class="text-muted">Lượt đóng góp</small>
-                        </div>
-                        <div class="text-center">
-                            <div class="fw-bold">12</div>
-                            <small class="text-muted">Ngày còn lại</small>
+            <div class="col scrollable-main p-0 bg-white" style="min-width: 0;">
+                <div class="p-4 p-xl-5">
+                    <div class="mb-4">
+                        <h1 class="campaign-title fw-bold mb-3">${campaign.name}</h1>
+                        <div class="d-flex align-items-center text-muted small">
+                            <i class="fas fa-heart text-danger me-2"></i> 
+                            <span>Chiến dịch quyên góp vì cộng đồng</span>
+                            <span class="mx-3">|</span>
+                            <i class="far fa-calendar-alt me-2"></i>
+                            <span>Ngày đăng: ${campaign.startDate}</span>
                         </div>
                     </div>
 
-                    <c:choose>
-                        <c:when test="${campaign.status == 1}">
-                            <button class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm mb-3" data-bs-toggle="modal" data-bs-target="#donateModal">QUYÊN GÓP NGAY</button>
-                        </c:when>
-                        <c:otherwise>
-                            <button class="btn btn-secondary w-100 py-3 rounded-pill fw-bold shadow-sm mb-3" disabled>ĐÃ NGỪNG NHẬN</button>
-                        </c:otherwise>
-                    </c:choose>
-                    
-                    <button class="btn btn-outline-secondary w-100 py-2 rounded-pill small"><i class="fas fa-share-alt me-2"></i>Chia sẻ chiến dịch</button>
-                    
-                    <div class="mt-4 p-3 bg-light rounded-3 small text-muted">
-                        <i class="fas fa-shield-alt text-success me-2"></i>Khoản quyên góp của bạn được bảo mật và chuyển trực tiếp tới đơn vị thụ hưởng.
+                    <div class="row g-4 mb-5">
+                        <div class="col-lg-7 col-xl-8">
+                            <img src="${not empty campaign.imageUrl ? campaign.imageUrl : 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'}" class="main-feature-img shadow-sm mb-3">
+                            <div class="row g-2">
+                                <c:if test="${not empty campaign.galleryUrls}">
+                                    <c:forEach var="url" items="${campaign.galleryUrls.split(',')}">
+                                        <div class="col-3"><img src="${url.trim()}" class="thumb-img"></div>
+                                    </c:forEach>
+                                </c:if>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-5 col-xl-4">
+                            <div class="donation-action-card shadow-lg">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h6 class="fw-bold mb-0 text-uppercase">Thông tin quyên góp</h6>
+                                    <div class="d-flex gap-2">
+                                        <form action="${pageContext.request.contextPath}/campaign/follow" method="post" class="m-0">
+                                            <input type="hidden" name="campaignId" value="${campaign.id}">
+                                            <button type="submit" class="btn btn-sm ${following ? 'btn-primary' : 'btn-dark'} rounded-pill border-secondary px-3">
+                                                <i class="fas fa-bookmark me-1"></i> ${following ? 'Đã theo dõi' : 'Theo dõi'}
+                                            </button>
+                                        </form>
+                                        <a href="https://www.facebook.com/sharer/sharer.php?u=${requestScope['javax.servlet.forward.request_uri']}" target="_blank" class="btn btn-sm btn-dark rounded-pill border-secondary px-3"><i class="fab fa-facebook-f me-1"></i>Chia sẻ</a>
+                                    </div>
+                                </div>
+
+                                <div class="sponsor-list">
+                                    <c:forEach var="cp" items="${campaign.companions}">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <img src="${cp.logoUrl}" class="rounded border bg-white me-3" width="40" height="40">
+                                            <div><div class="smallest text-white-50">Nhà đồng hành</div><div class="fw-bold small">${cp.name}</div></div>
+                                        </div>
+                                    </c:forEach>
+                                </div>
+
+                                <div class="funding-stats mt-4">
+                                    <div class="mb-2">
+                                        <span class="fs-3 fw-bold"><fmt:formatNumber value="${campaign.currentMoney}" type="number"/>đ</span>
+                                        <span class="text-white-50 small"> / <fmt:formatNumber value="${campaign.targetMoney}" type="number"/>đ</span>
+                                    </div>
+                                    <c:set var="target" value="${campaign.targetMoney.doubleValue() > 0 ? campaign.targetMoney : 1}"/>
+                                    <c:set var="percent" value="${(campaign.currentMoney.doubleValue() / target.doubleValue()) * 100}"/>
+                                    <div class="progress" style="height: 8px; background: rgba(255,255,255,0.1);">
+                                        <div class="progress-bar bg-primary" style="width: ${percent > 100 ? 100 : percent}%"></div>
+                                    </div>
+                                </div>
+
+                                <button class="btn btn-primary w-100 py-3 rounded-pill fw-bold mt-4 shadow" data-bs-toggle="modal" data-bs-target="#donateModal" ${campaign.status != 1 ? 'disabled' : ''}>
+                                    ${campaign.status == 1 ? 'QUYÊN GÓP NGAY' : 'CHIẾN DỊCH ĐÃ KẾT THÚC'}
+                                </button>
+                                
+                                <c:if test="${following}">
+                                    <div class="mt-3 text-center">
+                                        <form action="${pageContext.request.contextPath}/campaign/follow" method="post">
+                                            <input type="hidden" name="campaignId" value="${campaign.id}">
+                                            <input type="hidden" name="email" value="${receiveEmail ? 0 : 1}">
+                                            <button type="submit" class="btn btn-link btn-sm text-white-50 text-decoration-none">
+                                                <i class="fas ${receiveEmail ? 'fa-bell' : 'fa-bell-slash'} me-1"></i> ${receiveEmail ? 'Tắt thông báo email' : 'Nhận thông báo qua email'}
+                                            </button>
+                                        </form>
+                                    </div>
+                                </c:if>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sticky-tab-bar">
+                        <ul class="nav nav-tabs nav-tabs-custom">
+                            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#story">Hoàn cảnh</button></li>
+                            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#details">Nội dung chiến dịch</button></li>
+                            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#donors">Nhà hảo tâm</button></li>
+                        </ul>
+                    </div>
+
+                    <div class="row g-5 mt-2">
+                        <div class="col-lg-7 col-xl-8">
+                            <div class="tab-content">
+                                <div class="tab-pane fade show active" id="story">
+                                    <div class="rich-text-content">${campaign.content}</div>
+                                    <div class="mt-5 pt-4 border-top">
+                                        <h4 class="fw-bold mb-4">Nhà hảo tâm hàng đầu</h4>
+                                        <div class="donor-container mb-4">
+                                            <c:forEach var="d" items="${topDonors}" varStatus="loop">
+                                                <div class="donor-row">
+                                                    <div class="fw-bold text-primary me-3" style="width:20px">${loop.index + 1}</div>
+                                                    <div class="flex-grow-1"><strong>${d.isAnonymous == 1 ? 'Nhà hảo tâm ẩn danh' : d.user.fullName}</strong></div>
+                                                    <div class="fw-bold text-primary"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
+                                                </div>
+                                            </c:forEach>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="details">
+                                    <div class="p-4 bg-light rounded-4">
+                                        <table class="table table-borderless">
+                                            <tr><td class="text-muted">Mã dự án:</td><td class="fw-bold">${campaign.code}</td></tr>
+                                            <tr><td class="text-muted">Mục tiêu:</td><td class="fw-bold text-primary"><fmt:formatNumber value="${campaign.targetMoney}" type="number"/>đ</td></tr>
+                                            <tr><td class="text-muted">SĐT thụ hưởng:</td><td class="fw-bold">${campaign.beneficiaryPhone}</td></tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 col-xl-4">
+                            <div class="sticky-top" style="top: 80px;">
+                                <h5 class="fw-bold mb-4">Chương trình khác</h5>
+                                <c:forEach var="ongoing" items="${ongoingCampaigns}">
+                                    <div class="mb-4">
+                                        <c:set var="campaign" value="${ongoing}" scope="request"/>
+                                        <c:set var="isCompact" value="true" scope="request"/>
+                                        <jsp:include page="fragments/donation-card.jsp"/>
+                                    </div>
+                                </c:forEach>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                <jsp:include page="fragments/footer.jsp"/>
             </div>
         </div>
     </div>
@@ -133,54 +172,38 @@
     <!-- Donation Modal -->
     <div class="modal fade" id="donateModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg rounded-4">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="fw-bold">Gửi quyên góp của bạn</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header border-0 bg-dark text-white p-4">
+                    <h5 class="modal-title fw-bold">QUYÊN GÓP CHO CHIẾN DỊCH</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <c:choose>
-                        <c:when test="${empty sessionScope.userId}">
-                            <div class="text-center py-4">
-                                <p class="text-muted">Vui lòng đăng nhập để thực hiện quyên góp.</p>
-                                <a href="${pageContext.request.contextPath}/auth/login" class="btn btn-primary rounded-pill px-4">Đăng nhập ngay</a>
-                            </div>
-                        </c:when>
-                        <c:otherwise>
-                            <form action="${pageContext.request.contextPath}/campaign/donate" method="post">
-                                <input type="hidden" name="campaignId" value="${campaign.id}">
-                                
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Số tiền quyên góp (VNĐ)</label>
-                                    <input type="number" name="amount" class="form-control form-control-lg fw-bold text-primary" placeholder="VD: 100000" required min="1000">
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Phương thức thanh toán</label>
-                                    <select name="paymentMethodId" class="form-select" required>
-                                        <c:forEach var="pm" items="${paymentMethods}">
-                                            <option value="${pm.id}">${pm.methodName}</option>
-                                        </c:forEach>
-                                    </select>
-                                </div>
-
-                                <div class="mb-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="isAnonymous" value="1" id="anonCheck">
-                                        <label class="form-check-label small" for="anonCheck">
-                                            Quyên góp ẩn danh
-                                        </label>
+                    <form action="${pageContext.request.contextPath}/campaign/donate" method="post">
+                        <input type="hidden" name="campaignId" value="${campaign.id}">
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Số tiền quyên góp (VNĐ)</label>
+                            <input type="number" name="amount" class="form-control form-control-lg rounded-pill px-4" placeholder="Nhập số tiền..." required min="1000">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Phương thức thanh toán</label>
+                            <div class="payment-methods">
+                                <c:forEach var="pm" items="${paymentMethods}">
+                                    <div class="form-check border rounded-pill p-3 mb-2 px-4 d-flex align-items-center">
+                                        <input class="form-check-input me-3" type="radio" name="paymentMethodId" value="${pm.id}" id="pm_${pm.id}" required>
+                                        <label class="form-check-label flex-grow-1 fw-bold" for="pm_${pm.id}">${pm.name}</label>
+                                        <i class="fas fa-wallet text-primary"></i>
                                     </div>
-                                </div>
-
-                                <div class="alert alert-info border-0 small mb-4">
-                                    <i class="fas fa-info-circle me-2"></i> Sau khi nhấn nút, vui lòng chuyển tiền theo thông tin hướng dẫn trên màn hình tiếp theo.
-                                </div>
-
-                                <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 fw-bold">XÁC NHẬN GỬI</button>
-                            </form>
-                        </c:otherwise>
-                    </c:choose>
+                                </c:forEach>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="isAnonymous" value="1" id="anonymousCheck">
+                                <label class="form-check-label small fw-bold" for="anonymousCheck">Quyên góp ẩn danh</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow">XÁC NHẬN QUYÊN GÓP</button>
+                    </form>
                 </div>
             </div>
         </div>

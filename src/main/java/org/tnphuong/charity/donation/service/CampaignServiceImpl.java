@@ -81,7 +81,26 @@ public class CampaignServiceImpl implements CampaignService {
             Campaign campaign = campaignOpt.get();
             BigDecimal current = campaign.getCurrentMoney() != null ? campaign.getCurrentMoney() : BigDecimal.ZERO;
             campaign.setCurrentMoney(current.add(amount));
+            
+            // Auto finish if target reached
+            if (campaign.getCurrentMoney().compareTo(campaign.getTargetMoney()) >= 0) {
+                if (campaign.getStatus() == Campaign.STATUS_IN_PROGRESS) {
+                    campaign.setStatus(Campaign.STATUS_ENDED);
+                }
+            }
             campaignRepository.save(campaign);
         }
+    }
+
+    @Override
+    public void extendCampaign(Integer campaignId, java.time.LocalDate newEndDate) {
+        campaignRepository.findById(campaignId).ifPresent(campaign -> {
+            campaign.setEndDate(newEndDate);
+            // If it was ended, put it back to in-progress
+            if (campaign.getStatus() == Campaign.STATUS_ENDED) {
+                campaign.setStatus(Campaign.STATUS_IN_PROGRESS);
+            }
+            campaignRepository.save(campaign);
+        });
     }
 }

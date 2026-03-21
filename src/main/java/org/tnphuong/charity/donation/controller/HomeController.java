@@ -35,6 +35,9 @@ public class HomeController {
     @Autowired
     private PaymentMethodRepository paymentMethodRepository;
 
+    @Autowired
+    private org.tnphuong.charity.donation.dao.UserFollowingRepository userFollowingRepository;
+
     @GetMapping("/")
     public String home(@RequestParam(required = false, defaultValue = "1") Integer status, 
                        @RequestParam(defaultValue = "1") int page,
@@ -48,21 +51,64 @@ public class HomeController {
     }
 
     @GetMapping("/campaign/{id}")
-    public String campaignDetail(@PathVariable Integer id, Model model) {
+    public String campaignDetail(@PathVariable Integer id, Model model, HttpSession session) {
         Optional<Campaign> campaign = campaignService.getCampaignById(id);
         if (campaign.isPresent()) {
             model.addAttribute("campaign", campaign.get());
 
-            // Get confirmed donors
-            List<Donation> confirmedDonations = donationService.getConfirmedDonationsByCampaignId(id);
-            model.addAttribute("donors", confirmedDonations);
+            // Top 5 Donors
+            model.addAttribute("topDonors", donationService.getTopDonorsByCampaignId(id, 5));
+            
+            // Recent 10 Donors
+            model.addAttribute("recentDonors", donationService.getRecentDonorsByCampaignId(id, 10));
+
+            // Related/Ongoing Campaigns (exclude current)
+            Page<Campaign> ongoing = campaignService.getCampaignsByStatus(1, PageRequest.of(0, 4));
+            model.addAttribute("ongoingCampaigns", ongoing.getContent());
 
             // For donation modal
             model.addAttribute("paymentMethods", paymentMethodRepository.findAll());
 
+            // Check following status for logged in user
+            Integer userId = (Integer) session.getAttribute("userId");
+            if (userId != null) {
+                userFollowingRepository.findByUserIdAndCampaignId(userId, id).ifPresent(f -> {
+                    model.addAttribute("following", true);
+                    model.addAttribute("receiveEmail", f.getReceiveEmail() == 1);
+                });
+            }
+
             return "campaign-detail";
         }
         return "redirect:/";
+    }
+
+    @PostMapping("/campaign/follow")
+    public String followCampaign(@RequestParam Integer campaignId, @RequestParam(required = false) Integer email, HttpSession session) {
+        Integer userId = (Integer) session.getAttribute("userId");
+        if (userId == null) return "redirect:/auth/login";
+
+        Optional<org.tnphuong.charity.donation.entity.UserFollowing> existing = userFollowingRepository.findByUserIdAndCampaignId(userId, campaignId);
+        if (existing.isPresent()) {
+            userFollowingRepository.delete(existing.get());
+        } else {
+            org.tnphuong.charity.donation.entity.UserFollowing f = new org.tnphuong.charity.donation.entity.UserFollowing();
+            f.setUser(userService.getUserById(userId).get());
+            f.setCampaign(campaignService.getCampaignById(campaignId).get());
+            f.setReceiveEmail(email != null ? email : 0);
+            userFollowingRepository.save(f);
+        }
+        return "redirect:/campaign/" + campaignId;
+    }
+
+    @GetMapping("/user/following")
+    public String listFollowing(Model model, HttpSession session) {
+        Integer userId = (Integer) session.getAttribute("userId");
+        if (userId == null) return "redirect:/auth/login";
+        
+        List<org.tnphuong.charity.donation.entity.UserFollowing> list = userFollowingRepository.findByUserId(userId);
+        model.addAttribute("followingList", list);
+        return "profile"; // We'll add a tab in profile
     }
 
     @PostMapping("/campaign/donate")

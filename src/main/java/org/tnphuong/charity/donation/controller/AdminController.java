@@ -7,12 +7,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.tnphuong.charity.donation.dao.RoleRepository;
 import org.tnphuong.charity.donation.entity.Campaign;
 import org.tnphuong.charity.donation.entity.Donation;
 import org.tnphuong.charity.donation.entity.User;
 import org.tnphuong.charity.donation.service.CampaignService;
 import org.tnphuong.charity.donation.service.DonationService;
 import org.tnphuong.charity.donation.service.UserService;
+import org.tnphuong.charity.donation.utils.PasswordUtils;
 
 @Controller
 @RequestMapping("/admin")
@@ -22,13 +24,38 @@ public class AdminController {
     private UserService userService;
 
     @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
     private CampaignService campaignService;
 
     @Autowired
     private DonationService donationService;
 
+    @Autowired
+    private org.tnphuong.charity.donation.dao.UserRepository userRepository;
+
+    @Autowired
+    private org.tnphuong.charity.donation.dao.CampaignRepository campaignRepository;
+
+    @Autowired
+    private org.tnphuong.charity.donation.dao.DonationRepository donationRepository;
+
     @GetMapping("/dashboard")
-    public String dashboard() {
+    public String dashboard(Model model) {
+        model.addAttribute("currentPage", "admin-dashboard");
+        
+        // Real Stats
+        model.addAttribute("totalUsers", userRepository.count());
+        model.addAttribute("activeCampaigns", campaignRepository.countByStatus(1));
+        model.addAttribute("pendingDonations", donationRepository.countByStatus(0));
+        
+        java.math.BigDecimal totalAmount = donationRepository.sumTotalDonations();
+        model.addAttribute("totalAmount", totalAmount != null ? totalAmount : java.math.BigDecimal.ZERO);
+
+        // Recent Activity for Notifications
+        model.addAttribute("recentDonations", donationRepository.findTop5ByOrderByCreatedAtDesc());
+        
         return "admin/dashboard";
     }
 
@@ -56,6 +83,26 @@ public class AdminController {
         model.addAttribute("totalPages", userPage.getTotalPages());
         
         return "admin/user-list";
+    }
+
+    @GetMapping("/users/add")
+    public String showAddUserForm(Model model) {
+        model.addAttribute("user", new User());
+        model.addAttribute("roles", roleRepository.findAll());
+        return "admin/user-form";
+    }
+
+    @PostMapping("/users/save")
+    public String saveUser(@ModelAttribute("user") User user, @RequestParam(required = false) String rawPassword) {
+        if (rawPassword != null && !rawPassword.isEmpty()) {
+            user.setPassword(PasswordUtils.hashPassword(rawPassword));
+        } else if (user.getId() == null) {
+            // Default password for new users if not provided (should be handled in UI)
+            user.setPassword(PasswordUtils.hashPassword("123456"));
+        }
+        
+        userService.saveUser(user);
+        return "redirect:/admin/users";
     }
 
     @PostMapping("/users/toggle-status")
@@ -110,7 +157,7 @@ public class AdminController {
         try {
             campaignService.deleteCampaign(id);
         } catch (Exception e) {
-            // Logic handled in service, but we can catch it here to show error message
+            // Error handling logic
         }
         return "redirect:/admin/campaigns";
     }
@@ -132,5 +179,17 @@ public class AdminController {
     public String rejectDonation(@RequestParam Integer donationId) {
         donationService.rejectDonation(donationId);
         return "redirect:/admin/donations";
+    }
+
+    @PostMapping("/campaigns/extend")
+    public String extendCampaign(@RequestParam Integer id, @RequestParam String newEndDate) {
+        campaignService.extendCampaign(id, java.time.LocalDate.parse(newEndDate));
+        return "redirect:/admin/campaigns";
+    }
+
+    // --- SYSTEM SETTINGS ---
+    @GetMapping("/settings")
+    public String showSettings() {
+        return "admin/settings";
     }
 }

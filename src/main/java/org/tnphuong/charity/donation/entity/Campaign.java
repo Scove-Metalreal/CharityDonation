@@ -43,6 +43,9 @@ public class Campaign {
     @Column(name = "image_description", length = 255)
     private String imageDescription;
 
+    @Column(name = "gallery_urls", columnDefinition = "TEXT")
+    private String galleryUrls;
+
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
