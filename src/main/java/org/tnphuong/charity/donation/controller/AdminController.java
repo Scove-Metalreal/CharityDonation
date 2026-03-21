@@ -73,7 +73,7 @@ public class AdminController {
         model.addAttribute("activePage", "admin-users");
         addCommonData(model);
         
-        int pageSize = 5; 
+        int pageSize = 20; 
         Pageable pageable = PageRequest.of(page - 1, pageSize);
         
         java.time.LocalDateTime inactiveSince = null;
@@ -148,7 +148,7 @@ public class AdminController {
         model.addAttribute("activePage", "admin-campaigns");
         addCommonData(model);
         
-        Pageable pageable = PageRequest.of(page - 1, 5);
+        Pageable pageable = PageRequest.of(page - 1, 20); 
         Page<Campaign> campaignPage = campaignService.searchCampaigns(status, phone, code, pageable);
         
         model.addAttribute("campaigns", campaignPage.getContent());
@@ -199,7 +199,7 @@ public class AdminController {
         model.addAttribute("activePage", "admin-donations");
         addCommonData(model);
         
-        Pageable pageable = PageRequest.of(page - 1, 5);
+        Pageable pageable = PageRequest.of(page - 1, 20); 
         String trimmedKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
         Page<Donation> donationPage = donationRepository.searchDonations(trimmedKeyword, status, pageable);
         
