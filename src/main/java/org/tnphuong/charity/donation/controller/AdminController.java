@@ -16,6 +16,9 @@ import org.tnphuong.charity.donation.service.DonationService;
 import org.tnphuong.charity.donation.service.UserService;
 import org.tnphuong.charity.donation.utils.PasswordUtils;
 
+import java.util.List;
+import java.util.Optional;
+
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
@@ -41,52 +44,76 @@ public class AdminController {
     @Autowired
     private org.tnphuong.charity.donation.dao.DonationRepository donationRepository;
 
+    private void addCommonData(Model model) {
+        model.addAttribute("recentDonations", donationRepository.findTop5ByOrderByCreatedAtDesc());
+    }
+
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
-        model.addAttribute("currentPage", "admin-dashboard");
+        model.addAttribute("activePage", "admin-dashboard");
+        addCommonData(model);
         
-        // Real Stats
         model.addAttribute("totalUsers", userRepository.count());
         model.addAttribute("activeCampaigns", campaignRepository.countByStatus(1));
         model.addAttribute("pendingDonations", donationRepository.countByStatus(0));
         
         java.math.BigDecimal totalAmount = donationRepository.sumTotalDonations();
         model.addAttribute("totalAmount", totalAmount != null ? totalAmount : java.math.BigDecimal.ZERO);
-
-        // Recent Activity for Notifications
-        model.addAttribute("recentDonations", donationRepository.findTop5ByOrderByCreatedAtDesc());
         
         return "admin/dashboard";
     }
 
-    // --- USER MANAGEMENT ---
     @GetMapping("/users")
-    public String listUsers(@RequestParam(required = false) String keyword, 
+    public String listUsers(@RequestParam(required = false) String keyword,
+                           @RequestParam(required = false) Integer roleId,
+                           @RequestParam(required = false) Integer status,
+                           @RequestParam(required = false) String inactive,
                            @RequestParam(defaultValue = "1") int page, 
                            Model model) {
-        int pageSize = 10;
+        model.addAttribute("activePage", "admin-users");
+        addCommonData(model);
+        
+        int pageSize = 5; 
         Pageable pageable = PageRequest.of(page - 1, pageSize);
-        Page<User> userPage;
         
-        String trimmedKeyword = (keyword != null) ? keyword.trim() : "";
-        
-        if (!trimmedKeyword.isEmpty()) {
-            userPage = userService.searchUsers(trimmedKeyword, pageable);
-        } else {
-            userPage = userService.getAllUsers(pageable);
+        java.time.LocalDateTime inactiveSince = null;
+        if (inactive != null && !inactive.isEmpty()) {
+            java.time.LocalDateTime now = java.time.LocalDateTime.now();
+            switch (inactive) {
+                case "1w": inactiveSince = now.minusWeeks(1); break;
+                case "1m": inactiveSince = now.minusMonths(1); break;
+                case "1q": inactiveSince = now.minusMonths(3); break;
+                case "1y": inactiveSince = now.minusYears(1); break;
+            }
         }
+
+        String trimmedKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
+        Page<User> userPage = userService.searchUsers(trimmedKeyword, roleId, status, inactiveSince, pageable);
         
-        model.addAttribute("userPage", userPage);
         model.addAttribute("users", userPage.getContent());
-        model.addAttribute("keyword", trimmedKeyword);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("roleId", roleId);
+        model.addAttribute("status", status);
+        model.addAttribute("inactive", inactive);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", userPage.getTotalPages());
+        model.addAttribute("roles", roleRepository.findAll());
         
         return "admin/user-list";
     }
 
+    @GetMapping("/users/detail/{id}")
+    public String userDetail(@PathVariable Integer id, Model model) {
+        model.addAttribute("activePage", "admin-users");
+        addCommonData(model);
+        userRepository.findById(id).ifPresent(user -> model.addAttribute("user", user));
+        return "admin/user-detail";
+    }
+
     @GetMapping("/users/add")
     public String showAddUserForm(Model model) {
+        model.addAttribute("activePage", "admin-users");
+        addCommonData(model);
         model.addAttribute("user", new User());
         model.addAttribute("roles", roleRepository.findAll());
         return "admin/user-form";
@@ -97,10 +124,8 @@ public class AdminController {
         if (rawPassword != null && !rawPassword.isEmpty()) {
             user.setPassword(PasswordUtils.hashPassword(rawPassword));
         } else if (user.getId() == null) {
-            // Default password for new users if not provided (should be handled in UI)
             user.setPassword(PasswordUtils.hashPassword("123456"));
         }
-        
         userService.saveUser(user);
         return "redirect:/admin/users";
     }
@@ -114,14 +139,16 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
-    // --- CAMPAIGN MANAGEMENT ---
     @GetMapping("/campaigns")
     public String listCampaigns(@RequestParam(required = false) Integer status,
                                 @RequestParam(required = false) String phone,
                                 @RequestParam(required = false) String code,
                                 @RequestParam(defaultValue = "1") int page,
                                 Model model) {
-        Pageable pageable = PageRequest.of(page - 1, 10);
+        model.addAttribute("activePage", "admin-campaigns");
+        addCommonData(model);
+        
+        Pageable pageable = PageRequest.of(page - 1, 5);
         Page<Campaign> campaignPage = campaignService.searchCampaigns(status, phone, code, pageable);
         
         model.addAttribute("campaigns", campaignPage.getContent());
@@ -136,12 +163,16 @@ public class AdminController {
 
     @GetMapping("/campaigns/new")
     public String showCampaignForm(Model model) {
+        model.addAttribute("activePage", "admin-campaigns");
+        addCommonData(model);
         model.addAttribute("campaign", new Campaign());
         return "admin/campaign-form";
     }
 
     @GetMapping("/campaigns/edit")
     public String showEditCampaignForm(@RequestParam Integer id, Model model) {
+        model.addAttribute("activePage", "admin-campaigns");
+        addCommonData(model);
         campaignService.getCampaignById(id).ifPresent(campaign -> model.addAttribute("campaign", campaign));
         return "admin/campaign-form";
     }
@@ -156,16 +187,28 @@ public class AdminController {
     public String deleteCampaign(@RequestParam Integer id) {
         try {
             campaignService.deleteCampaign(id);
-        } catch (Exception e) {
-            // Error handling logic
-        }
+        } catch (Exception e) {}
         return "redirect:/admin/campaigns";
     }
 
-    // --- DONATION VERIFICATION ---
     @GetMapping("/donations")
-    public String listDonations(Model model) {
-        model.addAttribute("donations", donationService.getAllDonations());
+    public String listDonations(@RequestParam(required = false) String keyword,
+                               @RequestParam(required = false) Integer status,
+                               @RequestParam(defaultValue = "1") int page,
+                               Model model) {
+        model.addAttribute("activePage", "admin-donations");
+        addCommonData(model);
+        
+        Pageable pageable = PageRequest.of(page - 1, 5);
+        String trimmedKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
+        Page<Donation> donationPage = donationRepository.searchDonations(trimmedKeyword, status, pageable);
+        
+        model.addAttribute("donations", donationPage.getContent());
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("status", status);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", donationPage.getTotalPages());
+        
         return "admin/donation-list";
     }
 
@@ -187,9 +230,10 @@ public class AdminController {
         return "redirect:/admin/campaigns";
     }
 
-    // --- SYSTEM SETTINGS ---
     @GetMapping("/settings")
-    public String showSettings() {
+    public String showSettings(Model model) {
+        model.addAttribute("activePage", "admin-settings");
+        addCommonData(model);
         return "admin/settings";
     }
 }

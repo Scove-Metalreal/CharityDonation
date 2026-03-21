@@ -6,11 +6,11 @@
     <div class="d-flex align-items-center">
         <h5 class="mb-0 fw-bold text-dark">
             <c:choose>
-                <c:when test="${currentPage == 'admin-dashboard'}">Dashboard Overview</c:when>
-                <c:when test="${currentPage == 'admin-users'}">Quản lý Người dùng</c:when>
-                <c:when test="${currentPage == 'admin-campaigns'}">Quản lý Chiến dịch</c:when>
-                <c:when test="${currentPage == 'admin-donations'}">Xác nhận Quyên góp</c:when>
-                <c:when test="${currentPage == 'admin-settings'}">Cài đặt hệ thống</c:when>
+                <c:when test="${activePage == 'admin-dashboard'}">Dashboard Overview</c:when>
+                <c:when test="${activePage == 'admin-users'}">Quản lý Người dùng</c:when>
+                <c:when test="${activePage == 'admin-campaigns'}">Quản lý Chiến dịch</c:when>
+                <c:when test="${activePage == 'admin-donations'}">Xác nhận Quyên góp</c:when>
+                <c:when test="${activePage == 'admin-settings'}">Cài đặt hệ thống</c:when>
                 <c:otherwise>Hệ thống quản trị</c:otherwise>
             </c:choose>
         </h5>

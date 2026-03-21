@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -16,68 +16,70 @@
 </head>
 <body class="bg-light">
     <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-lg-2 col-xl-2 d-none d-lg-block p-0 position-fixed" style="height: 100vh;">
-                <c:set var="currentPage" value="admin-donations" scope="request"/>
+        <div class="row flex-nowrap">
+            <div class="col-auto p-0">
                 <jsp:include page="../fragments/admin-sidebar.jsp"/>
             </div>
 
-            <!-- Content -->
-            <div class="col-lg-10 offset-lg-2 py-0">
-                <!-- Top Navbar -->
+            <div class="col p-0 bg-white" style="min-width: 0; min-height: 100vh;">
                 <jsp:include page="../fragments/admin-header.jsp"/>
 
-                <div class="px-4">
+                <div class="px-4 pb-5">
+                    <div class="card border-0 shadow-sm p-4 mb-4">
+                        <form action="${pageContext.request.contextPath}/admin/donations" method="get" class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label smallest fw-bold text-muted text-uppercase">Tìm kiếm</label>
+                                <input type="text" name="keyword" class="form-control form-control-sm rounded-pill px-3" placeholder="Tên nhà hảo tâm hoặc chiến dịch..." value="${keyword}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label smallest fw-bold text-muted text-uppercase">Trạng thái</label>
+                                <select name="status" class="form-select form-select-sm rounded-pill px-3">
+                                    <option value="">Tất cả</option>
+                                    <option value="0" ${status == 0 ? 'selected' : ''}>Chờ xác nhận</option>
+                                    <option value="1" ${status == 1 ? 'selected' : ''}>Đã xác nhận</option>
+                                    <option value="2" ${status == 2 ? 'selected' : ''}>Đã từ chối</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary btn-sm w-100 rounded-pill fw-bold">Lọc</button>
+                            </div>
+                        </form>
+                    </div>
+
                     <div class="card border-0 shadow-sm p-4">
                         <div class="table-responsive">
                             <table class="table table-hover align-middle">
-                                <thead class="bg-light">
-                                    <tr class="small text-muted text-uppercase">
+                                <thead class="bg-light text-uppercase smallest fw-bold text-muted">
+                                    <tr>
                                         <th class="border-0">Nhà hảo tâm</th>
                                         <th class="border-0">Chiến dịch</th>
-                                        <th class="border-0">Số tiền</th>
-                                        <th class="border-0">Ngày gửi</th>
                                         <th class="border-0 text-center">Trạng thái</th>
                                         <th class="border-0 text-end">Hành động</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <c:if test="${empty donations}">
-                                        <tr>
-                                            <td colspan="6" class="text-center py-5 text-muted">Không có yêu cầu quyên góp nào cần xử lý.</td>
-                                        </tr>
-                                    </c:if>
                                     <c:forEach var="d" items="${donations}">
                                         <tr>
                                             <td>
                                                 <div class="fw-bold text-dark">${d.user.fullName}</div>
-                                                <c:if test="${d.isAnonymous == 1}"><small class="text-warning">(Ẩn danh)</small></c:if>
+                                                <small class="text-muted smallest">Quyên góp: <fmt:formatNumber value="${d.amount}" type="number"/>đ</small>
                                             </td>
-                                            <td>
-                                                <div class="small text-dark text-truncate" style="max-width: 250px;" title="${d.campaign.name}">${d.campaign.name}</div>
-                                            </td>
-                                            <td>
-                                                <div class="fw-bold text-primary"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
-                                            </td>
-                                            <td><small class="text-muted">${d.createdAt}</small></td>
+                                            <td><div class="small text-dark text-truncate" style="max-width: 200px;">${d.campaign.name}</div></td>
                                             <td class="text-center">
-                                                <c:choose>
-                                                    <c:when test="${d.status == 0}"><span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3">Chờ xác nhận</span></c:when>
-                                                    <c:when test="${d.status == 1}"><span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Đã xác nhận</span></c:when>
-                                                    <c:when test="${d.status == 2}"><span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3">Đã từ chối</span></c:when>
-                                                </c:choose>
+                                                <span class="badge ${d.status == 0 ? 'bg-warning' : (d.status == 1 ? 'bg-success' : 'bg-danger')} bg-opacity-10 ${d.status == 0 ? 'text-warning' : (d.status == 1 ? 'text-success' : 'text-danger')} rounded-pill px-3">
+                                                    ${d.status == 0 ? 'Chờ duyệt' : (d.status == 1 ? 'Đã nhận' : 'Từ chối')}
+                                                </span>
                                             </td>
                                             <td class="text-end">
                                                 <c:if test="${d.status == 0}">
                                                     <div class="d-flex justify-content-end gap-1">
-                                                        <form action="${pageContext.request.contextPath}/admin/donations/confirm" method="post" onsubmit="return confirm('Xác nhận số tiền này đã vào tài khoản?')">
+                                                        <form action="${pageContext.request.contextPath}/admin/donations/confirm" method="post" class="m-0">
                                                             <input type="hidden" name="donationId" value="${d.id}">
-                                                            <button type="submit" class="action-btn bg-success bg-opacity-10 text-success" title="Xác nhận"><i class="fas fa-check"></i></button>
+                                                            <button type="submit" class="action-btn bg-success bg-opacity-10 text-success"><i class="fas fa-check"></i></button>
                                                         </form>
-                                                        <form action="${pageContext.request.contextPath}/admin/donations/reject" method="post" onsubmit="return confirm('Từ chối giao dịch này?')">
+                                                        <form action="${pageContext.request.contextPath}/admin/donations/reject" method="post" class="m-0">
                                                             <input type="hidden" name="donationId" value="${d.id}">
-                                                            <button type="submit" class="action-btn bg-danger bg-opacity-10 text-danger" title="Từ chối"><i class="fas fa-times"></i></button>
+                                                            <button type="submit" class="action-btn bg-danger bg-opacity-10 text-danger"><i class="fas fa-times"></i></button>
                                                         </form>
                                                     </div>
                                                 </c:if>
@@ -87,8 +89,21 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        <!-- Custom Pagination -->
+                        <div class="d-flex flex-column align-items-center mt-4">
+                            <div class="page-info">Trang ${currentPage} / ${totalPages}</div>
+                            <div class="custom-pagination">
+                                <a class="page-btn ${currentPage <= 1 ? 'disabled' : ''}" href="?page=${currentPage - 1}&keyword=${keyword}&status=${status}"><i class="fas fa-chevron-left"></i></a>
+                                <c:forEach var="i" begin="1" end="${totalPages > 0 ? totalPages : 1}">
+                                    <a class="page-btn ${currentPage == i ? 'active' : ''}" href="?page=${i}&keyword=${keyword}&status=${status}">${i}</a>
+                                </c:forEach>
+                                <a class="page-btn ${currentPage >= totalPages ? 'disabled' : ''}" href="?page=${currentPage + 1}&keyword=${keyword}&status=${status}"><i class="fas fa-chevron-right"></i></a>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                <jsp:include page="../fragments/footer.jsp"/>
             </div>
         </div>
     </div>

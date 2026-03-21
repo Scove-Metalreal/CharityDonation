@@ -1,6 +1,6 @@
 ﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<div class="sidebar-x shadow-sm border-end d-flex flex-column h-100" id="adminSidebar">
+<div class="sidebar-x shadow-sm border-end d-flex flex-column position-sticky top-0" id="adminSidebar" style="height: 100vh; background: #fff;">
     <div class="sidebar-header mb-4 ps-3 pt-3 d-flex align-items-center justify-content-between">
         <a href="${pageContext.request.contextPath}/" class="text-decoration-none d-flex align-items-center">
             <i class="fas fa-hand-holding-heart fa-2x text-primary"></i>
@@ -14,29 +14,30 @@
         </button>
     </div>
     
-    <nav class="nav flex-column mb-4 px-2">
-        <a class="nav-link sidebar-nav-link ${currentPage == 'admin-dashboard' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/dashboard">
-            <i class="fas fa-chart-line"></i> <span class="sidebar-text">Dashboard</span>
+    <nav class="nav flex-column mb-4 px-2 flex-grow-1">
+        <a class="nav-link sidebar-nav-link ${activePage == 'admin-dashboard' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/dashboard">
+            <i class="fas fa-chart-line"></i> <span class="sidebar-text ms-2">Dashboard</span>
         </a>
-        <a class="nav-link sidebar-nav-link ${currentPage == 'admin-users' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/users">
-            <i class="fas fa-users"></i> <span class="sidebar-text">Người dùng</span>
+        <a class="nav-link sidebar-nav-link ${activePage == 'admin-users' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/users">
+            <i class="fas fa-users"></i> <span class="sidebar-text ms-2">Người dùng</span>
         </a>
-        <a class="nav-link sidebar-nav-link ${currentPage == 'admin-campaigns' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/campaigns">
-            <i class="fas fa-bullhorn"></i> <span class="sidebar-text">Chiến dịch</span>
+        <a class="nav-link sidebar-nav-link ${activePage == 'admin-campaigns' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/campaigns">
+            <i class="fas fa-bullhorn"></i> <span class="sidebar-text ms-2">Chiến dịch</span>
         </a>
-        <a class="nav-link sidebar-nav-link ${currentPage == 'admin-donations' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/donations">
-            <i class="fas fa-check-circle"></i> <span class="sidebar-text">Xác nhận</span>
+        <a class="nav-link sidebar-nav-link ${activePage == 'admin-donations' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/donations">
+            <i class="fas fa-check-circle"></i> <span class="sidebar-text ms-2">Xác nhận</span>
         </a>
-        <a class="nav-link sidebar-nav-link ${currentPage == 'admin-settings' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/settings">
-            <i class="fas fa-cog"></i> <span class="sidebar-text">Cài đặt</span>
+        <a class="nav-link sidebar-nav-link ${activePage == 'admin-settings' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/settings">
+            <i class="fas fa-cog"></i> <span class="sidebar-text ms-2">Cài đặt</span>
         </a>
         <hr class="mx-3 opacity-10 sidebar-text">
         <a href="${pageContext.request.contextPath}/" class="nav-link sidebar-nav-link text-muted">
-            <i class="fas fa-external-link-alt"></i> <span class="sidebar-text">Xem Trang chủ</span>
+            <i class="fas fa-external-link-alt"></i> <span class="sidebar-text ms-2">Trang chủ</span>
         </a>
     </nav>
 
-    <div class="mt-auto p-3 border-top">
+    <!-- Pin to Bottom -->
+    <div class="mt-auto p-3 border-top bg-white">
         <div class="dropdown">
             <div class="sidebar-user-mini d-flex align-items-center cursor-pointer" data-bs-toggle="dropdown">
                 <img src="https://ui-avatars.com/api/?name=${sessionScope.loggedInUser.fullName}&background=10B981&color=fff" class="rounded-circle shadow-sm" width="40" height="40">
@@ -76,15 +77,13 @@
 </script>
 
 <style>
-    .sidebar-x { width: 100%; transition: all 0.3s ease; height: 100vh; position: sticky; top: 0; }
-    .sidebar-nav-link { padding: 12px 15px; border-radius: 99px; margin-bottom: 5px; color: #333; display: flex; align-items: center; }
+    .sidebar-x { width: 280px; transition: all 0.3s ease; }
+    .sidebar-nav-link { padding: 12px 15px; border-radius: 99px; margin-bottom: 5px; color: #333; display: flex; align-items: center; text-decoration: none; }
     .sidebar-nav-link:hover { background-color: rgba(16, 185, 129, 0.1); color: var(--color-primary); }
-    .sidebar-nav-link i { font-size: 1.25rem; width: 30px; text-align: center; }
     .sidebar-nav-link.active { font-weight: 700; color: var(--color-primary); background-color: rgba(16, 185, 129, 0.1); }
     
-    .sidebar-x.collapsed { width: 80px; }
+    .sidebar-x.collapsed { width: 80px !important; }
     .sidebar-x.collapsed .sidebar-text { display: none; }
     .sidebar-x.collapsed .sidebar-header { justify-content: center; padding-left: 0 !important; }
-    .sidebar-x.collapsed .sidebar-nav-link { justify-content: center; width: 50px; height: 50px; margin: 0 auto 10px auto; padding: 0; }
-    .sidebar-x.collapsed .sidebar-nav-link i { width: auto; margin: 0; }
+    .sidebar-x.collapsed .sidebar-nav-link { justify-content: center; width: 50px; height: 50px; padding: 0; margin: 0 auto 10px auto; }
 </style>

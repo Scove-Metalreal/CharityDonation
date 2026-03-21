@@ -167,6 +167,57 @@ h1, h2, h3, h4, h5, h6 {
     transition: var(--transition);
 }
 
-.sidebar-user-mini:hover {
-    background-color: var(--color-border);
+/* CUSTOM PAGINATION */
+.custom-pagination {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+}
+
+.page-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 10px;
+    background: #fff;
+    border: 1.5px solid #eee;
+    color: #555;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.page-btn:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.page-btn.active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+}
+
+.page-btn.disabled {
+    background: #f9f9f9;
+    color: #ccc;
+    border-color: #eee;
+    pointer-events: none;
+}
+
+.page-info {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 10px;
+    font-weight: 500;
 }

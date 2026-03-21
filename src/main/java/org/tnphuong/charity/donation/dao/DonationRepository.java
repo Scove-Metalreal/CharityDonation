@@ -1,8 +1,10 @@
 package org.tnphuong.charity.donation.dao;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.tnphuong.charity.donation.entity.Donation;
 import java.util.List;
 
@@ -23,4 +25,11 @@ public interface DonationRepository extends JpaRepository<Donation, Integer> {
     long countByStatus(Integer status);
     
     List<Donation> findTop5ByOrderByCreatedAtDesc();
+
+    @Query("SELECT d FROM Donation d WHERE " +
+           "(:keyword IS NULL OR d.user.fullName LIKE %:keyword% OR d.campaign.name LIKE %:keyword%) AND " +
+           "(:status IS NULL OR d.status = :status)")
+    Page<Donation> searchDonations(@Param("keyword") String keyword, 
+                                  @Param("status") Integer status, 
+                                  Pageable pageable);
 }
