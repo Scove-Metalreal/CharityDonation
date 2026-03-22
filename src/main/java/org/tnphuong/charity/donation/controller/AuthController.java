@@ -79,6 +79,10 @@ public class AuthController {
                     model.addAttribute("error", "Tài khoản của bạn đã bị khóa!");
                     return "login";
                 }
+
+                // Cập nhật thời gian đăng nhập cuối
+                user.setLastLogin(java.time.LocalDateTime.now());
+                userService.saveUser(user);
                 
                 // Luu userId vao session thay vi ca object User de tranh loi Hibernate
                 session.setAttribute("userId", user.getId());

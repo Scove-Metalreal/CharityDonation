@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.tnphuong.charity.donation.dao.RoleRepository;
 import org.tnphuong.charity.donation.entity.Campaign;
 import org.tnphuong.charity.donation.entity.Donation;
@@ -16,8 +18,8 @@ import org.tnphuong.charity.donation.service.DonationService;
 import org.tnphuong.charity.donation.service.UserService;
 import org.tnphuong.charity.donation.utils.PasswordUtils;
 
-import java.util.List;
-import java.util.Optional;
+import java.nio.file.*;
+import java.util.*;
 
 @Controller
 @RequestMapping("/admin")
@@ -120,14 +122,23 @@ public class AdminController {
     }
 
     @PostMapping("/users/save")
-    public String saveUser(@ModelAttribute("user") User user, @RequestParam(required = false) String rawPassword) {
-        if (rawPassword != null && !rawPassword.isEmpty()) {
-            user.setPassword(PasswordUtils.hashPassword(rawPassword));
-        } else if (user.getId() == null) {
-            user.setPassword(PasswordUtils.hashPassword("123456"));
+    @ResponseBody
+    public ResponseEntity<?> saveUser(@ModelAttribute("user") User user) {
+        Map<String, String> errors = new HashMap<>();
+        if (user.getId() == null) {
+            if (userService.getUserByEmail(user.getEmail()).isPresent()) {
+                errors.put("email", "Email đã được sử dụng bởi một tài khoản khác!");
+            }
+            if (user.getPhoneNumber() != null && !user.getPhoneNumber().isEmpty() 
+                && userService.getUserByPhoneNumber(user.getPhoneNumber()).isPresent()) {
+                errors.put("phone", "Số điện thoại đã được sử dụng bởi một tài khoản khác!");
+            }
+        }
+        if (!errors.isEmpty()) {
+            return ResponseEntity.badRequest().body(errors);
         }
         userService.saveUser(user);
-        return "redirect:/admin/users";
+        return ResponseEntity.ok().body(Map.of("message", "Lưu người dùng thành công!"));
     }
 
     @PostMapping("/users/toggle-status")
@@ -137,6 +148,21 @@ public class AdminController {
             userService.saveUser(user);
         });
         return "redirect:/admin/users";
+    }
+
+    @PostMapping("/users/update-role")
+    @ResponseBody
+    public ResponseEntity<?> updateRole(@RequestParam Integer userId, @RequestParam Integer roleId) {
+        Optional<User> userOpt = userService.getUserById(userId);
+        Optional<org.tnphuong.charity.donation.entity.Role> roleOpt = roleRepository.findById(roleId);
+        
+        if (userOpt.isPresent() && roleOpt.isPresent()) {
+            User user = userOpt.get();
+            user.setRole(roleOpt.get());
+            userService.saveUser(user);
+            return ResponseEntity.ok().body(Map.of("message", "Cập nhật vai trò thành công!"));
+        }
+        return ResponseEntity.badRequest().body(Map.of("error", "Không tìm thấy người dùng hoặc vai trò!"));
     }
 
     @GetMapping("/campaigns")
@@ -178,9 +204,28 @@ public class AdminController {
     }
 
     @PostMapping("/campaigns/save")
-    public String saveCampaign(@ModelAttribute("campaign") Campaign campaign) {
+    @ResponseBody
+    public ResponseEntity<?> saveCampaign(@ModelAttribute("campaign") Campaign campaign,
+                                         @RequestParam(value = "imageFiles", required = false) MultipartFile[] files) {
+        // ... (existing code)
         campaignService.saveCampaign(campaign);
-        return "redirect:/admin/campaigns";
+        return ResponseEntity.ok().body(Map.of("message", "Tạo chiến dịch thành công!"));
+    }
+
+    @PostMapping("/campaigns/update-status")
+    @ResponseBody
+    public ResponseEntity<?> updateCampaignStatus(@RequestParam Integer id, @RequestParam Integer status) {
+        Optional<Campaign> campaignOpt = campaignService.getCampaignById(id);
+        if (campaignOpt.isPresent()) {
+            Campaign campaign = campaignOpt.get();
+            if (campaign.getStatus() == 3) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Chiến dịch đã đóng, không thể thay đổi trạng thái!"));
+            }
+            campaign.setStatus(status);
+            campaignService.saveCampaign(campaign);
+            return ResponseEntity.ok().body(Map.of("message", "Cập nhật trạng thái thành công!"));
+        }
+        return ResponseEntity.badRequest().body(Map.of("error", "Không tìm thấy chiến dịch!"));
     }
 
     @PostMapping("/campaigns/delete")

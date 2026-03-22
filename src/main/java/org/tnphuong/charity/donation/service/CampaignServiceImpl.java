@@ -34,11 +34,22 @@ public class CampaignServiceImpl implements CampaignService {
 
     @Override
     public Campaign saveCampaign(Campaign campaign) {
-        // Business Rule: Block updates if status is Closed (3)
-        if (campaign.getId() != null) {
+        if (campaign.getId() == null) {
+            // New campaign initialization
+            if (campaign.getStatus() == null) {
+                campaign.setStatus(0); // 0: Mới
+            }
+            if (campaign.getCurrentMoney() == null) {
+                campaign.setCurrentMoney(BigDecimal.ZERO);
+            }
+            if (campaign.getCreatedAt() == null) {
+                campaign.setCreatedAt(java.time.LocalDateTime.now());
+            }
+        } else {
+            // Update: Block if status is Closed (3)
             Optional<Campaign> existing = campaignRepository.findById(campaign.getId());
-            if (existing.isPresent() && existing.get().getStatus() == Campaign.STATUS_CLOSED) {
-                throw new RuntimeException("Cannot update a closed campaign.");
+            if (existing.isPresent() && existing.get().getStatus() == 3) { // 3: Đã đóng
+                throw new RuntimeException("Không thể cập nhật chiến dịch đã đóng.");
             }
         }
         return campaignRepository.save(campaign);
@@ -46,13 +57,13 @@ public class CampaignServiceImpl implements CampaignService {
 
     @Override
     public void deleteCampaign(Integer id) {
-        // Business Rule: Only allow deletion if status is New (0)
+        // Chỉ cho phép xóa khi trạng thái là Mới tạo (0)
         Optional<Campaign> campaign = campaignRepository.findById(id);
         if (campaign.isPresent()) {
-            if (campaign.get().getStatus() == Campaign.STATUS_NEW) {
+            if (campaign.get().getStatus() == 0) {
                 campaignRepository.deleteById(id);
             } else {
-                throw new RuntimeException("Only new campaigns can be deleted.");
+                throw new RuntimeException("Chỉ có thể xóa chiến dịch ở trạng thái Mới tạo.");
             }
         }
     }
@@ -82,11 +93,14 @@ public class CampaignServiceImpl implements CampaignService {
             BigDecimal current = campaign.getCurrentMoney() != null ? campaign.getCurrentMoney() : BigDecimal.ZERO;
             campaign.setCurrentMoney(current.add(amount));
             
-            // Auto finish if target reached
-            if (campaign.getCurrentMoney().compareTo(campaign.getTargetMoney()) >= 0) {
-                if (campaign.getStatus() == Campaign.STATUS_IN_PROGRESS) {
-                    campaign.setStatus(Campaign.STATUS_ENDED);
-                }
+            // Nếu đang ở trạng thái Mới tạo (0), tự động chuyển sang Đang quyên góp (1) khi có tiền
+            if (campaign.getStatus() == 0) {
+                campaign.setStatus(1);
+            }
+
+            // Tự động kết thúc nếu đủ tiền (trừ khi đã đóng)
+            if (campaign.getStatus() == 1 && campaign.getCurrentMoney().compareTo(campaign.getTargetMoney()) >= 0) {
+                campaign.setStatus(2); // Kết thúc quyên góp
             }
             campaignRepository.save(campaign);
         }

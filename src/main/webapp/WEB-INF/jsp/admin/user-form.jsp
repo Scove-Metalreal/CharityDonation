@@ -61,7 +61,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label small fw-bold text-muted">Mật khẩu ${user.id == null ? '' : '(Để trống nếu không đổi)'}</label>
-                                        <input type="password" name="rawPassword" class="form-control rounded-pill px-3" ${user.id == null ? 'required' : ''}>
+                                        <input type="password" name="password" class="form-control rounded-pill px-3" ${user.id == null ? 'required' : ''}>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label small fw-bold text-muted">Trạng thái</label>

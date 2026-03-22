@@ -12,6 +12,12 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
     <style>
         .action-btn { width: 32px; height: 32px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; border: none; transition: var(--transition); }
+        .strength-meter { height: 6px; border-radius: 3px; transition: all 0.3s; margin-top: 8px; }
+        .strength-0 { width: 0%; }
+        .strength-1 { width: 25%; background-color: #ef4444; }
+        .strength-2 { width: 50%; background-color: #f59e0b; }
+        .strength-3 { width: 75%; background-color: #10b981; }
+        .strength-4 { width: 100%; background-color: #059669; }
     </style>
 </head>
 <body class="bg-light">
@@ -27,6 +33,28 @@
                 <jsp:include page="../fragments/admin-header.jsp"/>
 
                 <div class="px-4 pb-5">
+                    <!-- Flash Messages -->
+                    <c:if test="${not empty error}">
+                        <div class="alert alert-danger border-0 shadow-sm alert-dismissible fade show rounded-4 px-4 py-3 mb-4" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i> ${error}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </c:if>
+                    <c:if test="${not empty success}">
+                        <div class="alert alert-success border-0 shadow-sm alert-dismissible fade show rounded-4 px-4 py-3 mb-4" role="alert">
+                            <i class="fas fa-check-circle me-2"></i> ${success}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </c:if>
+
+                    <!-- Header with Action -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="fw-bold text-dark mb-0">Quản lý Người dùng</h4>
+                        <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                            <i class="fas fa-user-plus me-2"></i> Thêm người dùng
+                        </button>
+                    </div>
+
                     <!-- Filters -->
                     <div class="card border-0 shadow-sm p-4 mb-4">
                         <form action="${pageContext.request.contextPath}/admin/users" method="get" class="row g-3">
@@ -85,7 +113,14 @@
                                                 <div class="fw-bold text-dark">${u.fullName}</div>
                                                 <small class="text-muted smallest">${u.email}</small>
                                             </td>
-                                            <td><span class="badge bg-light text-dark border px-3 rounded-pill">${u.role.roleName}</span></td>
+                                            <td>
+                                                <select class="form-select form-select-sm border-0 bg-light rounded-pill px-3 fw-bold" 
+                                                        onchange="confirmRoleChange(${u.id}, this, '${u.role.roleName}')" style="max-width: 150px;">
+                                                    <c:forEach var="r" items="${roles}">
+                                                        <option value="${r.id}" ${u.role.id == r.id ? 'selected' : ''}>${r.roleName}</option>
+                                                    </c:forEach>
+                                                </select>
+                                            </td>
                                             <td class="smallest">
                                                 <c:choose>
                                                     <c:when test="${not empty u.lastLogin}">
@@ -139,10 +174,188 @@
                         </div>
                     </div>
                 </div>
-                <jsp:include page="../fragments/footer.jsp"/>
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-0 pb-0 pt-4 px-4">
+                    <h5 class="modal-title fw-bold text-dark" id="addUserModalLabel">Thêm người dùng mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form action="${pageContext.request.contextPath}/admin/users/save" method="post" class="needs-validation" novalidate id="addUserForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">Họ và tên</label>
+                                <input type="text" name="fullName" class="form-control rounded-pill px-3" placeholder="Nhập họ tên..." required>
+                                <div class="invalid-feedback ps-3 smallest">Vui lòng nhập họ và tên</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">Địa chỉ Email</label>
+                                <input type="email" name="email" class="form-control rounded-pill px-3" placeholder="email@example.com" required>
+                                <div class="invalid-feedback ps-3 smallest">Vui lòng nhập email hợp lệ</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">Số điện thoại</label>
+                                <input type="tel" name="phoneNumber" class="form-control rounded-pill px-3" placeholder="09xxxxxxxx" required pattern="^(0|84)(3|5|7|8|9)[0-9]{8}$">
+                                <div class="invalid-feedback ps-3 smallest">Vui lòng nhập SĐT Việt Nam hợp lệ</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">Vai trò</label>
+                                <select name="role.id" class="form-select rounded-pill px-3" required>
+                                    <c:forEach var="role" items="${roles}">
+                                        <option value="${role.id}">${role.roleName}</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">Mật khẩu</label>
+                                <input type="password" name="password" id="adminPwdInput" class="form-control rounded-pill px-3" placeholder="Mặc định: 123456" minlength="6">
+                                <div class="progress strength-meter bg-light">
+                                    <div id="adminStrengthBar" class="progress-bar strength-0"></div>
+                                </div>
+                                <div class="d-flex justify-content-between mt-1">
+                                    <small class="text-muted smallest">Độ mạnh: <span id="adminStrengthText">Chưa nhập</span></small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">Xác nhận mật khẩu</label>
+                                <input type="password" id="adminRePwd" class="form-control rounded-pill px-3" placeholder="Nhập lại mật khẩu">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">Trạng thái</label>
+                                <select name="status" class="form-select rounded-pill px-3">
+                                    <option value="1">Hoạt động</option>
+                                    <option value="0">Khóa</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">Địa chỉ</label>
+                                <input type="text" name="address" class="form-control rounded-pill px-3" placeholder="Nhập địa chỉ...">
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-3 border-top text-end">
+                            <button type="button" class="btn btn-light rounded-pill px-4 me-2" data-bs-dismiss="modal">Hủy bỏ</button>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">Lưu người dùng</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <jsp:include page="../fragments/footer.jsp"/>
             </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js"></script>
+    <script>
+        // Password Strength
+        const adminPwdInput = document.getElementById('adminPwdInput');
+        const adminStrengthBar = document.getElementById('adminStrengthBar');
+        const adminStrengthText = document.getElementById('adminStrengthText');
+        const strengthTexts = ['Rất yếu', 'Yếu', 'Trung bình', 'Mạnh', 'Rất mạnh'];
+
+        adminPwdInput.addEventListener('input', function() {
+            const val = adminPwdInput.value;
+            if(!val) {
+                adminStrengthBar.className = 'progress-bar strength-0';
+                adminStrengthText.innerText = 'Chưa nhập';
+                return;
+            }
+            const result = zxcvbn(val);
+            const score = result.score + 1;
+            adminStrengthBar.className = 'progress-bar strength-' + score;
+            adminStrengthText.innerText = strengthTexts[result.score];
+            
+            if(score < 3) adminStrengthText.className = 'text-danger smallest';
+            else if(score === 3) adminStrengthText.className = 'text-warning smallest';
+            else adminStrengthText.className = 'text-success smallest';
+        });
+
+        // Form Validation & AJAX Submission
+        (() => {
+            'use strict'
+            const form = document.getElementById('addUserForm');
+            form.addEventListener('submit', async event => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const pass = document.getElementById('adminPwdInput').value;
+                const rePass = document.getElementById('adminRePwd').value;
+                
+                if (pass && pass !== rePass) {
+                    alert('Mật khẩu xác nhận không khớp!');
+                    return;
+                }
+                
+                if (!form.checkValidity()) {
+                    form.classList.add('was-validated');
+                    return;
+                }
+
+                const formData = new FormData(form);
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        alert(result.message);
+                        location.reload();
+                    } else {
+                        // Display server-side errors
+                        let errorMsg = "";
+                        for (const key in result) {
+                            errorMsg += result[key] + "\n";
+                        }
+                        alert(errorMsg);
+                    }
+                } catch (error) {
+                    alert('Đã có lỗi xảy ra khi lưu người dùng!');
+                }
+            }, false);
+        })();
+
+        // Change Role Function
+        async function confirmRoleChange(userId, selectElement, oldRoleName) {
+            const newRoleName = selectElement.options[selectElement.selectedIndex].text;
+            const newRoleId = selectElement.value;
+
+            if (confirm(`Bạn có chắc chắn muốn thay đổi vai trò của người dùng này từ "${oldRoleName}" sang "${newRoleName}"?`)) {
+                try {
+                    const params = new URLSearchParams();
+                    params.append('userId', userId);
+                    params.append('roleId', newRoleId);
+
+                    const response = await fetch(`${pageContext.request.contextPath}/admin/users/update-role`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: params
+                    });
+
+                    const result = await response.json();
+                    if (response.ok) {
+                        alert(result.message);
+                        location.reload();
+                    } else {
+                        alert(result.error || 'Đã có lỗi xảy ra!');
+                        location.reload();
+                    }
+                } catch (error) {
+                    alert('Lỗi kết nối server!');
+                    location.reload();
+                }
+            } else {
+                // Reset select to old value if cancelled
+                location.reload();
+            }
+        }
+    </script>
 </body>
 </html>

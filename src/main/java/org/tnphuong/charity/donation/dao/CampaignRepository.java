@@ -21,6 +21,8 @@ public interface CampaignRepository extends JpaRepository<Campaign, Integer> {
                                   Pageable pageable);
 
     Page<Campaign> findByStatus(Integer status, Pageable pageable);
-    
+
+    boolean existsByCode(String code);
+
     long countByStatus(Integer status);
 }
