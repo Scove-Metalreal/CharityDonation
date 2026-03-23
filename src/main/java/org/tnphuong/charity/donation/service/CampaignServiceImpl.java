@@ -34,23 +34,20 @@ public class CampaignServiceImpl implements CampaignService {
 
     @Override
     public Campaign saveCampaign(Campaign campaign) {
-        if (campaign.getId() == null) {
-            // New campaign initialization
-            if (campaign.getStatus() == null) {
-                campaign.setStatus(0); // 0: Mới
-            }
-            if (campaign.getCurrentMoney() == null) {
-                campaign.setCurrentMoney(BigDecimal.ZERO);
-            }
-            if (campaign.getCreatedAt() == null) {
-                campaign.setCreatedAt(java.time.LocalDateTime.now());
+        if (campaign.getId() != null) {
+            // Kiểm tra bản ghi hiện tại trong DB
+            Campaign currentInDb = campaignRepository.findById(campaign.getId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy chiến dịch!"));
+            
+            // Nếu trạng thái TRONG DB đã là 3 (Đóng), thì không cho phép lưu bất cứ gì nữa
+            if (currentInDb.getStatus() == 3) {
+                throw new RuntimeException("Chiến dịch đã đóng, không thể thay đổi thông tin.");
             }
         } else {
-            // Update: Block if status is Closed (3)
-            Optional<Campaign> existing = campaignRepository.findById(campaign.getId());
-            if (existing.isPresent() && existing.get().getStatus() == 3) { // 3: Đã đóng
-                throw new RuntimeException("Không thể cập nhật chiến dịch đã đóng.");
-            }
+            // Khởi tạo cho chiến dịch mới
+            if (campaign.getStatus() == null) campaign.setStatus(0);
+            if (campaign.getCurrentMoney() == null) campaign.setCurrentMoney(BigDecimal.ZERO);
+            if (campaign.getCreatedAt() == null) campaign.setCreatedAt(java.time.LocalDateTime.now());
         }
         return campaignRepository.save(campaign);
     }

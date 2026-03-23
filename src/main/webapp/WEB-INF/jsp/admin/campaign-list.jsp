@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -7,17 +7,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Chiến dịch - Admin</title>
+    <!-- CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
+    
     <style>
-        .action-btn { width: 32px; height: 32px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; border: none; transition: var(--transition); }
-        .drop-zone { border: 2px dashed #cbd5e1; border-radius: 1rem; padding: 2rem; text-align: center; transition: all 0.3s; cursor: pointer; background: #f8fafc; }
-        .drop-zone:hover, .drop-zone.dragover { border-color: #3b82f6; background: #eff6ff; }
-        .preview-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
-        .preview-item { width: 80px; height: 80px; position: relative; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; }
+        :root { --primary-color: #3b82f6; --bg-light: #f8fafc; }
+        .action-btn { width: 34px; height: 34px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; border: none; transition: 0.2s; }
+        
+        /* Drag & Drop Zone */
+        .drop-zone { 
+            border: 2px dashed #e2e8f0; border-radius: 1.25rem; padding: 2.5rem; 
+            text-align: center; transition: all 0.3s; cursor: pointer; background: #fff;
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+        }
+        .drop-zone:hover, .drop-zone.dragover { border-color: var(--primary-color); background: #eff6ff; }
+        .drop-zone i { color: #cbd5e1; transition: 0.3s; }
+        .drop-zone:hover i { color: var(--primary-color); transform: translateY(-5px); }
+
+        /* Preview Images */
+        .preview-container { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+        .preview-item { 
+            width: 100px; height: 100px; position: relative; border-radius: 12px; 
+            overflow: hidden; border: 2px solid #fff; shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); 
+        }
         .preview-item img { width: 100%; height: 100%; object-fit: cover; }
-        .preview-item .remove-btn { position: absolute; top: 2px; right: 2px; background: rgba(239, 68, 68, 0.8); color: white; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; cursor: pointer; }
+        .preview-item .remove-btn { 
+            position: absolute; top: 5px; right: 5px; background: #ef4444; color: white; 
+            border: none; border-radius: 50%; width: 22px; height: 22px; 
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            font-size: 12px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Tom Select Custom UI */
+        .ts-control { border-radius: 50rem !important; padding: 8px 16px !important; border: 1px solid #dee2e6 !important; }
+        .ts-dropdown .companion-option { padding: 10px 15px; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
+        .ts-dropdown .active { background-color: #f1f5f9 !important; }
+        .companion-avatar { width: 32px; height: 32px; border-radius: 8px; object-fit: cover; border: 1px solid #e2e8f0; }
+        .ts-control .item { background: #e2e8f0 !important; border-radius: 50rem !important; padding: 2px 10px !important; display: flex; align-items: center; gap: 6px; }
+        .ts-control .item img { width: 18px; height: 18px; border-radius: 50%; }
     </style>
 </head>
 <body class="bg-light">
@@ -31,7 +62,6 @@
                 <jsp:include page="../fragments/admin-header.jsp"/>
 
                 <div class="px-4 pb-5">
-                    <!-- Header with Action -->
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h4 class="fw-bold text-dark mb-0">Quản lý Chiến dịch</h4>
                         <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#addCampaignModal">
@@ -39,16 +69,17 @@
                         </button>
                     </div>
 
-                    <div class="card border-0 shadow-sm p-4 mb-4">
+                    <!-- Search Filters -->
+                    <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 1rem;">
                         <form action="${pageContext.request.contextPath}/admin/campaigns" method="get" class="row g-3">
                             <div class="col-md-3">
                                 <label class="form-label smallest fw-bold text-muted text-uppercase">Trạng thái</label>
                                 <select name="status" class="form-select form-select-sm rounded-pill px-3">
                                     <option value="">Tất cả</option>
                                     <option value="0" ${status == 0 ? 'selected' : ''}>Mới tạo</option>
-                                    <option value="1" ${status == 1 ? 'selected' : ''}>Đang chạy</option>
-                                    <option value="2" ${status == 2 ? 'selected' : ''}>Kết thúc</option>
-                                    <option value="3" ${status == 3 ? 'selected' : ''}>Đóng quỹ</option>
+                                    <option value="1" ${status == 1 ? 'selected' : ''}>Đang quyên góp</option>
+                                    <option value="2" ${status == 2 ? 'selected' : ''}>Kết thúc quyên góp</option>
+                                    <option value="3" ${status == 3 ? 'selected' : ''}>Đóng quyên góp</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
@@ -65,7 +96,8 @@
                         </form>
                     </div>
 
-                    <div class="card border-0 shadow-sm p-4">
+                    <!-- Campaign Table -->
+                    <div class="card border-0 shadow-sm p-4" style="border-radius: 1rem;">
                         <div class="table-responsive">
                             <table class="table table-hover align-middle">
                                 <thead class="bg-light text-uppercase smallest fw-bold text-muted">
@@ -88,7 +120,7 @@
                                                     <span class="fw-bold text-primary"><fmt:formatNumber value="${c.currentMoney}" type="number"/>đ</span>
                                                     <span class="text-muted">/ <fmt:formatNumber value="${c.targetMoney}" type="number"/>đ</span>
                                                 </div>
-                                                <div class="progress" style="height: 6px;">
+                                                <div class="progress" style="height: 6px; border-radius: 10px;">
                                                     <c:set var="percent" value="${(c.currentMoney / c.targetMoney) * 100}"/>
                                                     <div class="progress-bar bg-primary" style="width: ${percent > 100 ? 100 : percent}%"></div>
                                                 </div>
@@ -113,9 +145,9 @@
                                                         <button class="action-btn bg-warning bg-opacity-10 text-warning" onclick="openExtendModal(${c.id}, '${c.endDate}')"><i class="fas fa-calendar-plus"></i></button>
                                                     </c:if>
                                                     <c:if test="${c.status == 0}">
-                                                        <form action="${pageContext.request.contextPath}/admin/campaigns/delete" method="post" onsubmit="return confirm('Xóa chiến dịch này?')">
+                                                        <form action="${pageContext.request.contextPath}/admin/campaigns/delete" method="post" class="d-inline delete-form">
                                                             <input type="hidden" name="id" value="${c.id}">
-                                                            <button type="submit" class="action-btn bg-danger bg-opacity-10 text-danger"><i class="far fa-trash-alt"></i></button>
+                                                            <button type="button" class="action-btn bg-danger bg-opacity-10 text-danger" onclick="confirmDelete(this.form)"><i class="far fa-trash-alt"></i></button>
                                                         </form>
                                                     </c:if>
                                                 </div>
@@ -126,9 +158,9 @@
                             </table>
                         </div>
 
-                        <!-- Custom Pagination -->
+                        <!-- Pagination -->
                         <div class="d-flex flex-column align-items-center mt-4">
-                            <div class="page-info">Trang ${currentPage} / ${totalPages}</div>
+                            <div class="page-info mb-2 text-muted smallest fw-bold">Trang ${currentPage} / ${totalPages}</div>
                             <div class="custom-pagination">
                                 <a class="page-btn ${currentPage <= 1 ? 'disabled' : ''}" href="?page=${currentPage - 1}&status=${status}&code=${code}&phone=${phone}"><i class="fas fa-chevron-left"></i></a>
                                 <c:forEach var="i" begin="1" end="${totalPages > 0 ? totalPages : 1}">
@@ -147,23 +179,23 @@
     <!-- Modal Gia hạn -->
     <div class="modal fade" id="extendModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg rounded-4">
-                <div class="modal-header border-0 bg-dark text-white p-4">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 1.25rem;">
+                <div class="modal-header border-0 bg-dark text-white p-4" style="border-radius: 1.25rem 1.25rem 0 0;">
                     <h5 class="modal-title fw-bold">GIA HẠN CHIẾN DỊCH</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <form action="${pageContext.request.contextPath}/admin/campaigns/extend" method="post">
+                    <form action="${pageContext.request.contextPath}/admin/campaigns/extend" method="post" id="extendForm">
                         <input type="hidden" name="id" id="extendId">
                         <div class="mb-4">
                             <label class="form-label smallest fw-bold text-muted text-uppercase">Ngày kết thúc cũ</label>
-                            <input type="text" id="oldEndDate" class="form-control rounded-pill px-4 bg-light" readonly>
+                            <input type="text" id="oldEndDateDisplay" class="form-control rounded-pill px-4 bg-light border-0" readonly>
                         </div>
                         <div class="mb-4">
                             <label class="form-label smallest fw-bold text-muted text-uppercase">Ngày kết thúc mới</label>
-                            <input type="date" name="newEndDate" class="form-control rounded-pill px-4" required>
+                            <input type="date" name="newEndDate" id="newEndDate" class="form-control rounded-pill px-4 border-0 bg-light shadow-sm" required>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow">XÁC NHẬN GIA HẠN</button>
+                        <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow" id="extendSubmitBtn">XÁC NHẬN GIA HẠN</button>
                     </form>
                 </div>
             </div>
@@ -171,61 +203,73 @@
     </div>
 
     <!-- Modal Tạo Chiến dịch -->
-    <div class="modal fade" id="addCampaignModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="addCampaignModalLabel" aria-hidden="true">
+    <div class="modal fade" id="addCampaignModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl">
-            <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 1.5rem;">
                 <div class="modal-header border-0 pb-0 pt-4 px-4">
-                    <h5 class="modal-title fw-bold text-dark" id="addCampaignModalLabel">Tạo chiến dịch mới</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title fw-bold text-dark fs-4">Tạo chiến dịch mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="resetCampaignForm()"></button>
                 </div>
                 <div class="modal-body p-4">
                     <form action="${pageContext.request.contextPath}/admin/campaigns/save" method="post" id="addCampaignForm" enctype="multipart/form-data">
-                        <div class="row g-3">
+                        <div class="row g-4">
                             <div class="col-md-8">
                                 <label class="form-label small fw-bold text-muted">Tên chiến dịch</label>
-                                <input type="text" name="name" class="form-control rounded-pill px-3" required>
+                                <input type="text" name="name" class="form-control rounded-pill px-3 shadow-sm border-0 bg-light" placeholder="Nhập tên..." required>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label small fw-bold text-muted">Mã định danh (Unique)</label>
-                                <input type="text" name="code" class="form-control rounded-pill px-3" required>
+                                <label class="form-label small fw-bold text-muted">Mã định danh (Duy nhất)</label>
+                                <input type="text" name="code" class="form-control rounded-pill px-3 shadow-sm border-0 bg-light" placeholder="Ví dụ: CMP2024..." required>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label small fw-bold text-muted">Ngày bắt đầu</label>
-                                <input type="date" name="startDate" class="form-control rounded-pill px-3" required>
+                                <input type="date" name="startDate" id="startDate" class="form-control rounded-pill px-3 shadow-sm border-0 bg-light" required>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label small fw-bold text-muted">Ngày kết thúc</label>
-                                <input type="date" name="endDate" class="form-control rounded-pill px-3" required>
+                                <input type="date" name="endDate" id="endDate" class="form-control rounded-pill px-3 shadow-sm border-0 bg-light" required>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label small fw-bold text-muted">Mục tiêu (Tối thiểu 1 triệuđ)</label>
-                                <input type="number" name="targetMoney" class="form-control rounded-pill px-3" min="1000000" required>
+                                <label class="form-label small fw-bold text-muted">Mục tiêu (VNĐ)</label>
+                                <input type="number" name="targetMoney" class="form-control rounded-pill px-3 shadow-sm border-0 bg-light" placeholder="1000000" min="1000000" required>
                             </div>
+                            
                             <div class="col-md-12">
-                                <label class="form-label small fw-bold text-muted">Hình ảnh chiến dịch (Kéo thả tối đa 5 ảnh)</label>
-                                <div id="dropZone" class="drop-zone">
-                                    <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
-                                    <p class="mb-0 text-muted">Kéo thả ảnh vào đây hoặc click để chọn</p>
+                                <label class="form-label small fw-bold text-muted">Đối tác đồng hành</label>
+                                <select id="companionSelect" name="companionIds" multiple placeholder="Tìm và chọn đối tác..." autocomplete="off">
+                                    <c:forEach var="comp" items="${allCompanions}">
+                                        <option value="${comp.id}" data-src="${comp.logoUrl}">${comp.name}</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label small fw-bold text-muted">Hình ảnh chiến dịch (Tối đa 5 ảnh)</label>
+                                <div id="dropZone" class="drop-zone shadow-sm">
+                                    <i class="fas fa-cloud-upload-alt fa-3x mb-2"></i>
+                                    <span class="fw-bold text-dark">Kéo thả ảnh vào đây</span>
+                                    <span class="text-muted smallest">Hoặc click để chọn file từ máy tính</span>
                                     <input type="file" id="fileInput" multiple accept="image/*" class="d-none">
                                 </div>
                                 <div id="previewContainer" class="preview-container"></div>
                             </div>
+                            
                             <div class="col-md-12">
                                 <label class="form-label small fw-bold text-muted">SĐT Người thụ hưởng</label>
-                                <input type="text" name="beneficiaryPhone" class="form-control rounded-pill px-3">
+                                <input type="text" name="beneficiaryPhone" class="form-control rounded-pill px-3 shadow-sm border-0 bg-light" placeholder="Số điện thoại nhận tiền...">
                             </div>
                             <div class="col-12">
                                 <label class="form-label small fw-bold text-muted">Mô tả ngắn</label>
-                                <textarea name="background" class="form-control rounded-4 px-3 py-2" rows="2"></textarea>
+                                <textarea name="background" class="form-control border-0 bg-light shadow-sm" rows="2" style="border-radius: 1rem;" placeholder="Tóm tắt mục đích..."></textarea>
                             </div>
                             <div class="col-12">
                                 <label class="form-label small fw-bold text-muted">Nội dung chi tiết (HTML)</label>
-                                <textarea name="content" class="form-control rounded-4 px-3 py-2" rows="6"></textarea>
+                                <textarea name="content" class="form-control border-0 bg-light shadow-sm" rows="5" style="border-radius: 1rem;" placeholder="Nội dung hiển thị trên trang chi tiết..."></textarea>
                             </div>
                         </div>
-                        <div class="mt-4 pt-3 border-top text-end">
-                            <button type="button" class="btn btn-light rounded-pill px-4 me-2" data-bs-dismiss="modal">Hủy bỏ</button>
-                            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" id="submitBtn">LƯU CHIẾN DỊCH</button>
+                        <div class="mt-5 pt-3 border-top text-end">
+                            <button type="button" class="btn btn-light rounded-pill px-4 me-2 fw-bold text-muted" data-bs-dismiss="modal" onclick="resetCampaignForm()">Hủy bỏ</button>
+                            <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow" id="submitBtn">LƯU CHIẾN DỊCH</button>
                         </div>
                     </form>
                 </div>
@@ -233,55 +277,70 @@
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function openExtendModal(id, oldDate) {
-            document.getElementById('extendId').value = id;
-            document.getElementById('oldEndDate').value = oldDate;
-            new bootstrap.Modal(document.getElementById('extendModal')).show();
-        }
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-        // --- Drag & Drop Image Logic ---
+    <script>
+        // --- UI INITIALIZATION ---
+        let companionSelect;
+        document.addEventListener('DOMContentLoaded', function() {
+            companionSelect = new TomSelect('#companionSelect', {
+                plugins: ['remove_button'],
+                render: {
+                    option: function(data, escape) {
+                        return `<div class="companion-option">
+                            <img class="companion-avatar" src="\${escape(data.src)}">
+                            <span class="fw-bold">\${escape(data.text)}</span>
+                        </div>`;
+                    },
+                    item: function(data, escape) {
+                        return `<div class="item">
+                            <img src="\${escape(data.src)}">
+                            \${escape(data.text)}
+                        </div>`;
+                    }
+                }
+            });
+        });
+
+        // --- IMAGE UPLOAD LOGIC ---
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
         const previewContainer = document.getElementById('previewContainer');
         let selectedFiles = [];
 
-        dropZone.onclick = () => fileInput.click();
+        // Fix click error
+        dropZone.addEventListener('click', () => fileInput.click());
 
-        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('dragover'); };
-        dropZone.ondragleave = () => dropZone.classList.remove('dragover');
-        dropZone.ondrop = (e) => {
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropZone.classList.remove('dragover');
             handleFiles(e.dataTransfer.files);
-        };
+        });
 
-        fileInput.onchange = (e) => handleFiles(e.target.files);
+        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
 
         function handleFiles(files) {
             const fileList = Array.from(files);
             if (selectedFiles.length + fileList.length > 5) {
-                alert("Tối đa chỉ được upload 5 ảnh!");
+                Swal.fire('Lỗi', 'Tối đa chỉ được upload 5 ảnh!', 'error');
                 return;
             }
             fileList.forEach(file => {
                 if (!file.type.startsWith('image/')) return;
-                selectedFiles.push(file);
+                if (selectedFiles.some(f => f.name === file.name && f.size === file.size)) return;
                 
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const div = document.createElement('div');
-                    div.className = 'preview-item';
-                    div.innerHTML = `<img src="${e.target.result}"><button type="button" class="remove-btn" onclick="removeFile('${file.name}')">&times;</button>`;
-                    previewContainer.appendChild(div);
-                };
-                reader.readAsDataURL(file);
+                selectedFiles.push(file);
             });
+            renderPreviews();
         }
 
-        window.removeFile = (name) => {
-            selectedFiles = selectedFiles.filter(f => f.name !== name);
+        window.removeFile = function(fileName) {
+            selectedFiles = selectedFiles.filter(f => f.name !== fileName);
             renderPreviews();
         };
 
@@ -291,85 +350,185 @@
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const div = document.createElement('div');
-                    div.className = 'preview-item';
-                    div.innerHTML = `<img src="${e.target.result}"><button type="button" class="remove-btn" onclick="removeFile('${file.name}')">&times;</button>`;
+                    div.className = 'preview-item shadow-sm';
+                    // Escape single quotes in file name for JS function call
+                    const escapedName = file.name.replace(/'/g, "\\'");
+                    div.innerHTML = `<img src="\${e.target.result}">
+                                   <button type="button" class="remove-btn" onclick="removeFile('\${escapedName}')">&times;</button>`;
                     previewContainer.appendChild(div);
                 };
                 reader.readAsDataURL(file);
             });
         }
 
-        // --- AJAX Submit Logic ---
-        const addCampaignForm = document.getElementById('addCampaignForm');
-        addCampaignForm.onsubmit = async (e) => {
-            e.preventDefault();
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang lưu...';
+        function resetCampaignForm() {
+            const form = document.getElementById('addCampaignForm');
+            form.reset();
+            selectedFiles = [];
+            renderPreviews();
+            if(companionSelect) companionSelect.clear();
+            form.classList.remove('was-validated');
+        }
 
-            const formData = new FormData(addCampaignForm);
-            // Remove the empty file input and add our selected files
+        // --- FORM SUBMISSION (AJAX) ---
+        const addCampaignForm = document.getElementById('addCampaignForm');
+        addCampaignForm.addEventListener('submit', async function(e) {
+            e.preventDefault(); // Stop standard redirect
+            
+            // Validate Dates
+            const sDate = new Date(document.getElementById('startDate').value);
+            const eDate = new Date(document.getElementById('endDate').value);
+            if (sDate >= eDate) {
+                Swal.fire('Ngày tháng không hợp lệ', 'Ngày bắt đầu phải TRƯỚC ngày kết thúc!', 'warning');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            const originalBtnText = submitBtn.innerText;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang xử lý...';
+
+            const formData = new FormData(this);
+            // Append files manually
             formData.delete('imageFiles');
             selectedFiles.forEach(file => formData.append('imageFiles', file));
 
             try {
-                const response = await fetch(addCampaignForm.action, {
+                const response = await fetch(this.action, {
                     method: 'POST',
                     body: formData
                 });
 
                 const result = await response.json();
+                
                 if (response.ok) {
-                    alert(result.message);
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: result.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
                     location.reload();
                 } else {
-                    let errorMsg = "Vui lòng kiểm tra lại:\n";
+                    let errorMsg = "";
                     for (const key in result) {
-                        errorMsg += `- ${result[key]}\n`;
+                        errorMsg += `\${result[key]}<br>`;
                     }
-                    alert(errorMsg);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Không thể lưu!',
+                        html: `<div class="text-start text-danger">\${errorMsg}</div>`
+                    });
                 }
             } catch (error) {
-                alert("Đã có lỗi xảy ra khi kết nối server!");
+                Swal.fire('Lỗi hệ thống', 'Đã có lỗi xảy ra hoặc file quá lớn (Max 10MB)!', 'error');
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerText = 'LƯU CHIẾN DỊCH';
+                submitBtn.innerText = originalBtnText;
             }
-        };
+        });
 
-        // --- Change Status Logic ---
+        // --- HELPER FUNCTIONS ---
         async function confirmCampaignStatus(id, selectElement, oldStatus) {
             const newStatus = selectElement.value;
             const statusNames = ['Mới tạo', 'Đang quyên góp', 'Kết thúc quyên góp', 'Đóng quyên góp'];
             
-            if (confirm(`Bạn có chắc muốn chuyển trạng thái chiến dịch sang "${statusNames[newStatus]}"?`)) {
-                try {
-                    const params = new URLSearchParams();
-                    params.append('id', id);
-                    params.append('status', newStatus);
+            const confirm = await Swal.fire({
+                title: 'Xác nhận thay đổi?',
+                text: `Chuyển chiến dịch sang trạng thái "\${statusNames[newStatus]}"?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Đồng ý',
+                cancelButtonText: 'Hủy'
+            });
 
+            if (confirm.isConfirmed) {
+                const params = new URLSearchParams();
+                params.append('id', id);
+                params.append('status', newStatus);
+
+                try {
                     const response = await fetch(`${pageContext.request.contextPath}/admin/campaigns/update-status`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body: params
                     });
-
                     const result = await response.json();
                     if (response.ok) {
-                        alert(result.message);
-                        location.reload();
+                        Swal.fire('Thành công', result.message, 'success').then(() => location.reload());
                     } else {
-                        alert(result.error || 'Lỗi cập nhật!');
-                        location.reload();
+                        Swal.fire('Lỗi', result.error, 'error').then(() => location.reload());
                     }
-                } catch (error) {
-                    alert("Lỗi kết nối!");
-                    location.reload();
+                } catch (e) {
+                    Swal.fire('Lỗi', 'Kết nối server thất bại!', 'error').then(() => location.reload());
                 }
             } else {
                 location.reload();
             }
         }
+
+        function confirmDelete(form) {
+            Swal.fire({
+                title: 'Bạn có chắc chắn?',
+                text: "Dữ liệu chiến dịch sẽ bị xóa vĩnh viễn!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Xóa ngay',
+                cancelButtonText: 'Quay lại'
+            }).then((result) => {
+                if (result.isConfirmed) form.submit();
+            });
+        }
+
+        // --- EXTEND CAMPAIGN LOGIC ---
+        function openExtendModal(id, oldDate) {
+            document.getElementById('extendId').value = id;
+            document.getElementById('oldEndDateDisplay').value = oldDate;
+            const modal = new bootstrap.Modal(document.getElementById('extendModal'));
+            modal.show();
+        }
+
+        document.getElementById('extendForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('extendSubmitBtn');
+            const originalText = submitBtn.innerText;
+            
+            const newDate = new Date(document.getElementById('newEndDate').value);
+            const oldDate = new Date(document.getElementById('oldEndDateDisplay').value);
+            
+            if (newDate <= oldDate) {
+                Swal.fire('Lỗi', 'Ngày kết thúc mới phải sau ngày cũ!', 'warning');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang xử lý...';
+
+            const formData = new URLSearchParams(new FormData(this));
+
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData
+                });
+
+                if (response.ok) {
+                    await Swal.fire('Thành công', 'Gia hạn chiến dịch thành công!', 'success');
+                    location.reload();
+                } else {
+                    Swal.fire('Lỗi', 'Không thể gia hạn chiến dịch.', 'error');
+                }
+            } catch (e) {
+                Swal.fire('Lỗi', 'Kết nối server thất bại!', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalText;
+            }
+        });
     </script>
 </body>
 </html>

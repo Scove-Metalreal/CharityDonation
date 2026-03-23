@@ -38,14 +38,20 @@ public class HomeController {
     @Autowired
     private org.tnphuong.charity.donation.dao.UserFollowingRepository userFollowingRepository;
 
+    @Autowired
+    private org.tnphuong.charity.donation.dao.CompanionRepository companionRepository;
+
     @GetMapping("/")
     public String home(@RequestParam(required = false, defaultValue = "1") Integer status, 
-                       @RequestParam(defaultValue = "1") int page,
                        Model model) {
-        Page<Campaign> campaignPage = campaignService.getCampaignsByStatus(status, PageRequest.of(page - 1, 9));
-        model.addAttribute("campaigns", campaignPage.getContent());
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", campaignPage.getTotalPages());
+        // Lấy tất cả chiến dịch theo trạng thái để xử lý "Xem thêm" bằng JS
+        List<Campaign> allCampaigns = campaignService.getAllCampaigns().stream()
+                .filter(c -> c.getStatus().equals(status))
+                .sorted((c1, c2) -> c2.getCreatedAt().compareTo(c1.getCreatedAt()))
+                .toList();
+        
+        model.addAttribute("campaigns", allCampaigns);
+        model.addAttribute("companions", companionRepository.findAll());
         model.addAttribute("currentStatus", status);
         return "index";
     }

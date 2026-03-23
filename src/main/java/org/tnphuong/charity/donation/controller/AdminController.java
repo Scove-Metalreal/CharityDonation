@@ -16,7 +16,7 @@ import org.tnphuong.charity.donation.entity.User;
 import org.tnphuong.charity.donation.service.CampaignService;
 import org.tnphuong.charity.donation.service.DonationService;
 import org.tnphuong.charity.donation.service.UserService;
-import org.tnphuong.charity.donation.utils.PasswordUtils;
+import org.tnphuong.charity.donation.dao.CompanionRepository;
 
 import java.nio.file.*;
 import java.util.*;
@@ -45,6 +45,9 @@ public class AdminController {
 
     @Autowired
     private org.tnphuong.charity.donation.dao.DonationRepository donationRepository;
+
+    @Autowired
+    private CompanionRepository companionRepository;
 
     private void addCommonData(Model model) {
         model.addAttribute("recentDonations", donationRepository.findTop5ByOrderByCreatedAtDesc());
@@ -127,11 +130,11 @@ public class AdminController {
         Map<String, String> errors = new HashMap<>();
         if (user.getId() == null) {
             if (userService.getUserByEmail(user.getEmail()).isPresent()) {
-                errors.put("email", "Email đã được sử dụng bởi một tài khoản khác!");
+                errors.put("email", "Email đã tồn tại!");
             }
             if (user.getPhoneNumber() != null && !user.getPhoneNumber().isEmpty() 
                 && userService.getUserByPhoneNumber(user.getPhoneNumber()).isPresent()) {
-                errors.put("phone", "Số điện thoại đã được sử dụng bởi một tài khoản khác!");
+                errors.put("phone", "Số điện thoại đã tồn tại!");
             }
         }
         if (!errors.isEmpty()) {
@@ -183,6 +186,7 @@ public class AdminController {
         model.addAttribute("status", status);
         model.addAttribute("phone", phone);
         model.addAttribute("code", code);
+        model.addAttribute("allCompanions", companionRepository.findAll());
         
         return "admin/campaign-list";
     }
@@ -206,23 +210,85 @@ public class AdminController {
     @PostMapping("/campaigns/save")
     @ResponseBody
     public ResponseEntity<?> saveCampaign(@ModelAttribute("campaign") Campaign campaign,
-                                         @RequestParam(value = "imageFiles", required = false) MultipartFile[] files) {
-        // ... (existing code)
+                                         @RequestParam(value = "imageFiles", required = false) MultipartFile[] files,
+                                         @RequestParam(value = "companionIds", required = false) List<Integer> companionIds) {
+        Map<String, String> errors = new HashMap<>();
+        
+        // 1. Uniqueness check
+        if (campaign.getId() == null && campaignRepository.existsByCode(campaign.getCode())) {
+            errors.put("code", "Mã chiến dịch đã tồn tại!");
+        }
+
+        // 2. Strict Date check
+        if (campaign.getStartDate() == null) errors.put("startDate", "Vui lòng chọn ngày bắt đầu!");
+        if (campaign.getEndDate() == null) errors.put("endDate", "Vui lòng chọn ngày kết thúc!");
+        
+        if (campaign.getStartDate() != null && campaign.getEndDate() != null) {
+            if (!campaign.getStartDate().isBefore(campaign.getEndDate())) {
+                errors.put("date", "Ngày bắt đầu phải TRƯỚC ngày kết thúc!");
+            }
+        }
+
+        // 3. Money check
+        if (campaign.getTargetMoney() == null || campaign.getTargetMoney().compareTo(java.math.BigDecimal.valueOf(1000000)) < 0) {
+            errors.put("money", "Mục tiêu tối thiểu là 1,000,000 VNĐ!");
+        }
+
+        if (!errors.isEmpty()) return ResponseEntity.badRequest().body(errors);
+
+        // 4. Multiple Image Upload (Max 5)
+        if (files != null && files.length > 0 && !files[0].isEmpty()) {
+            try {
+                StringBuilder galleryStr = new StringBuilder();
+                Path uploadPath = Paths.get("uploads");
+                if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
+
+                int count = 0;
+                for (MultipartFile file : files) {
+                    if (file == null || file.isEmpty()) continue;
+                    if (count >= 5) break;
+
+                    String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename().replaceAll("\\s+", "_");
+                    Path filePath = uploadPath.resolve(fileName);
+                    Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                    
+                    String url = "/uploads/" + fileName;
+                    if (count == 0) campaign.setImageUrl(url); 
+                    
+                    if (galleryStr.length() > 0) galleryStr.append(",");
+                    galleryStr.append(url);
+                    count++;
+                }
+                if (galleryStr.length() > 0) campaign.setGalleryUrls(galleryStr.toString());
+            } catch (Exception e) {
+                return ResponseEntity.internalServerError().body(Map.of("error", "Lỗi upload ảnh: " + e.getMessage()));
+            }
+        }
+
+        // 5. Handle Companions
+        if (companionIds != null && !companionIds.isEmpty()) {
+            List<org.tnphuong.charity.donation.entity.Companion> companions = companionRepository.findAllById(companionIds);
+            campaign.setCompanions(companions);
+        }
+
         campaignService.saveCampaign(campaign);
-        return ResponseEntity.ok().body(Map.of("message", "Tạo chiến dịch thành công!"));
+        return ResponseEntity.ok().body(Map.of("message", "Lưu chiến dịch thành công!"));
     }
 
     @PostMapping("/campaigns/update-status")
     @ResponseBody
     public ResponseEntity<?> updateCampaignStatus(@RequestParam Integer id, @RequestParam Integer status) {
-        Optional<Campaign> campaignOpt = campaignService.getCampaignById(id);
+        Optional<Campaign> campaignOpt = campaignRepository.findById(id);
         if (campaignOpt.isPresent()) {
-            Campaign campaign = campaignOpt.get();
-            if (campaign.getStatus() == 3) {
+            Campaign current = campaignOpt.get();
+            
+            // Nếu TRONG DB đang là 3 thì chặn
+            if (current.getStatus() == 3) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Chiến dịch đã đóng, không thể thay đổi trạng thái!"));
             }
-            campaign.setStatus(status);
-            campaignService.saveCampaign(campaign);
+            
+            // Cập nhật trực tiếp
+            campaignRepository.updateStatus(id, status);
             return ResponseEntity.ok().body(Map.of("message", "Cập nhật trạng thái thành công!"));
         }
         return ResponseEntity.badRequest().body(Map.of("error", "Không tìm thấy chiến dịch!"));

@@ -24,5 +24,10 @@ public interface CampaignRepository extends JpaRepository<Campaign, Integer> {
 
     boolean existsByCode(String code);
 
+    @jakarta.transaction.Transactional
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("UPDATE Campaign c SET c.status = :status WHERE c.id = :id")
+    void updateStatus(@Param("id") Integer id, @Param("status") Integer status);
+
     long countByStatus(Integer status);
 }
