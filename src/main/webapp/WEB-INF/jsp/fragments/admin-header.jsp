@@ -18,11 +18,11 @@
     <div class="d-flex align-items-center">
         <!-- Notifications -->
         <div class="dropdown me-3">
-            <div class="position-relative cursor-pointer" data-bs-toggle="dropdown">
+            <div class="position-relative cursor-pointer" data-bs-toggle="dropdown" id="notificationBell">
                 <i class="far fa-bell fs-5 text-muted"></i>
-                <c:if test="${not empty recentDonations}">
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
-                        ${recentDonations.size()}
+                <c:if test="${notificationCount > 0}">
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notificationBadge" style="font-size: 0.6rem;">
+                        ${notificationCount}
                     </span>
                 </c:if>
             </div>
@@ -51,6 +51,20 @@
         </div>
     </div>
 </nav>
+
+<script>
+    document.getElementById('notificationBell').addEventListener('show.bs.dropdown', function () {
+        fetch('${pageContext.request.contextPath}/admin/mark-notifications-read')
+            .then(response => {
+                if (response.ok) {
+                    const badge = document.getElementById('notificationBadge');
+                    if (badge) {
+                        badge.style.display = 'none';
+                    }
+                }
+            });
+    });
+</script>
 
 <style>
     .hover-bg-light:hover { background-color: #f8f9fa; }

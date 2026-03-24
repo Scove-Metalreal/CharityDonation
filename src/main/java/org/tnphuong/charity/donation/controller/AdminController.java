@@ -49,18 +49,37 @@ public class AdminController {
     @Autowired
     private CompanionRepository companionRepository;
 
-    private void addCommonData(Model model) {
+    private void addCommonData(Model model, jakarta.servlet.http.HttpSession session) {
         model.addAttribute("recentDonations", donationRepository.findTop5ByOrderByCreatedAtDesc());
+        
+        long pendingCount = donationRepository.countByStatus(0);
+        Boolean notificationsRead = (Boolean) session.getAttribute("notificationsRead");
+        
+        if (notificationsRead != null && notificationsRead) {
+            model.addAttribute("notificationCount", 0);
+        } else {
+            model.addAttribute("notificationCount", pendingCount);
+        }
+    }
+
+    @GetMapping("/mark-notifications-read")
+    @ResponseBody
+    public ResponseEntity<?> markNotificationsRead(jakarta.servlet.http.HttpSession session) {
+        session.setAttribute("notificationsRead", true);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/dashboard")
-    public String dashboard(Model model) {
+    public String dashboard(Model model, jakarta.servlet.http.HttpSession session) {
         model.addAttribute("activePage", "admin-dashboard");
-        addCommonData(model);
+        addCommonData(model, session);
         
         model.addAttribute("totalUsers", userRepository.count());
         model.addAttribute("activeCampaigns", campaignRepository.countByStatus(1));
         model.addAttribute("pendingDonations", donationRepository.countByStatus(0));
+        
+        // Fetch 10 for dashboard table
+        model.addAttribute("dashboardDonations", donationRepository.findTop10ByOrderByCreatedAtDesc());
         
         java.math.BigDecimal totalAmount = donationRepository.sumTotalDonations();
         model.addAttribute("totalAmount", totalAmount != null ? totalAmount : java.math.BigDecimal.ZERO);
@@ -74,9 +93,9 @@ public class AdminController {
                            @RequestParam(required = false) Integer status,
                            @RequestParam(required = false) String inactive,
                            @RequestParam(defaultValue = "1") int page, 
-                           Model model) {
+                           Model model, jakarta.servlet.http.HttpSession session) {
         model.addAttribute("activePage", "admin-users");
-        addCommonData(model);
+        addCommonData(model, session);
         
         int pageSize = 20; 
         Pageable pageable = PageRequest.of(page - 1, pageSize);
@@ -108,17 +127,17 @@ public class AdminController {
     }
 
     @GetMapping("/users/detail/{id}")
-    public String userDetail(@PathVariable Integer id, Model model) {
+    public String userDetail(@PathVariable Integer id, Model model, jakarta.servlet.http.HttpSession session) {
         model.addAttribute("activePage", "admin-users");
-        addCommonData(model);
+        addCommonData(model, session);
         userRepository.findById(id).ifPresent(user -> model.addAttribute("user", user));
         return "admin/user-detail";
     }
 
     @GetMapping("/users/add")
-    public String showAddUserForm(Model model) {
+    public String showAddUserForm(Model model, jakarta.servlet.http.HttpSession session) {
         model.addAttribute("activePage", "admin-users");
-        addCommonData(model);
+        addCommonData(model, session);
         model.addAttribute("user", new User());
         model.addAttribute("roles", roleRepository.findAll());
         return "admin/user-form";
@@ -173,9 +192,9 @@ public class AdminController {
                                 @RequestParam(required = false) String phone,
                                 @RequestParam(required = false) String code,
                                 @RequestParam(defaultValue = "1") int page,
-                                Model model) {
+                                Model model, jakarta.servlet.http.HttpSession session) {
         model.addAttribute("activePage", "admin-campaigns");
-        addCommonData(model);
+        addCommonData(model, session);
         
         Pageable pageable = PageRequest.of(page - 1, 20); 
         Page<Campaign> campaignPage = campaignService.searchCampaigns(status, phone, code, pageable);
@@ -192,17 +211,17 @@ public class AdminController {
     }
 
     @GetMapping("/campaigns/new")
-    public String showCampaignForm(Model model) {
+    public String showCampaignForm(Model model, jakarta.servlet.http.HttpSession session) {
         model.addAttribute("activePage", "admin-campaigns");
-        addCommonData(model);
+        addCommonData(model, session);
         model.addAttribute("campaign", new Campaign());
         return "admin/campaign-form";
     }
 
     @GetMapping("/campaigns/edit")
-    public String showEditCampaignForm(@RequestParam Integer id, Model model) {
+    public String showEditCampaignForm(@RequestParam Integer id, Model model, jakarta.servlet.http.HttpSession session) {
         model.addAttribute("activePage", "admin-campaigns");
-        addCommonData(model);
+        addCommonData(model, session);
         campaignService.getCampaignById(id).ifPresent(campaign -> model.addAttribute("campaign", campaign));
         return "admin/campaign-form";
     }
@@ -306,9 +325,9 @@ public class AdminController {
     public String listDonations(@RequestParam(required = false) String keyword,
                                @RequestParam(required = false) Integer status,
                                @RequestParam(defaultValue = "1") int page,
-                               Model model) {
+                               Model model, jakarta.servlet.http.HttpSession session) {
         model.addAttribute("activePage", "admin-donations");
-        addCommonData(model);
+        addCommonData(model, session);
         
         Pageable pageable = PageRequest.of(page - 1, 20); 
         String trimmedKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
@@ -342,9 +361,9 @@ public class AdminController {
     }
 
     @GetMapping("/settings")
-    public String showSettings(Model model) {
+    public String showSettings(Model model, jakarta.servlet.http.HttpSession session) {
         model.addAttribute("activePage", "admin-settings");
-        addCommonData(model);
+        addCommonData(model, session);
         return "admin/settings";
     }
 }

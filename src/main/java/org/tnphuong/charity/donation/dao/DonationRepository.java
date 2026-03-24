@@ -25,6 +25,7 @@ public interface DonationRepository extends JpaRepository<Donation, Integer> {
     long countByStatus(Integer status);
     
     List<Donation> findTop5ByOrderByCreatedAtDesc();
+    List<Donation> findTop10ByOrderByCreatedAtDesc();
 
     @Query("SELECT d FROM Donation d WHERE " +
            "(:keyword IS NULL OR d.user.fullName LIKE %:keyword% OR d.campaign.name LIKE %:keyword%) AND " +

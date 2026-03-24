@@ -1,6 +1,9 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<div class="sidebar-x shadow-sm border-end d-flex flex-column position-sticky top-0" id="adminSidebar" style="height: 100vh; background: #fff;">
+<div class="sidebar-x shadow-sm border-end d-flex flex-column" id="adminSidebar" style="background: #fff; z-index: 1100;">
+    <!-- Resizer handle -->
+    <div class="sidebar-resizer" id="adminSidebarResizer"></div>
+
     <div class="sidebar-header mb-4 ps-3 pt-3 d-flex align-items-center justify-content-between">
         <a href="${pageContext.request.contextPath}/" class="text-decoration-none d-flex align-items-center">
             <i class="fas fa-hand-holding-heart fa-2x text-primary"></i>
@@ -9,12 +12,12 @@
                 <div class="text-muted smallest fw-bold">ADMIN PANEL</div>
             </div>
         </a>
-        <button class="btn btn-sm btn-light rounded-circle me-2 sidebar-toggle-btn" onclick="toggleAdminSidebar()">
+        <button class="btn btn-sm btn-light rounded-circle me-2 sidebar-toggle-btn" onclick="toggleAdminSidebar()" style="z-index: 1200;">
             <i class="fas fa-chevron-left" id="adminToggleIcon"></i>
         </button>
     </div>
     
-    <nav class="nav flex-column mb-4 px-2 flex-grow-1">
+    <nav class="nav flex-column mb-4 px-2 flex-grow-1 overflow-hidden">
         <a class="nav-link sidebar-nav-link ${activePage == 'admin-dashboard' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/dashboard">
             <i class="fas fa-chart-line"></i> <span class="sidebar-text ms-2">Dashboard</span>
         </a>
@@ -37,7 +40,7 @@
     </nav>
 
     <!-- Pin to Bottom -->
-    <div class="mt-auto p-3 border-top bg-white">
+    <div class="mt-auto p-3 border-top bg-white" style="z-index: 1200;">
         <div class="dropdown">
             <div class="sidebar-user-mini d-flex align-items-center cursor-pointer" data-bs-toggle="dropdown">
                 <img src="https://ui-avatars.com/api/?name=${sessionScope.loggedInUser.fullName}&background=10B981&color=fff" class="rounded-circle shadow-sm" width="40" height="40">
@@ -56,34 +59,92 @@
 </div>
 
 <script>
-    function toggleAdminSidebar() {
-        const sidebar = document.getElementById('adminSidebar');
+    const adminSidebar = document.getElementById('adminSidebar');
+    const adminResizer = document.getElementById('adminSidebarResizer');
+    const MIN_WIDTH_ADMIN = 80;
+    const MAX_WIDTH_ADMIN = 400;
+    const SNAP_MIN_ADMIN = 120;
+
+    // Load saved width
+    const savedAdminWidth = localStorage.getItem('admin-sidebar-width');
+    if (savedAdminWidth) {
+        applyAdminWidth(parseInt(savedAdminWidth));
+    }
+
+    function applyAdminWidth(width) {
         const icon = document.getElementById('adminToggleIcon');
-        sidebar.classList.toggle('collapsed');
-        
-        if (sidebar.classList.contains('collapsed')) {
-            icon.classList.replace('fa-chevron-left', 'fa-chevron-right');
-            localStorage.setItem('admin-sidebar-collapsed', 'true');
+        if (width <= SNAP_MIN_ADMIN) {
+            adminSidebar.classList.add('collapsed');
+            adminSidebar.style.width = '80px';
+            if(icon) icon.classList.replace('fa-chevron-left', 'fa-chevron-right');
         } else {
-            icon.classList.replace('fa-chevron-right', 'fa-chevron-left');
-            localStorage.setItem('admin-sidebar-collapsed', 'false');
+            adminSidebar.classList.remove('collapsed');
+            adminSidebar.style.width = width + 'px';
+            if(icon) icon.classList.replace('fa-chevron-right', 'fa-chevron-left');
         }
     }
 
-    if (localStorage.getItem('admin-sidebar-collapsed') === 'true') {
-        document.getElementById('adminSidebar').classList.add('collapsed');
-        document.getElementById('adminToggleIcon').classList.replace('fa-chevron-left', 'fa-chevron-right');
+    function toggleAdminSidebar() {
+        const icon = document.getElementById('adminToggleIcon');
+        if (adminSidebar.classList.contains('collapsed')) {
+            applyAdminWidth(280);
+            localStorage.setItem('admin-sidebar-width', '280');
+        } else {
+            applyAdminWidth(80);
+            localStorage.setItem('admin-sidebar-width', '80');
+        }
     }
+
+    // Resizing logic
+    let isAdminResizing = false;
+
+    adminResizer.addEventListener('mousedown', (e) => {
+        isAdminResizing = true;
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isAdminResizing) return;
+        
+        let newWidth = e.clientX;
+        if (newWidth < MIN_WIDTH_ADMIN) newWidth = MIN_WIDTH_ADMIN;
+        if (newWidth > MAX_WIDTH_ADMIN) newWidth = MAX_WIDTH_ADMIN;
+        
+        applyAdminWidth(newWidth);
+        localStorage.setItem('admin-sidebar-width', newWidth);
+    });
+
+    document.addEventListener('mouseup', () => {
+        isAdminResizing = false;
+        document.body.style.cursor = 'default';
+        document.body.style.userSelect = 'auto';
+    });
 </script>
 
 <style>
-    .sidebar-x { width: 280px; transition: all 0.3s ease; }
-    .sidebar-nav-link { padding: 12px 15px; border-radius: 99px; margin-bottom: 5px; color: #333; display: flex; align-items: center; text-decoration: none; }
+    .sidebar-x { width: 280px; transition: width 0.1s ease; height: 100vh; position: sticky; top: 0; }
+    
+    .sidebar-resizer {
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        cursor: col-resize;
+        background: transparent;
+        transition: background 0.2s;
+        z-index: 1110;
+    }
+    .sidebar-resizer:hover { background: var(--color-primary); opacity: 0.3; }
+
+    .sidebar-nav-link { padding: 12px 15px; border-radius: 99px; margin-bottom: 5px; color: #333; display: flex; align-items: center; text-decoration: none; white-space: nowrap; }
     .sidebar-nav-link:hover { background-color: rgba(16, 185, 129, 0.1); color: var(--color-primary); }
     .sidebar-nav-link.active { font-weight: 700; color: var(--color-primary); background-color: rgba(16, 185, 129, 0.1); }
     
     .sidebar-x.collapsed { width: 80px !important; }
     .sidebar-x.collapsed .sidebar-text { display: none; }
     .sidebar-x.collapsed .sidebar-header { justify-content: center; padding-left: 0 !important; }
-    .sidebar-x.collapsed .sidebar-nav-link { justify-content: center; width: 50px; height: 50px; padding: 0; margin: 0 auto 10px auto; }
+    .sidebar-x.collapsed .sidebar-nav-link { justify-content: center; padding: 12px 0; }
+    .sidebar-x.collapsed .sidebar-nav-link i { margin: 0 !important; }
 </style>

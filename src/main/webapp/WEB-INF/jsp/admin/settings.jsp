@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="vi">
@@ -12,15 +12,15 @@
 </head>
 <body class="bg-light">
     <div class="container-fluid">
-        <div class="row">
+        <div class="row flex-nowrap">
             <!-- Sidebar -->
-            <div class="col-lg-2 col-xl-2 d-none d-lg-block p-0 position-fixed" style="height: 100vh;">
-                <c:set var="currentPage" value="admin-settings" scope="request"/>
+            <div class="col-auto p-0">
+                <c:set var="activePage" value="admin-settings" scope="request"/>
                 <jsp:include page="../fragments/admin-sidebar.jsp"/>
             </div>
 
             <!-- Content -->
-            <div class="col-lg-10 offset-lg-2 py-0">
+            <div class="col p-0 bg-white" style="min-width: 0; min-height: 100vh;">
                 <!-- Top Navbar -->
                 <jsp:include page="../fragments/admin-header.jsp"/>
 
@@ -63,6 +63,7 @@
                         </div>
                     </div>
                 </div>
+                <jsp:include page="../fragments/footer.jsp"/>
             </div>
         </div>
     </div>

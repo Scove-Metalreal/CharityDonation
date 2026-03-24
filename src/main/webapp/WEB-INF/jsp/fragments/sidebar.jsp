@@ -163,7 +163,7 @@
         background: white;
         transition: width 0.1s ease, transform 0.3s ease; 
         position: relative;
-        z-index: 1050;
+        z-index: 1100;
     }
     
     .sidebar-resizer {

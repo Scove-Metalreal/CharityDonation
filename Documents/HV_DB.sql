@@ -152,26 +152,26 @@ INSERT INTO payment_methods (method_name, provider, account_number, is_active) V
 
 -- 4. Companions (20)
 INSERT INTO companions (name, description, logo_url) VALUES
-('Ví MoMo', 'Đối tác chiến lược', 'https://momo.vn/static/momo-upload-api/2021/04/09/momo-logo.png'),
-('UNICEF', 'Quỹ nhi đồng LHQ', 'https://www.unicef.org/themes/custom/unicef_bem/logo.svg'),
-('VTV', 'Đài truyền hình VN', 'https://vtv1.com.vn/vtv-logo.png'),
-('Tuổi Trẻ', 'Báo Tuổi Trẻ', 'https://tuoitre.vn/logo.png'),
-('Grab', 'Grab Việt Nam', 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Grab_logo.svg'),
+('Ví MoMo', 'Đối tác chiến lược', 'https://upload.wikimedia.org/wikipedia/commons/a/a0/MoMo_Logo_App.svg'),
+('UNICEF', 'Quỹ nhi đồng LHQ', 'https://upload.wikimedia.org/wikipedia/commons/e/ed/Logo_of_UNICEF.svg'),
+('VTV', 'Đài truyền hình VN', 'https://upload.wikimedia.org/wikipedia/commons/3/39/Vietnam_Television_logo_from_2013.svg'),
+('Tuổi Trẻ', 'Báo Tuổi Trẻ', 'https://upload.wikimedia.org/wikipedia/commons/1/1f/Tu%E1%BB%95i_Tr%E1%BA%BB_Logo.svg'),
+('Grab', 'Grab Việt Nam', 'https://upload.wikimedia.org/wikipedia/en/1/12/Grab_(application)_logo.svg'),
 ('Shopee', 'Shopee Việt Nam', 'https://upload.wikimedia.org/wikipedia/commons/f/fe/Shopee.svg'),
-('VinGroup', 'Tập đoàn Vingroup', 'https://vingroup.net/logo.png'),
-('FPT', 'Tập đoàn FPT', 'https://fpt.com.vn/logo.png'),
-('Vietcombank', 'Ngân hàng VCB', 'https://vietcombank.com.vn/logo.png'),
-('Zalo', 'Zalo Group', 'https://zalo.me/logo.png'),
-('Hội Chữ Thập Đỏ', 'Hội chữ thập đỏ', 'https://redcross.org.vn/logo.png'),
-('Quỹ Thiện Tâm', 'Quỹ từ thiện Vin', 'https://quythientam.com/logo.png'),
-('Vietnam Airlines', 'Hàng không quốc gia', 'https://vietnamairlines.com/logo.png'),
-('Bách Khoa HN', 'ĐH Bách Khoa', 'https://hust.edu.vn/logo.png'),
-('Kinh Đô', 'Tập đoàn Kinh Đô', 'https://kinhdo.vn/logo.png'),
-('Viettel', 'Tập đoàn Viettel', 'https://viettel.vn/logo.png'),
-('VNPT', 'Tập đoàn VNPT', 'https://vnpt.vn/logo.png'),
-('Honda VN', 'Honda Việt Nam', 'https://honda.com.vn/logo.png'),
-('Vinamilk', 'Sữa Việt Nam', 'https://vinamilk.com.vn/logo.png'),
-('Masan', 'Tập đoàn Masan', 'https://masangroup.com/logo.png');
+('VinGroup', 'Tập đoàn Vingroup', 'https://upload.wikimedia.org/wikipedia/vi/9/98/Vingroup_logo.svg'),
+('FPT', 'Tập đoàn FPT', 'https://upload.wikimedia.org/wikipedia/commons/1/11/FPT_logo_2010.svg'),
+('Vietcombank', 'Ngân hàng VCB', 'https://upload.wikimedia.org/wikipedia/commons/e/e3/Vietcombank_logo_fixed.svg'),
+('Zalo', 'Zalo Group', 'https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg'),
+('Hội Chữ Thập Đỏ', 'Hội chữ thập đỏ', 'https://upload.wikimedia.org/wikipedia/commons/e/ee/Red_Cross_icon.svg'),
+('Quỹ Thiện Tâm', 'Quỹ từ thiện Vin', 'https://quyhyvong.com/wp-content/uploads/2021/12/Logo_Quy-Thien-Tam.png'),
+('Vietnam Airlines', 'Hàng không quốc gia', 'https://upload.wikimedia.org/wikipedia/vi/b/bc/Vietnam_Airlines_logo.svg'),
+('Bách Khoa HN', 'ĐH Bách Khoa', 'https://upload.wikimedia.org/wikipedia/vi/e/ef/Logo_%C4%90%E1%BA%A1i_h%E1%BB%8Dc_B%C3%A1ch_Khoa_H%C3%A0_N%E1%BB%99i.svg'),
+('Kinh Đô', 'Tập đoàn Kinh Đô', 'https://cdn.haitrieu.com/wp-content/uploads/2022/08/logo-kinh-do.png'),
+('Viettel', 'Tập đoàn Viettel', 'https://upload.wikimedia.org/wikipedia/commons/f/fe/Viettel_logo_2021.svg'),
+('VNPT', 'Tập đoàn VNPT', 'https://upload.wikimedia.org/wikipedia/vi/6/65/VNPT_Logo.svg'),
+('Honda VN', 'Honda Việt Nam', 'https://upload.wikimedia.org/wikipedia/commons/3/38/Honda.svg'),
+('Vinamilk', 'Sữa Việt Nam', 'https://upload.wikimedia.org/wikipedia/commons/7/70/Vinamilk_new_logo.svg'),
+('Masan', 'Tập đoàn Masan', 'https://cdn.brandfetch.io/idY9yB4mYQ/w/240/h/80/theme/dark/logo.png?c=1bxid64Mup7aczewSAYMX&t=1772602877407');
 
 -- 5. Campaigns (20 campaigns with various statuses)
 INSERT INTO campaigns (code, name, background, start_date, end_date, target_money, current_money, status, beneficiary_phone) VALUES

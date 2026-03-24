@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -20,15 +20,15 @@
 </head>
 <body class="bg-light">
     <div class="container-fluid">
-        <div class="row">
+        <div class="row flex-nowrap">
             <!-- Sidebar -->
-            <div class="col-lg-2 col-xl-2 d-none d-lg-block p-0 position-fixed" style="height: 100vh;">
-                <c:set var="currentPage" value="admin-dashboard" scope="request"/>
+            <div class="col-auto p-0">
+                <c:set var="activePage" value="admin-dashboard" scope="request"/>
                 <jsp:include page="../fragments/admin-sidebar.jsp"/>
             </div>
 
             <!-- Content -->
-            <div class="col-lg-10 offset-lg-2 py-0">
+            <div class="col p-0 bg-white" style="min-width: 0; min-height: 100vh;">
                 <!-- Top Navbar -->
                 <jsp:include page="../fragments/admin-header.jsp"/>
 
@@ -79,7 +79,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <c:forEach var="d" items="${recentDonations}">
+                                            <c:forEach var="d" items="${dashboardDonations}">
                                                 <tr>
                                                     <td>
                                                         <div class="fw-bold small">${d.user.fullName}</div>
@@ -99,6 +99,11 @@
                                         </tbody>
                                     </table>
                                 </div>
+                                <div class="text-center mt-3">
+                                    <a href="${pageContext.request.contextPath}/admin/donations" class="btn btn-light btn-sm rounded-pill px-4 fw-bold text-primary border-0 shadow-sm">
+                                        Xem thêm <i class="fas fa-chevron-right ms-1 smallest"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                         <div class="col-lg-4">
@@ -112,6 +117,7 @@
                         </div>
                     </div>
                 </div>
+                <jsp:include page="../fragments/footer.jsp"/>
             </div>
         </div>
     </div>
