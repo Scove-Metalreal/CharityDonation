@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -6,15 +6,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 512'><path fill='%2310B981' d='M256 160a64 64 0 1 1 128 0 64 64 0 1 1 -128 0zM128 352c0-17.7 14.3-32 32-32H480c17.7 0 32 14.3 32 32v48H128V352zm320 128H480c35.3 0 64-28.7 64-64V352c0-17.7-14.3-32-32-32H128c-17.7 0-32 14.3-32 32v64c0 35.3 28.7 64 64 64H448zM160 80a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm256 32a32 32 0 1 1 0-64 32 32 0 1 1 0 64z'/></svg>">
     <title>${campaign.name} - CharityDonation</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
     <style>
-        .scrollable-main { height: 100vh; overflow-y: auto; scrollbar-width: none; }
+        .scrollable-main { height: 100vh; overflow-y: auto; scrollbar-width: none; scroll-behavior: smooth; }
         .scrollable-main::-webkit-scrollbar { display: none; }
         .campaign-title { font-size: 2.2rem; line-height: 1.3; }
-        .main-feature-img { width: 100%; height: 400px; object-fit: cover; border-radius: 20px; }
+        .main-feature-img { width: 100%; height: 500px; object-fit: cover; border-radius: 20px; cursor: pointer; }
         .thumb-img { width: 100%; height: 80px; object-fit: cover; border-radius: 12px; cursor: pointer; opacity: 0.6; transition: 0.3s; }
         .thumb-img:hover, .thumb-img.active { opacity: 1; border: 2px solid var(--color-primary); }
         .donation-action-card { background: #1a1a1a; color: white; border-radius: 24px; padding: 30px; position: sticky; top: 20px; }
@@ -24,6 +25,7 @@
         .nav-tabs-custom .nav-link.active::after { content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--color-primary); border-radius: 3px; }
         .donor-container { background: #f9fafb; border: 1px solid var(--color-border); border-radius: 20px; overflow: hidden; }
         .donor-row { padding: 15px 20px; display: flex; align-items: center; border-bottom: 1px solid var(--color-border); }
+        .donor-row:last-child { border-bottom: none; }
     </style>
 </head>
 <body class="bg-light">
@@ -48,11 +50,39 @@
 
                     <div class="row g-4 mb-5">
                         <div class="col-lg-7 col-xl-8">
-                            <img src="${not empty campaign.imageUrl ? campaign.imageUrl : 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'}" class="main-feature-img shadow-sm mb-3">
-                            <div class="row g-2">
+                            <!-- Image Carousel -->
+                            <div id="campaignCarousel" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-inner rounded-4 shadow-sm">
+                                    <c:set var="mainImg" value="${not empty campaign.imageUrl ? campaign.imageUrl : 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'}"/>
+                                    <div class="carousel-item active">
+                                        <img src="${mainImg}" class="main-feature-img" onclick="openLightbox('${mainImg}')">
+                                    </div>
+                                    <c:if test="${not empty campaign.galleryUrls}">
+                                        <c:forEach var="url" items="${campaign.galleryUrls.split(',')}">
+                                            <div class="carousel-item">
+                                                <img src="${url.trim()}" class="main-feature-img" onclick="openLightbox('${url.trim()}')">
+                                            </div>
+                                        </c:forEach>
+                                    </c:if>
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#campaignCarousel" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon"></span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#campaignCarousel" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon"></span>
+                                </button>
+                            </div>
+
+                            <!-- Thumbnails -->
+                            <div class="row g-2 mt-3">
+                                <div class="col-2">
+                                    <img src="${mainImg}" class="thumb-img active" data-bs-target="#campaignCarousel" data-bs-slide-to="0">
+                                </div>
                                 <c:if test="${not empty campaign.galleryUrls}">
-                                    <c:forEach var="url" items="${campaign.galleryUrls.split(',')}">
-                                        <div class="col-3"><img src="${url.trim()}" class="thumb-img"></div>
+                                    <c:forEach var="url" items="${campaign.galleryUrls.split(',')}" varStatus="status">
+                                        <div class="col-2">
+                                            <img src="${url.trim()}" class="thumb-img" data-bs-target="#campaignCarousel" data-bs-slide-to="${status.index + 1}">
+                                        </div>
                                     </c:forEach>
                                 </c:if>
                             </div>
@@ -63,12 +93,24 @@
                                 <div class="d-flex justify-content-between align-items-center mb-4">
                                     <h6 class="fw-bold mb-0 text-uppercase">Thông tin quyên góp</h6>
                                     <div class="d-flex gap-2">
-                                        <form action="${pageContext.request.contextPath}/campaign/follow" method="post" class="m-0">
-                                            <input type="hidden" name="campaignId" value="${campaign.id}">
-                                            <button type="submit" class="btn btn-sm ${following ? 'btn-primary' : 'btn-dark'} rounded-pill border-secondary px-3">
-                                                <i class="fas fa-bookmark me-1"></i> ${following ? 'Đã theo dõi' : 'Theo dõi'}
-                                            </button>
-                                        </form>
+                                        <c:choose>
+                                            <c:when test="${following}">
+                                                <form action="${pageContext.request.contextPath}/campaign/unfollow" method="post" class="m-0">
+                                                    <input type="hidden" name="campaignId" value="${campaign.id}">
+                                                    <button type="submit" class="btn btn-sm btn-primary rounded-pill border-secondary px-3">
+                                                        <i class="fas fa-bookmark me-1"></i> Đã theo dõi
+                                                    </button>
+                                                </form>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <form action="${pageContext.request.contextPath}/campaign/follow" method="post" class="m-0">
+                                                    <input type="hidden" name="campaignId" value="${campaign.id}">
+                                                    <button type="submit" class="btn btn-sm btn-dark rounded-pill border-secondary px-3">
+                                                        <i class="far fa-bookmark me-1"></i> Theo dõi
+                                                    </button>
+                                                </form>
+                                            </c:otherwise>
+                                        </c:choose>
                                         <a href="https://www.facebook.com/sharer/sharer.php?u=${requestScope['javax.servlet.forward.request_uri']}" target="_blank" class="btn btn-sm btn-dark rounded-pill border-secondary px-3"><i class="fab fa-facebook-f me-1"></i>Chia sẻ</a>
                                     </div>
                                 </div>
@@ -115,37 +157,72 @@
 
                     <div class="sticky-tab-bar">
                         <ul class="nav nav-tabs nav-tabs-custom">
-                            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#story">Hoàn cảnh</button></li>
-                            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#details">Nội dung chiến dịch</button></li>
-                            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#donors">Nhà hảo tâm</button></li>
+                            <li class="nav-item"><a class="nav-link active" href="#story">Hoàn cảnh</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#details">Nội dung chiến dịch</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#donors">Nhà hảo tâm</a></li>
                         </ul>
                     </div>
 
                     <div class="row g-5 mt-2">
                         <div class="col-lg-7 col-xl-8">
                             <div class="tab-content">
-                                <div class="tab-pane fade show active" id="story">
+                                <div class="py-4" id="story">
+                                    <h4 class="fw-bold mb-4">Hoàn cảnh</h4>
                                     <div class="rich-text-content">${campaign.content}</div>
-                                    <div class="mt-5 pt-4 border-top">
-                                        <h4 class="fw-bold mb-4">Nhà hảo tâm hàng đầu</h4>
-                                        <div class="donor-container mb-4">
-                                            <c:forEach var="d" items="${topDonors}" varStatus="loop">
-                                                <div class="donor-row">
-                                                    <div class="fw-bold text-primary me-3" style="width:20px">${loop.index + 1}</div>
-                                                    <div class="flex-grow-1"><strong>${d.isAnonymous == 1 ? 'Nhà hảo tâm ẩn danh' : d.user.fullName}</strong></div>
-                                                    <div class="fw-bold text-primary"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
-                                                </div>
-                                            </c:forEach>
-                                        </div>
-                                    </div>
                                 </div>
-                                <div class="tab-pane fade" id="details">
+                                
+                                <div class="py-5 border-top" id="details">
+                                    <h4 class="fw-bold mb-4">Nội dung chiến dịch</h4>
                                     <div class="p-4 bg-light rounded-4">
-                                        <table class="table table-borderless">
+                                        <table class="table table-borderless m-0">
                                             <tr><td class="text-muted">Mã dự án:</td><td class="fw-bold">${campaign.code}</td></tr>
                                             <tr><td class="text-muted">Mục tiêu:</td><td class="fw-bold text-primary"><fmt:formatNumber value="${campaign.targetMoney}" type="number"/>đ</td></tr>
                                             <tr><td class="text-muted">SĐT thụ hưởng:</td><td class="fw-bold">${campaign.beneficiaryPhone}</td></tr>
+                                            <tr><td class="text-muted">Ngày bắt đầu:</td><td class="fw-bold">${campaign.startDate}</td></tr>
+                                            <tr><td class="text-muted">Trạng thái:</td><td><span class="badge ${campaign.status == 1 ? 'bg-success' : 'bg-secondary'} rounded-pill">${campaign.status == 1 ? 'Đang quyên góp' : 'Đã kết thúc'}</span></td></tr>
                                         </table>
+                                    </div>
+                                </div>
+
+                                <div class="py-5 border-top" id="donors">
+                                    <h4 class="fw-bold mb-4">Nhà hảo tâm</h4>
+                                    <div class="row g-4">
+                                        <!-- Table A: Top Donors -->
+                                        <div class="col-md-6">
+                                            <div class="donor-container h-100">
+                                                <div class="p-3 bg-dark text-white fw-bold">NHÀ HẢO TÂM HÀNG ĐẦU</div>
+                                                <c:forEach var="d" items="${topDonors10}" varStatus="loop">
+                                                    <div class="donor-row">
+                                                        <div class="fw-bold text-primary me-3" style="width:20px">${loop.index + 1}</div>
+                                                        <div class="flex-grow-1 text-truncate"><strong>${d.isAnonymous == 1 ? 'Nhà hảo tâm ẩn danh' : d.user.fullName}</strong></div>
+                                                        <div class="fw-bold text-primary"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
+                                                    </div>
+                                                </c:forEach>
+                                                <c:if test="${empty topDonors10}"><div class="p-4 text-center text-muted small">Chưa có quyên góp nào.</div></c:if>
+                                                <div class="p-3 text-center border-top">
+                                                    <button class="btn btn-link btn-sm fw-bold text-decoration-none" data-bs-toggle="modal" data-bs-target="#topDonorsModal">XEM THÊM</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Table B: Latest Donors -->
+                                        <div class="col-md-6">
+                                            <div class="donor-container h-100">
+                                                <div class="p-3 bg-light fw-bold text-dark border-bottom">NHÀ HẢO TÂM MỚI NHẤT</div>
+                                                <c:forEach var="d" items="${recentDonors10}">
+                                                    <div class="donor-row">
+                                                        <div class="flex-grow-1 text-truncate">
+                                                            <strong>${d.isAnonymous == 1 ? 'Nhà hảo tâm ẩn danh' : d.user.fullName}</strong>
+                                                            <div class="smallest text-muted">${d.createdAt}</div>
+                                                        </div>
+                                                        <div class="fw-bold text-dark"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
+                                                    </div>
+                                                </c:forEach>
+                                                <c:if test="${empty recentDonors10}"><div class="p-4 text-center text-muted small">Chưa có quyên góp nào.</div></c:if>
+                                                <div class="p-3 text-center border-top">
+                                                    <button class="btn btn-link btn-sm fw-bold text-decoration-none" data-bs-toggle="modal" data-bs-target="#recentDonorsModal">XEM THÊM</button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -165,6 +242,66 @@
                     </div>
                 </div>
                 <jsp:include page="fragments/footer.jsp"/>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox Modal -->
+    <div class="modal fade" id="lightboxModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content bg-transparent border-0">
+                <div class="modal-body p-0 text-center">
+                    <img id="lightboxImg" src="" class="img-fluid rounded shadow-lg" style="max-height: 90vh;">
+                    <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Donors Modal -->
+    <div class="modal fade" id="topDonorsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-dark text-white border-0 p-4">
+                    <h5 class="modal-title fw-bold">TOP 20 NHÀ HẢO TÂM</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="donor-container border-0 rounded-0">
+                        <c:forEach var="d" items="${topDonors20}" varStatus="loop">
+                            <div class="donor-row">
+                                <div class="fw-bold text-primary me-3" style="width:20px">${loop.index + 1}</div>
+                                <div class="flex-grow-1"><strong>${d.isAnonymous == 1 ? 'Nhà hảo tâm ẩn danh' : d.user.fullName}</strong></div>
+                                <div class="fw-bold text-primary"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
+                            </div>
+                        </c:forEach>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Donors Modal -->
+    <div class="modal fade" id="recentDonorsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-light border-0 p-4">
+                    <h5 class="modal-title fw-bold">20 QUYÊN GÓP MỚI NHẤT</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="donor-container border-0 rounded-0">
+                        <c:forEach var="d" items="${recentDonors20}">
+                            <div class="donor-row">
+                                <div class="flex-grow-1">
+                                    <strong>${d.isAnonymous == 1 ? 'Nhà hảo tâm ẩn danh' : d.user.fullName}</strong>
+                                    <div class="smallest text-muted">${d.createdAt}</div>
+                                </div>
+                                <div class="fw-bold text-dark"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
+                            </div>
+                        </c:forEach>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -210,5 +347,34 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function openLightbox(src) {
+            document.getElementById('lightboxImg').src = src;
+            new bootstrap.Modal(document.getElementById('lightboxModal')).show();
+        }
+
+        // Sync Carousel with Thumbnails
+        const carousel = document.getElementById('campaignCarousel');
+        const thumbs = document.querySelectorAll('.thumb-img');
+        carousel.addEventListener('slide.bs.carousel', event => {
+            thumbs.forEach(t => t.classList.remove('active'));
+            thumbs[event.to].classList.add('active');
+        });
+
+        // Smooth Scrolling for Tabs
+        document.querySelectorAll('.nav-tabs-custom .nav-link').forEach(link => {
+            link.addEventListener('click', e => {
+                e.preventDefault();
+                const target = document.querySelector(link.getAttribute('href'));
+                const scrollable = document.querySelector('.scrollable-main');
+                scrollable.scrollTo({
+                    top: target.offsetTop - 80,
+                    behavior: 'smooth'
+                });
+                document.querySelectorAll('.nav-tabs-custom .nav-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+            });
+        });
+    </script>
 </body>
 </html>

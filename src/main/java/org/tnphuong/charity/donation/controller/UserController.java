@@ -14,6 +14,14 @@ import org.tnphuong.charity.donation.utils.PasswordUtils;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
+
 @Controller
 @RequestMapping("/user")
 public class UserController {
@@ -24,6 +32,12 @@ public class UserController {
     @Autowired
     private DonationService donationService;
 
+    @Autowired
+    private org.tnphuong.charity.donation.dao.UserFollowingRepository userFollowingRepository;
+
+    @Value("${upload.path:uploads/avatars}")
+    private String uploadPath;
+
     @GetMapping("/profile")
     public String showProfile(HttpSession session, Model model) {
         Integer userId = (Integer) session.getAttribute("userId");
@@ -33,12 +47,42 @@ public class UserController {
         
         User user = userService.getUserById(userId).get();
         List<Donation> donations = donationService.getDonationsByUserId(userId);
+        List<org.tnphuong.charity.donation.entity.UserFollowing> followingList = userFollowingRepository.findByUserId(userId);
         
         model.addAttribute("user", user);
         model.addAttribute("donations", donations);
+        model.addAttribute("followingList", followingList);
         model.addAttribute("totalDonated", donations.stream().mapToDouble(d -> d.getAmount().doubleValue()).sum());
         
         return "profile";
+    }
+
+    @PostMapping("/upload-avatar")
+    public String uploadAvatar(@RequestParam("avatar") MultipartFile file, HttpSession session) {
+        Integer userId = (Integer) session.getAttribute("userId");
+        if (userId == null) return "redirect:/auth/login";
+
+        if (!file.isEmpty()) {
+            try {
+                String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+                Path rootPath = Paths.get("uploads/avatars");
+                if (!Files.exists(rootPath)) {
+                    Files.createDirectories(rootPath);
+                }
+                
+                Files.copy(file.getInputStream(), rootPath.resolve(fileName));
+                
+                User user = userService.getUserById(userId).get();
+                user.setAvatarUrl("/uploads/avatars/" + fileName);
+                userService.saveUser(user);
+                session.setAttribute("loggedInUser", user);
+                
+            } catch (IOException e) {
+                e.printStackTrace();
+                return "redirect:/user/profile?error=upload-failed";
+            }
+        }
+        return "redirect:/user/profile";
     }
 
     @PostMapping("/update-profile")

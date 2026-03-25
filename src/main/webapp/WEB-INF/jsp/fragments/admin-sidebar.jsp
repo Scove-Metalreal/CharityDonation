@@ -43,7 +43,7 @@
     <div class="mt-auto p-3 border-top bg-white" style="z-index: 1200;">
         <div class="dropdown">
             <div class="sidebar-user-mini d-flex align-items-center cursor-pointer" data-bs-toggle="dropdown">
-                <img src="https://ui-avatars.com/api/?name=${sessionScope.loggedInUser.fullName}&background=10B981&color=fff" class="rounded-circle shadow-sm" width="40" height="40">
+                <img src="${not empty sessionScope.loggedInUser.avatarUrl ? sessionScope.loggedInUser.avatarUrl : 'https://ui-avatars.com/api/?name='.concat(sessionScope.loggedInUser.fullName).concat('&background=10B981&color=fff')}" class="rounded-circle shadow-sm" width="40" height="40">
                 <div class="overflow-hidden ms-3 sidebar-text">
                     <div class="fw-bold text-dark text-truncate" style="max-width: 120px;">${sessionScope.loggedInUser.fullName}</div>
                     <div class="text-muted smallest">Admin</div>

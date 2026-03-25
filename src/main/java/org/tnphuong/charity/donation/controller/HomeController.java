@@ -62,11 +62,13 @@ public class HomeController {
         if (campaign.isPresent()) {
             model.addAttribute("campaign", campaign.get());
 
-            // Top 5 Donors
-            model.addAttribute("topDonors", donationService.getTopDonorsByCampaignId(id, 5));
+            // Top Donors
+            model.addAttribute("topDonors10", donationService.getTopDonorsByCampaignId(id, 10));
+            model.addAttribute("topDonors20", donationService.getTopDonorsByCampaignId(id, 20));
             
-            // Recent 10 Donors
-            model.addAttribute("recentDonors", donationService.getRecentDonorsByCampaignId(id, 10));
+            // Recent Donors
+            model.addAttribute("recentDonors10", donationService.getRecentDonorsByCampaignId(id, 10));
+            model.addAttribute("recentDonors20", donationService.getRecentDonorsByCampaignId(id, 20));
 
             // Related/Ongoing Campaigns (exclude current)
             Page<Campaign> ongoing = campaignService.getCampaignsByStatus(1, PageRequest.of(0, 4));
@@ -95,14 +97,27 @@ public class HomeController {
         if (userId == null) return "redirect:/auth/login";
 
         Optional<org.tnphuong.charity.donation.entity.UserFollowing> existing = userFollowingRepository.findByUserIdAndCampaignId(userId, campaignId);
-        if (existing.isPresent()) {
-            userFollowingRepository.delete(existing.get());
-        } else {
+        if (!existing.isPresent()) {
             org.tnphuong.charity.donation.entity.UserFollowing f = new org.tnphuong.charity.donation.entity.UserFollowing();
             f.setUser(userService.getUserById(userId).get());
             f.setCampaign(campaignService.getCampaignById(campaignId).get());
             f.setReceiveEmail(email != null ? email : 0);
             userFollowingRepository.save(f);
+        }
+        return "redirect:/campaign/" + campaignId;
+    }
+
+    @PostMapping("/campaign/unfollow")
+    public String unfollowCampaign(@RequestParam Integer campaignId, @RequestParam(required = false) String redirect, HttpSession session) {
+        Integer userId = (Integer) session.getAttribute("userId");
+        if (userId == null) return "redirect:/auth/login";
+
+        userFollowingRepository.findByUserIdAndCampaignId(userId, campaignId).ifPresent(f -> {
+            userFollowingRepository.delete(f);
+        });
+        
+        if ("profile".equals(redirect)) {
+            return "redirect:/user/profile#following";
         }
         return "redirect:/campaign/" + campaignId;
     }
