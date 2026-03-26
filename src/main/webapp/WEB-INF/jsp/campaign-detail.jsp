@@ -10,7 +10,7 @@
     <title>${campaign.name} - CharityDonation</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
+    <link rel="stylesheet" href="<c:url value='/assets/css/style.css'/>">
     <style>
         .scrollable-main { height: 100vh; overflow-y: auto; scrollbar-width: none; scroll-behavior: smooth; }
         .scrollable-main::-webkit-scrollbar { display: none; }
@@ -168,12 +168,22 @@
                             <div class="tab-content">
                                 <div class="py-4" id="story">
                                     <h4 class="fw-bold mb-4">Hoàn cảnh</h4>
-                                    <div class="rich-text-content">${campaign.content}</div>
+                                    <div class="rich-text-content">
+                                        <c:choose>
+                                            <c:when test="${not empty campaign.background}">
+                                                ${campaign.background}
+                                            </c:when>
+                                            <c:otherwise>
+                                                <p>Trong cuộc hành trình nhân ái này, chúng tôi hướng tới những mảnh đời còn nhiều gian khó, nơi mà sự giúp đỡ kịp thời có thể thay đổi cả một tương lai. Mỗi chiến dịch không chỉ là sự hỗ trợ về vật chất mà còn là niềm an ủi tinh thần to lớn, giúp các hoàn cảnh khó khăn có thêm nghị lực để vươn lên trong cuộc sống.</p>
+                                                <p>Chúng tôi đã chứng kiến biết bao nụ cười rạng rỡ của trẻ em khi được đến trường, sự nhẹ lòng của những người già khi được chăm sóc y tế. Đó chính là động lực để CharityDonation tiếp tục sứ mệnh cầu nối, lan tỏa tình yêu thương đến mọi miền tổ quốc.</p>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
                                 </div>
                                 
                                 <div class="py-5 border-top" id="details">
                                     <h4 class="fw-bold mb-4">Nội dung chiến dịch</h4>
-                                    <div class="p-4 bg-light rounded-4">
+                                    <div class="p-4 bg-light rounded-4 mb-4">
                                         <table class="table table-borderless m-0">
                                             <tr><td class="text-muted">Mã dự án:</td><td class="fw-bold">${campaign.code}</td></tr>
                                             <tr><td class="text-muted">Mục tiêu:</td><td class="fw-bold text-primary"><fmt:formatNumber value="${campaign.targetMoney}" type="number"/>đ</td></tr>
@@ -181,6 +191,23 @@
                                             <tr><td class="text-muted">Ngày bắt đầu:</td><td class="fw-bold">${campaign.startDate}</td></tr>
                                             <tr><td class="text-muted">Trạng thái:</td><td><span class="badge ${campaign.status == 1 ? 'bg-success' : 'bg-secondary'} rounded-pill">${campaign.status == 1 ? 'Đang quyên góp' : 'Đã kết thúc'}</span></td></tr>
                                         </table>
+                                    </div>
+                                    <div class="rich-text-content">
+                                        <c:choose>
+                                            <c:when test="${not empty campaign.content}">
+                                                ${campaign.content}
+                                            </c:when>
+                                            <c:otherwise>
+                                                <p>Chiến dịch này tập trung vào việc huy động nguồn lực từ cộng đồng để hiện thực hóa các mục tiêu đã đề ra. Chúng tôi cam kết sử dụng 100% số tiền quyên góp được đúng mục đích và minh bạch hoàn toàn các giao dịch.</p>
+                                                <p>Kế hoạch triển khai bao gồm:</p>
+                                                <ul>
+                                                    <li>Khảo sát thực tế và lập danh sách các đối tượng cần hỗ trợ chính xác nhất.</li>
+                                                    <li>Phối hợp với các cơ quan địa phương và nhà đồng hành để triển khai trao tặng trực tiếp.</li>
+                                                    <li>Cập nhật báo cáo tiến độ và kết quả thực hiện ngay trên trang thông tin của chiến dịch.</li>
+                                                </ul>
+                                                <p>Hãy cùng chúng tôi chung tay thắp sáng những hy vọng mới!</p>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </div>
                                 </div>
 
@@ -327,7 +354,7 @@
                                 <c:forEach var="pm" items="${paymentMethods}">
                                     <div class="form-check border rounded-pill p-3 mb-2 px-4 d-flex align-items-center">
                                         <input class="form-check-input me-3" type="radio" name="paymentMethodId" value="${pm.id}" id="pm_${pm.id}" required>
-                                        <label class="form-check-label flex-grow-1 fw-bold" for="pm_${pm.id}">${pm.name}</label>
+                                        <label class="form-check-label flex-grow-1 fw-bold" for="pm_${pm.id}">${pm.methodName}</label>
                                         <i class="fas fa-wallet text-primary"></i>
                                     </div>
                                 </c:forEach>
@@ -353,10 +380,18 @@
             new bootstrap.Modal(document.getElementById('lightboxModal')).show();
         }
 
-        // Sync Carousel with Thumbnails
-        const carousel = document.getElementById('campaignCarousel');
+        // Sync Carousel with Thumbnails and handle manual clicks
+        const carouselEl = document.getElementById('campaignCarousel');
+        const carousel = new bootstrap.Carousel(carouselEl);
         const thumbs = document.querySelectorAll('.thumb-img');
-        carousel.addEventListener('slide.bs.carousel', event => {
+        
+        thumbs.forEach((thumb, index) => {
+            thumb.addEventListener('click', () => {
+                carousel.to(index);
+            });
+        });
+
+        carouselEl.addEventListener('slide.bs.carousel', event => {
             thumbs.forEach(t => t.classList.remove('active'));
             thumbs[event.to].classList.add('active');
         });
