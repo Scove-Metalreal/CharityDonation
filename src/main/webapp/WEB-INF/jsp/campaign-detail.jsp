@@ -89,15 +89,15 @@
                         </div>
 
                         <div class="col-lg-5 col-xl-4">
-                            <div class="donation-action-card shadow-lg">
-                                <div class="d-flex justify-content-between align-items-center mb-4">
-                                    <h6 class="fw-bold mb-0 text-uppercase">Thông tin quyên góp</h6>
-                                    <div class="d-flex gap-2">
+                            <div class="donation-action-card-themed shadow-lg">
+                                <div class="d-flex justify-content-between align-items-center mb-4 gap-2">
+                                    <h6 class="fw-bold mb-0 text-uppercase d-none d-sm-block">Thông tin quyên góp</h6>
+                                    <div class="d-flex gap-2 flex-nowrap">
                                         <c:choose>
                                             <c:when test="${following}">
                                                 <form action="${pageContext.request.contextPath}/campaign/unfollow" method="post" class="m-0">
                                                     <input type="hidden" name="campaignId" value="${campaign.id}">
-                                                    <button type="submit" class="btn btn-sm btn-primary rounded-pill border-secondary px-3">
+                                                    <button type="submit" class="btn btn-sm btn-primary rounded-pill border-secondary px-3 btn-fixed-action">
                                                         <i class="fas fa-bookmark me-1"></i> Đã theo dõi
                                                     </button>
                                                 </form>
@@ -105,13 +105,13 @@
                                             <c:otherwise>
                                                 <form action="${pageContext.request.contextPath}/campaign/follow" method="post" class="m-0">
                                                     <input type="hidden" name="campaignId" value="${campaign.id}">
-                                                    <button type="submit" class="btn btn-sm btn-dark rounded-pill border-secondary px-3">
+                                                    <button type="submit" class="btn btn-sm btn-dark rounded-pill border-secondary px-3 btn-fixed-action">
                                                         <i class="far fa-bookmark me-1"></i> Theo dõi
                                                     </button>
                                                 </form>
                                             </c:otherwise>
                                         </c:choose>
-                                        <a href="https://www.facebook.com/sharer/sharer.php?u=${requestScope['javax.servlet.forward.request_uri']}" target="_blank" class="btn btn-sm btn-dark rounded-pill border-secondary px-3"><i class="fab fa-facebook-f me-1"></i>Chia sẻ</a>
+                                        <a href="https://www.facebook.com/sharer/sharer.php?u=${requestScope['javax.servlet.forward.request_uri']}" target="_blank" class="btn btn-sm btn-dark rounded-pill border-secondary px-3 btn-fixed-action"><i class="fab fa-facebook-f me-1"></i>Chia sẻ</a>
                                     </div>
                                 </div>
 
@@ -217,7 +217,7 @@
                                         <!-- Table A: Top Donors -->
                                         <div class="col-md-6">
                                             <div class="donor-container h-100">
-                                                <div class="p-3 bg-dark text-white fw-bold">NHÀ HẢO TÂM HÀNG ĐẦU</div>
+                                                <div class="p-3 donor-header-themed fw-bold">NHÀ HẢO TÂM HÀNG ĐẦU</div>
                                                 <c:forEach var="d" items="${topDonors10}" varStatus="loop">
                                                     <div class="donor-row">
                                                         <div class="fw-bold text-primary me-3" style="width:20px">${loop.index + 1}</div>

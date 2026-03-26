@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-    /* Color Palette */
+    /* Color Palette - Light Mode Default */
     --color-primary: #10B981;
     --color-primary-hover: #059669;
     --color-accent: #F59E0B;
@@ -12,6 +12,12 @@
     --color-text-main: #1F2937;
     --color-text-muted: #6B7280;
     --color-border: #E5E7EB;
+    
+    /* Themed Components */
+    --footer-bg: #111827; /* Dark by default, but using variable */
+    --footer-text: #F9FAFB;
+    --card-dark-bg: #1F2937;
+    --card-dark-text: #F9FAFB;
 
     /* Spacing & Effects */
     --radius-lg: 12px;
@@ -21,10 +27,19 @@
     --transition: all 0.3s ease;
 }
 
+/* Base resets and fixes */
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--color-bg-light);
     color: var(--color-text-main);
+    overflow-x: hidden;
+    width: 100%;
+}
+
+.container-fluid {
+    width: 100%;
+    padding-right: 0;
+    padding-left: 0;
     overflow-x: hidden;
 }
 
@@ -33,6 +48,107 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 700;
     color: var(--color-text-main);
 }
+
+/* Button Fixes */
+.btn-fixed-action {
+    min-width: 110px;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Themed Footer */
+.custom-footer {
+    background-color: var(--footer-bg) !important;
+    color: var(--footer-text) !important;
+}
+.custom-footer a {
+    color: rgba(255,255,255,0.6) !important;
+}
+.custom-footer a:hover {
+    color: var(--color-primary) !important;
+}
+
+/* Donation Action Card Theme Fix */
+.donation-action-card-themed {
+    background: var(--card-dark-bg);
+    color: var(--card-dark-text);
+    border-radius: 24px;
+    padding: 30px;
+}
+
+/* Top Donation Header Theme Fix */
+.donor-header-themed {
+    background: var(--card-dark-bg) !important;
+    color: var(--card-dark-text) !important;
+}
+
+/* RESPONSIVE DESIGN */
+
+/* Mobile & Tablet Breaks */
+@media (max-width: 991.98px) {
+    .campaign-title {
+        font-size: 1.75rem;
+        text-align: center;
+    }
+    
+    .main-feature-img {
+        height: 300px;
+    }
+    
+    .donation-action-card-themed {
+        position: static !important;
+        margin-top: 30px;
+    }
+    
+    .sticky-tab-bar {
+        top: 0 !important;
+    }
+
+    .scrollable-main {
+        height: auto;
+        overflow-y: visible;
+    }
+
+    /* Hero Banner Mobile */
+    .hero-title {
+        font-size: 2rem !important;
+    }
+    .carousel-item {
+        padding: 40px 20px !important;
+        min-height: 350px !important;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .p-4.p-xl-5 {
+        padding: 1.5rem !important;
+    }
+    
+    .nav-tabs-custom .nav-link {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+    
+    .stat-item {
+        padding: 15px;
+    }
+    
+    .stat-value {
+        font-size: 1.25rem;
+    }
+
+    /* Stack sections on mobile */
+    #intro .row, #philosophy .row {
+        flex-direction: column-reverse;
+    }
+}
+
+/* Utility classes */
+.w-nowrap { white-space: nowrap; }
+.flex-shrink-0 { flex-shrink: 0; }
 
 /* Base UI Elements */
 .card {

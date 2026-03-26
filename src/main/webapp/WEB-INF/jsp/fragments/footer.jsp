@@ -1,7 +1,7 @@
 ﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<footer class="py-5 px-4 border-top mt-5 bg-dark text-white">
+<footer class="py-5 px-4 border-top mt-5 custom-footer">
     <div class="container-fluid">
         <div class="row g-4 mb-5 text-start">
             <div class="col-md-4">
