@@ -49,7 +49,7 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--color-text-main);
 }
 
-/* Button Fixes */
+/* Button Fixes & Brand Alignment */
 .btn-fixed-action {
     min-width: 110px;
     white-space: nowrap;
@@ -57,6 +57,129 @@ h1, h2, h3, h4, h5, h6 {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.5px;
+}
+
+.btn-brand-primary {
+    background-color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
+    color: white !important;
+}
+.btn-brand-primary:hover {
+    background-color: var(--color-primary-hover) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-brand-secondary {
+    background-color: #f1f5f9 !important;
+    border-color: #e2e8f0 !important;
+    color: #475569 !important;
+}
+.btn-brand-secondary:hover {
+    background-color: #e2e8f0 !important;
+    color: #1e293b !important;
+    transform: translateY(-2px);
+}
+
+/* Global Image Scaling */
+img {
+    object-fit: cover;
+    object-position: center;
+}
+
+.avatar-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.companion-logo {
+    object-fit: contain !important; /* Logos should usually not be cropped */
+}
+
+/* LIQUID PROGRESS BAR */
+.liquid-progress-container {
+    width: 100%;
+    height: 35px;
+    background-color: #e2e8f0;
+    border-radius: 50rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.liquid-progress-fill {
+    height: 100%;
+    background-color: var(--color-primary);
+    position: relative;
+    transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.liquid-wave {
+    position: absolute;
+    top: -100%;
+    left: 0;
+    width: 200%;
+    height: 200%;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 38%;
+    animation: liquid-wave-anim 6s infinite linear;
+    pointer-events: none;
+}
+
+.liquid-wave:nth-child(2) {
+    animation-duration: 8s;
+    opacity: 0.1;
+    border-radius: 45%;
+}
+
+@keyframes liquid-wave-anim {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.liquid-text {
+    position: relative;
+    z-index: 10;
+    color: white;
+    font-weight: 800;
+    font-size: 0.85rem;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+/* Admin Form Responsiveness */
+@media (max-width: 991.98px) {
+    .offset-lg-2 {
+        margin-left: 0 !important;
+    }
+    
+    .card-body.p-4 {
+        padding: 1.5rem !important;
+    }
+    
+    .modal-xl {
+        max-width: 95% !important;
+        margin: 10px auto;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .row.g-3, .row.g-4 {
+        --bs-gutter-x: 1rem;
+    }
+    
+    .btn-fixed-action {
+        width: 100%;
+        min-width: auto;
+    }
 }
 
 /* Themed Footer */
@@ -340,4 +463,148 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 600;
     letter-spacing: 0.5px;
     text-transform: uppercase;
+}
+
+/* REFINED SUMMARY SIDEBAR */
+.donation-action-card-themed {
+    background: white !important;
+    color: var(--color-text-main) !important;
+    border-radius: 24px;
+    padding: 25px;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05) !important;
+}
+
+.sidebar-section-title {
+    font-size: 0.9rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: var(--color-text-main);
+    text-transform: uppercase;
+}
+
+.btn-sidebar-action {
+    background-color: #334155 !important; /* Dark grey */
+    color: white !important;
+    border-radius: 50rem !important;
+    padding: 8px 20px !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    border: 1px solid transparent !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    text-decoration: none;
+    flex: 1; /* Make them equal width in the flex container */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.btn-sidebar-action:hover {
+    background-color: #1e293b !important;
+    transform: translateY(-1px);
+    color: white !important;
+}
+.btn-sidebar-action.active {
+    background-color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
+}
+
+.companion-partner-card {
+    background-color: #f8fafc;
+    border: 1px solid #f1f5f9;
+    border-radius: 16px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.companion-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.companion-row:last-child { margin-bottom: 0; }
+
+.logo-square {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: white;
+    border: 1px solid #e2e8f0;
+}
+
+.logo-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: white;
+    border: 1px solid #e2e8f0;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.stat-col {
+    padding: 10px 5px;
+}
+
+.stat-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 4px;
+    white-space: nowrap;
+}
+
+.stat-value {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--color-text-main);
+}
+
+.btn-sidebar-main {
+    background-color: var(--color-primary) !important;
+    color: white !important;
+    width: 100%;
+    padding: 16px !important;
+    border-radius: 16px !important;
+    font-weight: 800 !important;
+    font-size: 1.1rem !important;
+    border: none !important;
+    box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.39) !important;
+    transition: all 0.3s;
+    text-transform: none;
+}
+.btn-sidebar-main:hover {
+    background-color: var(--color-primary-hover) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.23) !important;
+}
+
+.liquid-progress-container.sidebar-bar {
+    height: 12px;
+    margin-top: 10px;
+    border-radius: 50rem;
+}
+
+.text-current-amount {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--color-text-main);
+}
+.text-target-amount {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
 }

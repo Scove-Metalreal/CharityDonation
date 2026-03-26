@@ -21,37 +21,40 @@
             </div>
 
             <!-- Content -->
-            <div class="col-lg-10 offset-lg-2 py-0">
+            <div class="col-lg-10 offset-lg-2 p-0">
                 <nav class="bg-white d-flex justify-content-between align-items-center shadow-sm sticky-top px-4 py-3 mb-4">
-                    <h5 class="mb-0 fw-bold text-dark">${user.id == null ? 'Thêm người dùng mới' : 'Chỉnh sửa người dùng'}</h5>
+                    <div class="d-flex align-items-center">
+                        <button class="btn btn-light d-lg-none me-3" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
+                        <h5 class="mb-0 fw-bold text-dark">${user.id == null ? 'Thêm người dùng mới' : 'Chỉnh sửa người dùng'}</h5>
+                    </div>
                     <div class="d-flex align-items-center">
                         <img src="${not empty sessionScope.loggedInUser.avatarUrl ? sessionScope.loggedInUser.avatarUrl : 'https://ui-avatars.com/api/?name='.concat(sessionScope.loggedInUser.fullName).concat('&background=10B981&color=fff')}" class="rounded-circle shadow-sm" width="40" height="40">
                     </div>
                 </nav>
 
-                <div class="px-4 pb-5">
-                    <div class="card border-0 shadow-sm overflow-hidden" style="max-width: 800px; margin: 0 auto;">
+                <div class="px-3 px-md-4 pb-5">
+                    <div class="card border-0 shadow-sm overflow-hidden mx-auto" style="max-width: 800px;">
                         <div class="card-header bg-white py-3 border-0">
                             <h6 class="fw-bold mb-0 text-primary">THÔNG TIN TÀI KHOẢN</h6>
                         </div>
-                        <div class="card-body p-4 pt-0">
+                        <div class="card-body p-3 p-md-4 pt-0">
                             <form action="${pageContext.request.contextPath}/admin/users/save" method="post">
                                 <input type="hidden" name="id" value="${user.id}">
                                 
                                 <div class="row g-3">
-                                    <div class="col-md-6">
+                                    <div class="col-12 col-md-6">
                                         <label class="form-label small fw-bold text-muted">Họ và tên</label>
                                         <input type="text" name="fullName" class="form-control rounded-pill px-3" value="${user.fullName}" required>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-12 col-md-6">
                                         <label class="form-label small fw-bold text-muted">Địa chỉ Email</label>
                                         <input type="email" name="email" class="form-control rounded-pill px-3" value="${user.email}" required ${user.id != null ? 'readonly' : ''}>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-12 col-md-6">
                                         <label class="form-label small fw-bold text-muted">Số điện thoại</label>
                                         <input type="text" name="phoneNumber" class="form-control rounded-pill px-3" value="${user.phoneNumber}">
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-12 col-md-6">
                                         <label class="form-label small fw-bold text-muted">Vai trò</label>
                                         <select name="role.id" class="form-select rounded-pill px-3" required>
                                             <c:forEach var="role" items="${roles}">
@@ -59,11 +62,11 @@
                                             </c:forEach>
                                         </select>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-12 col-md-6">
                                         <label class="form-label small fw-bold text-muted">Mật khẩu ${user.id == null ? '' : '(Để trống nếu không đổi)'}</label>
                                         <input type="password" name="password" class="form-control rounded-pill px-3" ${user.id == null ? 'required' : ''}>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-12 col-md-6">
                                         <label class="form-label small fw-bold text-muted">Trạng thái</label>
                                         <select name="status" class="form-select rounded-pill px-3">
                                             <option value="1" ${user.status == 1 ? 'selected' : ''}>Hoạt động</option>
@@ -72,9 +75,9 @@
                                     </div>
                                 </div>
                                 
-                                <div class="mt-4 pt-3 border-top d-flex gap-2">
-                                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">Lưu thay đổi</button>
-                                    <a href="${pageContext.request.contextPath}/admin/users" class="btn btn-light rounded-pill px-4">Hủy bỏ</a>
+                                <div class="mt-4 pt-3 border-top d-flex flex-column flex-md-row gap-2">
+                                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold order-1 order-md-2">Lưu thay đổi</button>
+                                    <a href="${pageContext.request.contextPath}/admin/users" class="btn btn-light rounded-pill px-4 order-2 order-md-1">Hủy bỏ</a>
                                 </div>
                             </form>
                         </div>

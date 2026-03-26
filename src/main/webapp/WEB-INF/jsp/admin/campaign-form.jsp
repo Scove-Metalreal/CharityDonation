@@ -22,49 +22,49 @@
             </div>
 
             <!-- Content -->
-            <div class="col-lg-10 offset-lg-2 py-0">
+            <div class="col-lg-10 offset-lg-2 p-0">
                 <!-- Top Navbar -->
                 <jsp:include page="../fragments/admin-header.jsp"/>
 
-                <div class="px-4 pb-5">
-                    <div class="card border-0 shadow-sm p-4">
+                <div class="px-3 px-md-4 pb-5">
+                    <div class="card border-0 shadow-sm p-3 p-md-4">
                         <form action="${pageContext.request.contextPath}/admin/campaigns/save" method="post">
                             <input type="hidden" name="id" value="${campaign.id}">
                             
-                            <div class="row g-4">
-                                <div class="col-md-6">
+                            <div class="row g-3 g-md-4">
+                                <div class="col-12 col-md-6">
                                     <label class="form-label small fw-bold text-muted text-uppercase">Tên chiến dịch</label>
                                     <input type="text" name="name" class="form-control rounded-pill px-3" value="${campaign.name}" required>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <label class="form-label small fw-bold text-muted text-uppercase">Mã chiến dịch (Duy nhất)</label>
                                     <input type="text" name="code" class="form-control rounded-pill px-3" value="${campaign.code}" required ${campaign.id != null ? 'readonly' : ''}>
                                 </div>
 
-                                <div class="col-md-4">
+                                <div class="col-12 col-sm-6 col-md-4">
                                     <label class="form-label small fw-bold text-muted text-uppercase">Ngày bắt đầu</label>
                                     <input type="date" name="startDate" class="form-control rounded-pill px-3" value="${campaign.startDate}" required>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-12 col-sm-6 col-md-4">
                                     <label class="form-label small fw-bold text-muted text-uppercase">Ngày kết thúc</label>
                                     <input type="date" name="endDate" class="form-control rounded-pill px-3" value="${campaign.endDate}" required>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-12 col-md-4">
                                     <label class="form-label small fw-bold text-muted text-uppercase">Mục tiêu quyên góp (VNĐ)</label>
                                     <input type="number" name="targetMoney" class="form-control rounded-pill px-3" value="${campaign.targetMoney}" required>
                                 </div>
 
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <label class="form-label small fw-bold text-muted text-uppercase">SĐT Người thụ hưởng</label>
                                     <input type="text" name="beneficiaryPhone" class="form-control rounded-pill px-3" value="${campaign.beneficiaryPhone}">
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <label class="form-label small fw-bold text-muted text-uppercase">Ảnh đại diện (URL)</label>
                                     <input type="text" name="imageUrl" class="form-control rounded-pill px-3" value="${campaign.imageUrl}">
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-12">
                                     <label class="form-label small fw-bold text-muted text-uppercase">Danh sách ảnh Gallery (URLs, cách nhau bởi dấu phẩy)</label>
-                                    <textarea name="galleryUrls" class="form-control rounded-4 px-3 py-2" rows="1" placeholder="https://image1.jpg, https://image2.jpg...">${campaign.galleryUrls}</textarea>
+                                    <textarea name="galleryUrls" class="form-control rounded-4 px-3 py-2" rows="2" placeholder="https://image1.jpg, https://image2.jpg...">${campaign.galleryUrls}</textarea>
                                 </div>
 
                                 <div class="col-12">
@@ -77,9 +77,9 @@
                                     <textarea name="content" class="form-control rounded-4 px-3 py-2" rows="10">${campaign.content}</textarea>
                                 </div>
 
-                                <div class="col-12 text-end border-top pt-4">
-                                    <a href="${pageContext.request.contextPath}/admin/campaigns" class="btn btn-light rounded-pill px-4 me-2">Hủy bỏ</a>
-                                    <button type="submit" class="btn btn-primary px-5 rounded-pill shadow-sm fw-bold">LƯU CHIẾN DỊCH</button>
+                                <div class="col-12 text-end border-top pt-4 d-flex flex-column flex-md-row justify-content-md-end gap-2">
+                                    <a href="${pageContext.request.contextPath}/admin/campaigns" class="btn btn-light rounded-pill px-4 order-2 order-md-1">Hủy bỏ</a>
+                                    <button type="submit" class="btn btn-primary px-5 rounded-pill shadow-sm fw-bold order-1 order-md-2">LƯU CHIẾN DỊCH</button>
                                 </div>
                             </div>
                         </form>
