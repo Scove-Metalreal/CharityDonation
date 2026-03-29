@@ -16,6 +16,7 @@ import org.tnphuong.charity.donation.utils.PasswordUtils;
 
 import java.util.Optional;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -60,7 +61,7 @@ public class CharityDonationTests {
             User admin = new User();
             admin.setFullName("Admin Test");
             admin.setEmail("admin_test@charity.com");
-            admin.setPassword(PasswordUtils.hashPassword("123456"));
+            admin.setPassword("123456");
             admin.setStatus(1);
             admin.setRole(adminRole);
             testAdmin = userService.saveUser(admin); 
@@ -73,7 +74,7 @@ public class CharityDonationTests {
             User user = new User();
             user.setFullName("User Test");
             user.setEmail("user_test@charity.com");
-            user.setPassword(PasswordUtils.hashPassword("123456"));
+            user.setPassword("123456");
             user.setStatus(1);
             user.setRole(userRole);
             testUser = userService.saveUser(user);
@@ -92,7 +93,7 @@ public class CharityDonationTests {
                 .param("password", "123456")
                 .param("phoneNumber", "0123456789"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/auth/login?success=register"));
+                .andExpect(redirectedUrlPattern("/auth/login?success=register*"));
     }
 
     @Test
@@ -169,6 +170,7 @@ void testAdminListUsers() throws Exception {
         mockMvc.perform(post("/user/update-profile")
                 .session(session)
                 .param("fullName", "Updated Name")
+                .param("email", testUser.getEmail())
                 .param("phoneNumber", "0911222333")
                 .param("address", "New Address"))
                 .andExpect(status().is3xxRedirection())

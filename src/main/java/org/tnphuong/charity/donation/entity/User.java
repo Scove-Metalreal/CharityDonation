@@ -32,6 +32,12 @@ public class User {
     @Column(name = "avatar_url", length = 500)
     private String avatarUrl;
 
+    @Column(name = "auth_provider", length = 20)
+    private String authProvider = "LOCAL"; // "LOCAL", "GOOGLE"
+
+    @Column(name = "provider_id", length = 100)
+    private String providerId;
+
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;

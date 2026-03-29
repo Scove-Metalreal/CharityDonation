@@ -18,7 +18,7 @@
         .main-feature-img { width: 100%; height: 500px; object-fit: cover; border-radius: 20px; cursor: pointer; }
         .thumb-img { width: 100%; height: 80px; object-fit: cover; border-radius: 12px; cursor: pointer; opacity: 0.6; transition: 0.3s; }
         .thumb-img:hover, .thumb-img.active { opacity: 1; border: 2px solid var(--color-primary); }
-        .donation-action-card { background: #1a1a1a; color: white; border-radius: 24px; padding: 30px; position: sticky; top: 20px; }
+        .donation-action-card-themed { background: var(--card-dark-bg); color: var(--card-dark-text); border-radius: 24px; padding: 30px; position: sticky; top: 20px; max-width: 420px; margin-left: auto; }
         .sticky-tab-bar { position: sticky; top: 0; background: white; z-index: 100; border-bottom: 1px solid var(--color-border); margin-top: 40px; }
         .nav-tabs-custom .nav-link { border: none; color: var(--color-text-muted); font-weight: 600; padding: 15px 25px; position: relative; }
         .nav-tabs-custom .nav-link.active { color: var(--color-primary); background: transparent; }
@@ -30,6 +30,108 @@
 </head>
 <body class="bg-light">
     <div class="container-fluid">
+        <!-- Modals -->
+        <!-- Donation Modal -->
+        <div class="modal fade" id="donateModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4">
+                    <div class="modal-header border-0 bg-dark text-white p-4">
+                        <h5 class="modal-title fw-bold">QUYÊN GÓP CHO CHIẾN DỊCH</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <h6 id="donateCampaignName" class="fw-bold text-primary">${campaign.name}</h6>
+                        </div>
+                        <form action="${pageContext.request.contextPath}/campaign/donate" method="post">
+                            <input type="hidden" name="campaignId" id="donateCampaignId" value="${campaign.id}">
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Số tiền quyên góp (VNĐ)</label>
+                                <input type="number" name="amount" class="form-control form-control-lg rounded-pill px-4" placeholder="Nhập số tiền..." required min="1000">
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Phương thức thanh toán</label>
+                                <div class="payment-methods">
+                                    <c:forEach var="pm" items="${paymentMethods}">
+                                        <div class="form-check border rounded-pill p-3 mb-2 px-4 d-flex align-items-center">
+                                            <input class="form-check-input me-3" type="radio" name="paymentMethodId" value="${pm.id}" id="pm_${pm.id}" required>
+                                            <label class="form-check-label flex-grow-1 fw-bold" for="pm_${pm.id}">${pm.methodName}</label>
+                                            <i class="fas fa-wallet text-primary"></i>
+                                        </div>
+                                    </c:forEach>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="isAnonymous" value="1" id="anonymousCheck">
+                                    <label class="form-check-label small fw-bold" for="anonymousCheck">Quyên góp ẩn danh</label>
+                                </div>
+                            </div>
+                            <c:choose>
+                                <c:when test="${not empty sessionScope.loggedInUser}">
+                                    <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow">XÁC NHẬN QUYÊN GÓP</button>
+                                </c:when>
+                                <c:otherwise>
+                                    <a href="${pageContext.request.contextPath}/auth/login" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow">ĐĂNG NHẬP ĐỂ QUYÊN GÓP</a>
+                                    <p class="text-center smallest text-muted mt-2">Bạn cần đăng nhập để thực hiện quyên góp.</p>
+                                </c:otherwise>
+                            </c:choose>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bank Transfer Instructions Modal -->
+        <div class="modal fade" id="bankInstructionsModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4">
+                    <div class="modal-header border-0 bg-primary text-white p-4">
+                        <h5 class="modal-title fw-bold">HƯỚNG DẪN CHUYỂN KHOẢN</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4 text-center">
+                        <p class="mb-4">Vui lòng thực hiện chuyển khoản theo thông tin dưới đây để hoàn tất quyên góp:</p>
+                        
+                        <div class="p-4 bg-light rounded-4 mb-4 text-start">
+                            <div class="mb-3">
+                                <label class="smallest text-muted text-uppercase fw-bold d-block">Ngân hàng</label>
+                                <div class="fw-bold fs-5" id="instrBankName">MB Bank (Quân Đội)</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="smallest text-muted text-uppercase fw-bold d-block">Số tài khoản</label>
+                                <div class="fw-bold fs-4 text-primary" id="instrAccountNum">0987654321</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="smallest text-muted text-uppercase fw-bold d-block">Chủ tài khoản</label>
+                                <div class="fw-bold" id="instrAccountName">TẠ NGỌC PHƯƠNG</div>
+                            </div>
+                            <div class="mb-0">
+                                <label class="smallest text-muted text-uppercase fw-bold d-block">Nội dung chuyển khoản (BẮT BUỘC)</label>
+                                <div class="p-3 bg-white border border-primary border-dashed rounded-3 mt-1">
+                                    <span class="fw-bold fs-4 text-danger" id="instrCode">QG123456</span>
+                                    <button class="btn btn-sm btn-outline-primary float-end" onclick="copyToClipboard('instrCode')">Sao chép</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary w-100 py-3 rounded-pill fw-bold" data-bs-dismiss="modal">ĐÃ HIỂU</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lightbox Modal -->
+        <div class="modal fade" id="lightboxModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
+                <div class="modal-content bg-transparent border-0">
+                    <div class="modal-body p-0 text-center">
+                        <img id="lightboxImg" src="" class="img-fluid rounded shadow-lg" style="max-height: 90vh;">
+                        <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row flex-nowrap">
             <div class="col-auto p-0 border-end" style="z-index: 1000;">
                 <jsp:include page="fragments/sidebar.jsp"/>
@@ -97,7 +199,7 @@
                                             <c:when test="${following}">
                                                 <form action="${pageContext.request.contextPath}/campaign/unfollow" method="post" class="m-0">
                                                     <input type="hidden" name="campaignId" value="${campaign.id}">
-                                                    <button type="submit" class="btn btn-sm btn-primary rounded-pill border-secondary px-3 btn-fixed-action">
+                                                    <button type="submit" class="btn btn-sidebar-action active btn-fixed-action">
                                                         <i class="fas fa-bookmark me-1"></i> Đã theo dõi
                                                     </button>
                                                 </form>
@@ -105,13 +207,13 @@
                                             <c:otherwise>
                                                 <form action="${pageContext.request.contextPath}/campaign/follow" method="post" class="m-0">
                                                     <input type="hidden" name="campaignId" value="${campaign.id}">
-                                                    <button type="submit" class="btn btn-sm btn-dark rounded-pill border-secondary px-3 btn-fixed-action">
+                                                    <button type="submit" class="btn btn-sidebar-action btn-fixed-action">
                                                         <i class="far fa-bookmark me-1"></i> Theo dõi
                                                     </button>
                                                 </form>
                                             </c:otherwise>
                                         </c:choose>
-                                        <a href="https://www.facebook.com/sharer/sharer.php?u=${requestScope['javax.servlet.forward.request_uri']}" target="_blank" class="btn btn-sm btn-dark rounded-pill border-secondary px-3 btn-fixed-action"><i class="fab fa-facebook-f me-1"></i>Chia sẻ</a>
+                                        <a href="https://www.facebook.com/sharer/sharer.php?u=${requestScope['javax.servlet.forward.request_uri']}" target="_blank" class="btn btn-sidebar-action btn-fixed-action"><i class="fab fa-facebook-f me-1"></i>Chia sẻ</a>
                                     </div>
                                 </div>
 
@@ -136,9 +238,11 @@
                                     </div>
                                 </div>
 
-                                <button class="btn btn-primary w-100 py-3 rounded-pill fw-bold mt-4 shadow" data-bs-toggle="modal" data-bs-target="#donateModal" ${campaign.status != 1 ? 'disabled' : ''}>
-                                    ${campaign.status == 1 ? 'QUYÊN GÓP NGAY' : 'CHIẾN DỊCH ĐÃ KẾT THÚC'}
-                                </button>
+                                <c:if test="${empty sessionScope.loggedInUser or sessionScope.loggedInUser.role.roleName != 'ADMIN'}">
+                                    <button class="btn btn-primary w-100 py-3 rounded-pill fw-bold mt-4 shadow" data-bs-toggle="modal" data-bs-target="#donateModal" ${campaign.status != 1 ? 'disabled' : ''}>
+                                        ${campaign.status == 1 ? 'QUYÊN GÓP NGAY' : 'CHIẾN DỊCH ĐÃ KẾT THÚC'}
+                                    </button>
+                                </c:if>
                                 
                                 <c:if test="${following}">
                                     <div class="mt-3 text-center">
@@ -273,128 +377,63 @@
         </div>
     </div>
 
-    <!-- Lightbox Modal -->
-    <div class="modal fade" id="lightboxModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-xl">
-            <div class="modal-content bg-transparent border-0">
-                <div class="modal-body p-0 text-center">
-                    <img id="lightboxImg" src="" class="img-fluid rounded shadow-lg" style="max-height: 90vh;">
-                    <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Top Donors Modal -->
-    <div class="modal fade" id="topDonorsModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg rounded-4">
-                <div class="modal-header bg-dark text-white border-0 p-4">
-                    <h5 class="modal-title fw-bold">TOP 20 NHÀ HẢO TÂM</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-0">
-                    <div class="donor-container border-0 rounded-0">
-                        <c:forEach var="d" items="${topDonors20}" varStatus="loop">
-                            <div class="donor-row">
-                                <div class="fw-bold text-primary me-3" style="width:20px">${loop.index + 1}</div>
-                                <div class="flex-grow-1"><strong>${d.isAnonymous == 1 ? 'Nhà hảo tâm ẩn danh' : d.user.fullName}</strong></div>
-                                <div class="fw-bold text-primary"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
-                            </div>
-                        </c:forEach>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Recent Donors Modal -->
-    <div class="modal fade" id="recentDonorsModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg rounded-4">
-                <div class="modal-header bg-light border-0 p-4">
-                    <h5 class="modal-title fw-bold">20 QUYÊN GÓP MỚI NHẤT</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-0">
-                    <div class="donor-container border-0 rounded-0">
-                        <c:forEach var="d" items="${recentDonors20}">
-                            <div class="donor-row">
-                                <div class="flex-grow-1">
-                                    <strong>${d.isAnonymous == 1 ? 'Nhà hảo tâm ẩn danh' : d.user.fullName}</strong>
-                                    <div class="smallest text-muted">${d.createdAt}</div>
-                                </div>
-                                <div class="fw-bold text-dark"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
-                            </div>
-                        </c:forEach>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Donation Modal -->
-    <div class="modal fade" id="donateModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                <div class="modal-header border-0 bg-dark text-white p-4">
-                    <h5 class="modal-title fw-bold">QUYÊN GÓP CHO CHIẾN DỊCH</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <form action="${pageContext.request.contextPath}/campaign/donate" method="post">
-                        <input type="hidden" name="campaignId" value="${campaign.id}">
-                        <div class="mb-4">
-                            <label class="form-label small fw-bold text-muted text-uppercase">Số tiền quyên góp (VNĐ)</label>
-                            <input type="number" name="amount" class="form-control form-control-lg rounded-pill px-4" placeholder="Nhập số tiền..." required min="1000">
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label small fw-bold text-muted text-uppercase">Phương thức thanh toán</label>
-                            <div class="payment-methods">
-                                <c:forEach var="pm" items="${paymentMethods}">
-                                    <div class="form-check border rounded-pill p-3 mb-2 px-4 d-flex align-items-center">
-                                        <input class="form-check-input me-3" type="radio" name="paymentMethodId" value="${pm.id}" id="pm_${pm.id}" required>
-                                        <label class="form-check-label flex-grow-1 fw-bold" for="pm_${pm.id}">${pm.methodName}</label>
-                                        <i class="fas fa-wallet text-primary"></i>
-                                    </div>
-                                </c:forEach>
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" name="isAnonymous" value="1" id="anonymousCheck">
-                                <label class="form-check-label small fw-bold" for="anonymousCheck">Quyên góp ẩn danh</label>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow">XÁC NHẬN QUYÊN GÓP</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        function openQuickDonate(id, name) {
+            if (id == '${campaign.id}') {
+                const modalEl = document.getElementById('donateModal');
+                const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                modal.show();
+            } else {
+                window.location.href = '${pageContext.request.contextPath}/campaign/' + id;
+            }
+        }
+
+        // Check for success parameters on load
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('success') === 'pending') {
+                const code = urlParams.get('code');
+                if (code) {
+                    document.getElementById('instrCode').innerText = code;
+                    const modalEl = document.getElementById('bankInstructionsModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    modal.show();
+                }
+            }
+        });
+
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Đã sao chép mã nội dung!');
+            });
+        }
+
         function openLightbox(src) {
             document.getElementById('lightboxImg').src = src;
-            new bootstrap.Modal(document.getElementById('lightboxModal')).show();
+            const modalEl = document.getElementById('lightboxModal');
+            const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+            modal.show();
         }
 
         // Sync Carousel with Thumbnails and handle manual clicks
         const carouselEl = document.getElementById('campaignCarousel');
-        const carousel = new bootstrap.Carousel(carouselEl);
-        const thumbs = document.querySelectorAll('.thumb-img');
-        
-        thumbs.forEach((thumb, index) => {
-            thumb.addEventListener('click', () => {
-                carousel.to(index);
+        if (carouselEl) {
+            const carousel = new bootstrap.Carousel(carouselEl);
+            const thumbs = document.querySelectorAll('.thumb-img');
+            
+            thumbs.forEach((thumb, index) => {
+                thumb.addEventListener('click', () => {
+                    carousel.to(index);
+                });
             });
-        });
 
-        carouselEl.addEventListener('slide.bs.carousel', event => {
-            thumbs.forEach(t => t.classList.remove('active'));
-            thumbs[event.to].classList.add('active');
-        });
+            carouselEl.addEventListener('slide.bs.carousel', event => {
+                thumbs.forEach(t => t.classList.remove('active'));
+                thumbs[event.to].classList.add('active');
+            });
+        }
 
         // Smooth Scrolling for Tabs
         document.querySelectorAll('.nav-tabs-custom .nav-link').forEach(link => {
@@ -402,12 +441,14 @@
                 e.preventDefault();
                 const target = document.querySelector(link.getAttribute('href'));
                 const scrollable = document.querySelector('.scrollable-main');
-                scrollable.scrollTo({
-                    top: target.offsetTop - 80,
-                    behavior: 'smooth'
-                });
-                document.querySelectorAll('.nav-tabs-custom .nav-link').forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
+                if (target && scrollable) {
+                    scrollable.scrollTo({
+                        top: target.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    document.querySelectorAll('.nav-tabs-custom .nav-link').forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                }
             });
         });
     </script>

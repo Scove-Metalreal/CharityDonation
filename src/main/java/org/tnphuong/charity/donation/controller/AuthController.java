@@ -24,13 +24,30 @@ public class AuthController {
     private RoleRepository roleRepository;
 
     @GetMapping("/register")
-    public String showRegisterForm(Model model) {
-        model.addAttribute("user", new User());
+    public String showRegisterForm(Model model, HttpSession session) {
+        User user = new User();
+        
+        // Auto-fill from Google if available
+        String googleEmail = (String) session.getAttribute("google_email");
+        String googleName = (String) session.getAttribute("google_name");
+        
+        if (googleEmail != null) {
+            user.setEmail(googleEmail);
+            user.setFullName(googleName);
+            user.setAuthProvider("GOOGLE");
+            user.setProviderId((String) session.getAttribute("google_id"));
+            user.setAvatarUrl((String) session.getAttribute("google_picture"));
+            model.addAttribute("googleMode", true);
+        } else {
+            user.setAuthProvider("LOCAL");
+        }
+        
+        model.addAttribute("user", user);
         return "register";
     }
 
     @PostMapping("/register")
-    public String registerUser(@ModelAttribute("user") User user, Model model) {
+    public String registerUser(@ModelAttribute("user") User user, HttpSession session, Model model) {
         String email = user.getEmail().trim();
         String phone = user.getPhoneNumber() != null ? user.getPhoneNumber().trim() : "";
 
@@ -52,7 +69,19 @@ public class AuthController {
 
         user.setEmail(email);
         user.setPhoneNumber(phone);
-        user.setPassword(PasswordUtils.hashPassword(user.getPassword()));
+        
+        // If Google user, password is not required, but we set a dummy one
+        if ("GOOGLE".equals(user.getAuthProvider())) {
+            user.setPassword(PasswordUtils.hashPassword("GOOGLE_USER_NO_PASSWORD_" + System.currentTimeMillis()));
+            // Clear google session data
+            session.removeAttribute("google_email");
+            session.removeAttribute("google_name");
+            session.removeAttribute("google_id");
+            session.removeAttribute("google_picture");
+        } else {
+            user.setPassword(PasswordUtils.hashPassword(user.getPassword()));
+        }
+        
         user.setStatus(1); 
         userService.saveUser(user);
 
@@ -62,6 +91,11 @@ public class AuthController {
     @GetMapping("/login")
     public String showLoginForm() {
         return "login";
+    }
+
+    @GetMapping("/forgot-password")
+    public String showForgotPasswordForm() {
+        return "forgot-password";
     }
 
     @PostMapping("/login")

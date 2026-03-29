@@ -157,7 +157,7 @@
                                             <div class="p-3 history-card d-flex align-items-center">
                                                 <div class="flex-grow-1 overflow-hidden">
                                                     <a href="${pageContext.request.contextPath}/campaign/${d.campaign.id}" class="text-decoration-none fw-bold text-dark text-truncate small d-block">${d.campaign.name}</a>
-                                                    <div class="text-muted small"><fmt:formatDate value="${d.createdAt}" pattern="dd/MM/yyyy HH:mm"/></div>
+                                                    <div class="text-muted small">${d.createdAt.toString().replace('T', ' ').substring(0, 16)}</div>
                                                 </div>
                                                 <div class="text-end">
                                                     <div class="fw-bold text-primary"><fmt:formatNumber value="${d.amount}" type="number"/> đ</div>

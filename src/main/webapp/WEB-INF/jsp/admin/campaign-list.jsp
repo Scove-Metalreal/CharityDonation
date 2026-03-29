@@ -179,7 +179,7 @@
 
     <!-- Modal Gia hạn -->
     <div class="modal fade" id="extendModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered mx-auto" style="max-width: 400px; width: 95%;">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 1.25rem;">
                 <div class="modal-header border-0 bg-dark text-white p-4" style="border-radius: 1.25rem 1.25rem 0 0;">
                     <h5 class="modal-title fw-bold">GIA HẠN CHIẾN DỊCH</h5>
@@ -205,37 +205,37 @@
 
     <!-- Modal Tạo Chiến dịch -->
     <div class="modal fade" id="addCampaignModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog modal-xl modal-dialog-centered mx-auto" style="width: 95%;">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 1.5rem;">
                 <div class="modal-header border-0 pb-0 pt-4 px-4">
                     <h5 class="modal-title fw-bold text-dark fs-4">Tạo chiến dịch mới</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="resetCampaignForm()"></button>
                 </div>
-                <div class="modal-body p-4">
+                <div class="modal-body p-3 p-md-4">
                     <form action="${pageContext.request.contextPath}/admin/campaigns/save" method="post" id="addCampaignForm" enctype="multipart/form-data">
-                        <div class="row g-4">
-                            <div class="col-md-8">
+                        <div class="row g-3 g-md-4">
+                            <div class="col-12 col-md-8">
                                 <label class="form-label small fw-bold text-muted">Tên chiến dịch</label>
                                 <input type="text" name="name" class="form-control rounded-pill px-3 shadow-sm border-0 bg-light" placeholder="Nhập tên..." required>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-12 col-md-4">
                                 <label class="form-label small fw-bold text-muted">Mã định danh (Duy nhất)</label>
                                 <input type="text" name="code" class="form-control rounded-pill px-3 shadow-sm border-0 bg-light" placeholder="Ví dụ: CMP2024..." required>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-12 col-sm-6 col-md-4">
                                 <label class="form-label small fw-bold text-muted">Ngày bắt đầu</label>
                                 <input type="date" name="startDate" id="startDate" class="form-control rounded-pill px-3 shadow-sm border-0 bg-light" required>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-12 col-sm-6 col-md-4">
                                 <label class="form-label small fw-bold text-muted">Ngày kết thúc</label>
                                 <input type="date" name="endDate" id="endDate" class="form-control rounded-pill px-3 shadow-sm border-0 bg-light" required>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-12 col-md-4">
                                 <label class="form-label small fw-bold text-muted">Mục tiêu (VNĐ)</label>
                                 <input type="number" name="targetMoney" class="form-control rounded-pill px-3 shadow-sm border-0 bg-light" placeholder="1000000" min="1000000" required>
                             </div>
                             
-                            <div class="col-md-12">
+                            <div class="col-12">
                                 <label class="form-label small fw-bold text-muted">Đối tác đồng hành</label>
                                 <select id="companionSelect" name="companionIds" multiple placeholder="Tìm và chọn đối tác..." autocomplete="off">
                                     <c:forEach var="comp" items="${allCompanions}">
@@ -244,18 +244,18 @@
                                 </select>
                             </div>
 
-                            <div class="col-md-12">
+                            <div class="col-12">
                                 <label class="form-label small fw-bold text-muted">Hình ảnh chiến dịch (Tối đa 5 ảnh)</label>
                                 <div id="dropZone" class="drop-zone shadow-sm">
-                                    <i class="fas fa-cloud-upload-alt fa-3x mb-2"></i>
+                                    <i class="fas fa-cloud-upload-alt fa-2x fa-md-3x mb-2"></i>
                                     <span class="fw-bold text-dark">Kéo thả ảnh vào đây</span>
-                                    <span class="text-muted smallest">Hoặc click để chọn file từ máy tính</span>
+                                    <span class="text-muted smallest">Hoặc click để chọn file</span>
                                     <input type="file" id="fileInput" multiple accept="image/*" class="d-none">
                                 </div>
                                 <div id="previewContainer" class="preview-container"></div>
                             </div>
                             
-                            <div class="col-md-12">
+                            <div class="col-12 col-md-12">
                                 <label class="form-label small fw-bold text-muted">SĐT Người thụ hưởng</label>
                                 <input type="text" name="beneficiaryPhone" class="form-control rounded-pill px-3 shadow-sm border-0 bg-light" placeholder="Số điện thoại nhận tiền...">
                             </div>
@@ -268,9 +268,9 @@
                                 <textarea name="content" class="form-control border-0 bg-light shadow-sm" rows="5" style="border-radius: 1rem;" placeholder="Nội dung hiển thị trên trang chi tiết..."></textarea>
                             </div>
                         </div>
-                        <div class="mt-5 pt-3 border-top text-end">
-                            <button type="button" class="btn btn-light rounded-pill px-4 me-2 fw-bold text-muted" data-bs-dismiss="modal" onclick="resetCampaignForm()">Hủy bỏ</button>
-                            <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow" id="submitBtn">LƯU CHIẾN DỊCH</button>
+                        <div class="mt-4 mt-md-5 pt-3 border-top text-end d-flex flex-column flex-md-row justify-content-md-end gap-2">
+                            <button type="button" class="btn btn-light rounded-pill px-4 order-2 order-md-1 fw-bold text-muted" data-bs-dismiss="modal" onclick="resetCampaignForm()">Hủy bỏ</button>
+                            <button type="submit" class="btn btn-primary rounded-pill px-5 order-1 order-md-2 fw-bold shadow" id="submitBtn">LƯU CHIẾN DỊCH</button>
                         </div>
                     </form>
                 </div>

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.tnphuong.charity.donation.dao.PaymentMethodRepository;
 import org.tnphuong.charity.donation.entity.Campaign;
 import org.tnphuong.charity.donation.entity.Donation;
+import org.tnphuong.charity.donation.entity.PaymentMethod;
 import org.tnphuong.charity.donation.entity.User;
 import org.tnphuong.charity.donation.service.CampaignService;
 import org.tnphuong.charity.donation.service.DonationService;
@@ -52,6 +53,7 @@ public class HomeController {
         
         model.addAttribute("campaigns", allCampaigns);
         model.addAttribute("companions", companionRepository.findAll());
+        model.addAttribute("paymentMethods", paymentMethodRepository.findAll());
         model.addAttribute("currentStatus", status);
         return "index";
     }
@@ -137,22 +139,44 @@ public class HomeController {
                          @RequestParam BigDecimal amount,
                          @RequestParam Integer paymentMethodId,
                          @RequestParam(required = false, defaultValue = "0") Integer isAnonymous,
-                         HttpSession session) {
+                         HttpSession session, Model model) {
         Integer userId = (Integer) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/auth/login";
         }
 
-        Donation donation = new Donation();
-        donation.setCampaign(campaignService.getCampaignById(campaignId).get());
-        donation.setUser(userService.getUserById(userId).get());
-        donation.setAmount(amount);
-        donation.setPaymentMethod(paymentMethodRepository.findById(paymentMethodId).get());
-        donation.setIsAnonymous(isAnonymous);
-        donation.setStatus(0); // Waiting for confirmation
-        donation.setCreatedAt(LocalDateTime.now());
+        User user = userService.getUserById(userId).get();
+        Campaign campaign = campaignService.getCampaignById(campaignId).get();
+        PaymentMethod pm = paymentMethodRepository.findById(paymentMethodId).get();
 
+        Donation donation = new Donation();
+        donation.setCampaign(campaign);
+        donation.setUser(user);
+        donation.setAmount(amount);
+        donation.setPaymentMethod(pm);
+        donation.setIsAnonymous(isAnonymous);
+        
+        // Generate a unique message for manual bank transfer tracking
+        String transactionCode = "QG" + System.currentTimeMillis() % 1000000;
+        donation.setMessage(transactionCode);
+
+        // Logic logic for status
+        if ("BANK".equalsIgnoreCase(pm.getProvider())) {
+            donation.setStatus(Donation.STATUS_PENDING);
+        } else if ("MOMO".equalsIgnoreCase(pm.getProvider())) {
+            // For now, let's treat MOMO as pending until API is integrated
+            donation.setStatus(Donation.STATUS_PENDING);
+        } else {
+            donation.setStatus(Donation.STATUS_PENDING);
+        }
+        
+        donation.setCreatedAt(LocalDateTime.now());
         donationService.saveDonation(donation);
+
+        // Instead of redirecting immediately, let's show a success/instruction page
+        if ("BANK".equalsIgnoreCase(pm.getProvider())) {
+            return "redirect:/campaign/" + campaignId + "?success=pending&code=" + transactionCode + "&pm=" + pm.getId();
+        }
 
         return "redirect:/campaign/" + campaignId + "?success=donated";
     }

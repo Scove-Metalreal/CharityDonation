@@ -82,6 +82,96 @@
 </head>
 <body class="bg-light">
     <div class="container-fluid">
+        <!-- Modals -->
+        <!-- Quick Donation Modal -->
+        <div class="modal fade" id="quickDonateModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4">
+                    <div class="modal-header border-0 bg-dark text-white p-4">
+                        <h5 class="modal-title fw-bold">QUYÊN GÓP CHO CHIẾN DỊCH</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <h6 id="quickDonateCampaignName" class="fw-bold text-primary"></h6>
+                        </div>
+                        <form action="${pageContext.request.contextPath}/campaign/donate" method="post">
+                            <input type="hidden" name="campaignId" id="quickDonateCampaignId">
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Số tiền quyên góp (VNĐ)</label>
+                                <input type="number" name="amount" class="form-control form-control-lg rounded-pill px-4" placeholder="Nhập số tiền..." required min="1000">
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Phương thức thanh toán</label>
+                                <div class="payment-methods">
+                                    <c:forEach var="pm" items="${paymentMethods}">
+                                        <div class="form-check border rounded-pill p-3 mb-2 px-4 d-flex align-items-center">
+                                            <input class="form-check-input me-3" type="radio" name="paymentMethodId" value="${pm.id}" id="pm_quick_${pm.id}" required>
+                                            <label class="form-check-label flex-grow-1 fw-bold" for="pm_quick_${pm.id}">${pm.methodName}</label>
+                                            <i class="fas fa-wallet text-primary"></i>
+                                        </div>
+                                    </c:forEach>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="isAnonymous" value="1" id="anonymousCheckQuick">
+                                    <label class="form-check-label small fw-bold" for="anonymousCheckQuick">Quyên góp ẩn danh</label>
+                                </div>
+                            </div>
+                            <c:choose>
+                                <c:when test="${not empty sessionScope.loggedInUser}">
+                                    <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow">XÁC NHẬN QUYÊN GÓP</button>
+                                </c:when>
+                                <c:otherwise>
+                                    <a href="${pageContext.request.contextPath}/auth/login" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow">ĐĂNG NHẬP ĐỂ QUYÊN GÓP</a>
+                                    <p class="text-center smallest text-muted mt-2">Bạn cần đăng nhập để thực hiện quyên góp.</p>
+                                </c:otherwise>
+                            </c:choose>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bank Transfer Instructions Modal -->
+        <div class="modal fade" id="bankInstructionsModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4">
+                    <div class="modal-header border-0 bg-primary text-white p-4">
+                        <h5 class="modal-title fw-bold">HƯỚNG DẪN CHUYỂN KHOẢN</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4 text-center">
+                        <p class="mb-4">Vui lòng thực hiện chuyển khoản theo thông tin dưới đây để hoàn tất quyên góp:</p>
+                        
+                        <div class="p-4 bg-light rounded-4 mb-4 text-start">
+                            <div class="mb-3">
+                                <label class="smallest text-muted text-uppercase fw-bold d-block">Ngân hàng</label>
+                                <div class="fw-bold fs-5">MB Bank (Quân Đội)</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="smallest text-muted text-uppercase fw-bold d-block">Số tài khoản</label>
+                                <div class="fw-bold fs-4 text-primary">0987654321</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="smallest text-muted text-uppercase fw-bold d-block">Chủ tài khoản</label>
+                                <div class="fw-bold">TẠ NGỌC PHƯƠNG</div>
+                            </div>
+                            <div class="mb-0">
+                                <label class="smallest text-muted text-uppercase fw-bold d-block">Nội dung chuyển khoản (BẮT BUỘC)</label>
+                                <div class="p-3 bg-white border border-primary border-dashed rounded-3 mt-1">
+                                    <span class="fw-bold fs-4 text-danger" id="instrCodeQuick">QG123456</span>
+                                    <button class="btn btn-sm btn-outline-primary float-end" onclick="copyToClipboard('instrCodeQuick')">Sao chép</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary w-100 py-3 rounded-pill fw-bold" data-bs-dismiss="modal">ĐÃ HIỂU</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row flex-nowrap">
             <div class="col-auto p-0 border-end" style="z-index: 1000;">
                 <c:set var="currentPage" value="home" scope="request"/>
@@ -279,15 +369,45 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        function openQuickDonate(id, name) {
+            document.getElementById('quickDonateCampaignId').value = id;
+            document.getElementById('quickDonateCampaignName').innerText = name;
+            const modalEl = document.getElementById('quickDonateModal');
+            const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+            modal.show();
+        }
+
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('success') === 'pending') {
+                const code = urlParams.get('code');
+                if (code) {
+                    document.getElementById('instrCodeQuick').innerText = code;
+                    const modalEl = document.getElementById('bankInstructionsModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    modal.show();
+                }
+            }
+        });
+
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Đã sao chép mã nội dung!');
+            });
+        }
+
         function togglePhilosophy() {
             const content = document.getElementById('philContent');
             const btn = document.getElementById('btnPhil');
-            content.classList.toggle('show');
-            if (content.classList.contains('show')) {
-                btn.innerText = 'THU GỌN NỘI DUNG';
-            } else {
-                btn.innerText = 'TÌM HIỂU SÂU HƠN VỀ SỨ MỆNH';
-                document.getElementById('philosophy').scrollIntoView({ behavior: 'smooth' });
+            if (content && btn) {
+                content.classList.toggle('show');
+                if (content.classList.contains('show')) {
+                    btn.innerText = 'THU GỌN NỘI DUNG';
+                } else {
+                    btn.innerText = 'TÌM HIỂU SÂU HƠN VỀ SỨ MỆNH';
+                    document.getElementById('philosophy').scrollIntoView({ behavior: 'smooth' });
+                }
             }
         }
 
@@ -298,29 +418,31 @@
             const initialCount = type === 'campaign' ? 9 : 4;
             const increment = type === 'campaign' ? 6 : 4;
             const list = document.getElementById(listId);
-            const items = list.getElementsByClassName(itemClass);
+            const items = list ? list.getElementsByClassName(itemClass) : [];
             const btn = document.getElementById(btnId);
 
-            if (btn.innerText.includes('XEM THÊM')) {
-                let shownCount = 0;
-                for (let i = 0; i < items.length; i++) {
-                    if (items[i].classList.contains('d-none')) {
-                        items[i].classList.remove('d-none');
-                        shownCount++;
-                        if (shownCount >= increment) break;
+            if (btn && items.length > 0) {
+                if (btn.innerText.includes('XEM THÊM')) {
+                    let shownCount = 0;
+                    for (let i = 0; i < items.length; i++) {
+                        if (items[i].classList.contains('d-none')) {
+                            items[i].classList.remove('d-none');
+                            shownCount++;
+                            if (shownCount >= increment) break;
+                        }
                     }
+                    let remainsHidden = false;
+                    for (let i = 0; i < items.length; i++) {
+                        if (items[i].classList.contains('d-none')) { remainsHidden = true; break; }
+                    }
+                    if (!remainsHidden) btn.innerText = 'THU GỌN BỚT';
+                } else {
+                    for (let i = 0; i < items.length; i++) {
+                        if (i >= initialCount) items[i].classList.add('d-none');
+                    }
+                    btn.innerText = type === 'campaign' ? 'XEM THÊM CHIẾN DỊCH' : 'XEM THÊM ĐỐI TÁC';
+                    document.getElementById(type === 'campaign' ? 'campaigns' : 'partners').scrollIntoView({ behavior: 'smooth' });
                 }
-                let remainsHidden = false;
-                for (let i = 0; i < items.length; i++) {
-                    if (items[i].classList.contains('d-none')) { remainsHidden = true; break; }
-                }
-                if (!remainsHidden) btn.innerText = 'THU GỌN BỚT';
-            } else {
-                for (let i = 0; i < items.length; i++) {
-                    if (i >= initialCount) items[i].classList.add('d-none');
-                }
-                btn.innerText = type === 'campaign' ? 'XEM THÊM CHIẾN DỊCH' : 'XEM THÊM ĐỐI TÁC';
-                document.getElementById(type === 'campaign' ? 'campaigns' : 'partners').scrollIntoView({ behavior: 'smooth' });
             }
         }
     </script>

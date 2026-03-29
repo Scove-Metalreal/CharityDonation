@@ -50,9 +50,12 @@
                             <input type="email" name="email" class="form-control" id="email" placeholder="name@example.com" required value="${param.email}">
                             <label for="email">Địa chỉ Email</label>
                         </div>
-                        <div class="form-floating mb-4">
+                        <div class="form-floating mb-4 position-relative">
                             <input type="password" name="password" class="form-control" id="password" placeholder="Password" required>
                             <label for="password">Mật khẩu</label>
+                            <div class="text-end mt-1">
+                                <a href="${pageContext.request.contextPath}/auth/forgot-password" class="small text-muted text-decoration-none">Quên mật khẩu?</a>
+                            </div>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 py-3 mb-4 shadow-sm">ĐĂNG NHẬP</button>
@@ -64,15 +67,10 @@
                         </div>
 
                         <div class="row g-2 mb-4">
-                            <div class="col-6">
-                                <button type="button" class="btn btn-outline-secondary w-100">
-                                    <i class="fab fa-google me-2"></i>Google
-                                </button>
-                            </div>
-                            <div class="col-6">
-                                <button type="button" class="btn btn-outline-secondary w-100">
-                                    <i class="fab fa-facebook me-2"></i>Facebook
-                                </button>
+                            <div class="col-12">
+                                <a href="${pageContext.request.contextPath}/oauth2/authorization/google" class="btn btn-outline-danger w-100 py-2">
+                                    <i class="fab fa-google me-2"></i>Tiếp tục với Google
+                                </a>
                             </div>
                         </div>
 

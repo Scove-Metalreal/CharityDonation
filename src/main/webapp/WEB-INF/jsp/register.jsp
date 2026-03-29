@@ -49,11 +49,21 @@
                         <div class="alert alert-danger border-0 shadow-sm mb-4 small">${error}</div>
                     </c:if>
 
+                    <c:if test="${googleMode}">
+                        <div class="alert alert-info border-0 shadow-sm mb-4 small">
+                            <i class="fab fa-google me-2"></i> Đã kết nối với Google! Vui lòng hoàn tất thông tin còn thiếu.
+                        </div>
+                    </c:if>
+
                     <form action="${pageContext.request.contextPath}/auth/register" method="post" class="needs-validation" novalidate>
+                        <input type="hidden" name="authProvider" value="${user.authProvider}">
+                        <input type="hidden" name="providerId" value="${user.providerId}">
+                        <input type="hidden" name="avatarUrl" value="${user.avatarUrl}">
+
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <div class="form-floating">
-                                    <input type="text" name="fullName" class="form-control" id="fullName" placeholder="Nguyễn Văn A" required value="${user.fullName}">
+                                    <input type="text" name="fullName" class="form-control" id="fullName" placeholder="Nguyễn Văn A" required value="${user.fullName}" ${googleMode ? 'readonly' : ''}>
                                     <label for="fullName">Họ và tên</label>
                                 </div>
                             </div>
@@ -66,28 +76,48 @@
                         </div>
 
                         <div class="form-floating mb-3">
-                            <input type="email" name="email" class="form-control" id="email" placeholder="name@example.com" required value="${user.email}">
+                            <input type="email" name="email" class="form-control" id="email" placeholder="name@example.com" required value="${user.email}" ${googleMode ? 'readonly' : ''}>
                             <label for="email">Địa chỉ Email</label>
                         </div>
 
-                        <div class="form-floating mb-3">
-                            <input type="password" name="password" class="form-control" id="passwordInput" placeholder="Password" required minlength="6">
-                            <label for="passwordInput">Mật khẩu</label>
-                            <div class="progress strength-meter bg-light">
-                                <div id="strengthBar" class="progress-bar strength-0"></div>
+                        <c:if test="${!googleMode}">
+                            <div class="form-floating mb-3">
+                                <input type="password" name="password" class="form-control" id="passwordInput" placeholder="Password" required minlength="6">
+                                <label for="passwordInput">Mật khẩu</label>
+                                <div class="progress strength-meter bg-light">
+                                    <div id="strengthBar" class="progress-bar strength-0"></div>
+                                </div>
+                                <div class="d-flex justify-content-between mt-1">
+                                    <small class="text-muted small">Độ mạnh: <span id="strengthText">Rất yếu</span></small>
+                                    <small class="text-muted small">Tối thiểu 6 ký tự</small>
+                                </div>
                             </div>
-                            <div class="d-flex justify-content-between mt-1">
-                                <small class="text-muted small">Độ mạnh: <span id="strengthText">Rất yếu</span></small>
-                                <small class="text-muted small">Tối thiểu 6 ký tự</small>
+
+                            <div class="form-floating mb-4">
+                                <input type="password" class="form-control" id="rePassword" placeholder="Confirm Password" required>
+                                <label for="rePassword">Nhập lại mật khẩu</label>
                             </div>
-                        </div>
+                        </c:if>
 
-                        <div class="form-floating mb-4">
-                            <input type="password" class="form-control" id="rePassword" placeholder="Confirm Password" required>
-                            <label for="rePassword">Nhập lại mật khẩu</label>
-                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-3 mb-4 shadow-sm">
+                            ${googleMode ? 'HOÀN TẤT ĐĂNG KÝ' : 'ĐĂNG KÝ NGAY'}
+                        </button>
 
-                        <button type="submit" class="btn btn-primary w-100 py-3 mb-4 shadow-sm">ĐĂNG KÝ NGAY</button>
+                        <c:if test="${!googleMode}">
+                            <div class="d-flex align-items-center mb-4 text-muted">
+                                <hr class="flex-grow-1">
+                                <span class="px-3 small">Hoặc đăng ký bằng</span>
+                                <hr class="flex-grow-1">
+                            </div>
+
+                            <div class="row g-2 mb-4">
+                                <div class="col-12">
+                                    <a href="${pageContext.request.contextPath}/oauth2/authorization/google" class="btn btn-outline-danger w-100 py-2">
+                                        <i class="fab fa-google me-2"></i>Google
+                                    </a>
+                                </div>
+                            </div>
+                        </c:if>
 
                         <p class="text-center text-muted mb-0">
                             Bạn đã có tài khoản? 
