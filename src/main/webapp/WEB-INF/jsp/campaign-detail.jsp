@@ -18,7 +18,7 @@
         .main-feature-img { width: 100%; height: 500px; object-fit: cover; border-radius: 20px; cursor: pointer; }
         .thumb-img { width: 100%; height: 80px; object-fit: cover; border-radius: 12px; cursor: pointer; opacity: 0.6; transition: 0.3s; }
         .thumb-img:hover, .thumb-img.active { opacity: 1; border: 2px solid var(--color-primary); }
-        .donation-action-card-themed { background: var(--card-dark-bg); color: var(--card-dark-text); border-radius: 24px; padding: 30px; position: sticky; top: 20px; max-width: 420px; margin-left: auto; }
+        .donation-action-card-themed { background: var(--card-dark-bg); color: var(--card-dark-text); border-radius: 24px; padding: 30px; position: sticky; top: 20px; }
         .sticky-tab-bar { position: sticky; top: 0; background: white; z-index: 100; border-bottom: 1px solid var(--color-border); margin-top: 40px; }
         .nav-tabs-custom .nav-link { border: none; color: var(--color-text-muted); font-weight: 600; padding: 15px 25px; position: relative; }
         .nav-tabs-custom .nav-link.active { color: var(--color-primary); background: transparent; }
@@ -45,10 +45,42 @@
                         </div>
                         <form action="${pageContext.request.contextPath}/campaign/donate" method="post">
                             <input type="hidden" name="campaignId" id="donateCampaignId" value="${campaign.id}">
+                            
+                            <c:if test="${not empty error}">
+                                <div class="alert alert-danger">${error}</div>
+                            </c:if>
+
                             <div class="mb-4">
                                 <label class="form-label small fw-bold text-muted text-uppercase">Số tiền quyên góp (VNĐ)</label>
                                 <input type="number" name="amount" class="form-control form-control-lg rounded-pill px-4" placeholder="Nhập số tiền..." required min="1000">
                             </div>
+
+                            <c:if test="${empty sessionScope.loggedInUser}">
+                                <div class="mb-4 bg-light p-3 rounded-4 border">
+                                    <h6 class="fw-bold mb-3 small text-uppercase text-muted">Thông tin người quyên góp</h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <input type="text" name="fullName" class="form-control" placeholder="Họ và tên (Tùy chọn)">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="email" name="email" class="form-control" placeholder="Email (Bắt buộc)" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="text" name="phone" class="form-control" placeholder="Số điện thoại (Tùy chọn)">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="text" name="address" class="form-control" placeholder="Địa chỉ (Tùy chọn)">
+                                        </div>
+                                        <div class="col-12">
+                                            <textarea name="message" class="form-control" rows="2" placeholder="Lời nhắn (Tùy chọn)"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 small text-muted">
+                                        <i class="fas fa-info-circle me-1"></i> Nhập email để nhận biên lai xác nhận. Nếu email đã được đăng ký, vui lòng đăng nhập.
+                                    </div>
+                                </div>
+                            </c:if>
+
                             <div class="mb-4">
                                 <label class="form-label small fw-bold text-muted text-uppercase">Phương thức thanh toán</label>
                                 <div class="payment-methods">
@@ -64,18 +96,10 @@
                             <div class="mb-4">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" name="isAnonymous" value="1" id="anonymousCheck">
-                                    <label class="form-check-label small fw-bold" for="anonymousCheck">Quyên góp ẩn danh</label>
+                                    <label class="form-check-label small fw-bold" for="anonymousCheck">Quyên góp ẩn danh (Không hiện tên trên danh sách)</label>
                                 </div>
                             </div>
-                            <c:choose>
-                                <c:when test="${not empty sessionScope.loggedInUser}">
-                                    <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow">XÁC NHẬN QUYÊN GÓP</button>
-                                </c:when>
-                                <c:otherwise>
-                                    <a href="${pageContext.request.contextPath}/auth/login" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow">ĐĂNG NHẬP ĐỂ QUYÊN GÓP</a>
-                                    <p class="text-center smallest text-muted mt-2">Bạn cần đăng nhập để thực hiện quyên góp.</p>
-                                </c:otherwise>
-                            </c:choose>
+                            <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow">XÁC NHẬN QUYÊN GÓP</button>
                         </form>
                     </div>
                 </div>
@@ -150,8 +174,8 @@
                         </div>
                     </div>
 
-                    <div class="row g-4 mb-5">
-                        <div class="col-lg-7 col-xl-8">
+                    <div class="d-flex gap-4 mb-5">
+                        <div class="col-lg-8">
                             <!-- Image Carousel -->
                             <div id="campaignCarousel" class="carousel slide" data-bs-ride="carousel">
                                 <div class="carousel-inner rounded-4 shadow-sm">
@@ -190,7 +214,7 @@
                             </div>
                         </div>
 
-                        <div class="col-lg-5 col-xl-4">
+                        <div class="col-lg-4">
                             <div class="donation-action-card-themed shadow-lg">
                                 <div class="d-flex justify-content-between align-items-center mb-4 gap-2">
                                     <h6 class="fw-bold mb-0 text-uppercase d-none d-sm-block">Thông tin quyên góp</h6>
@@ -233,8 +257,12 @@
                                     </div>
                                     <c:set var="target" value="${campaign.targetMoney.doubleValue() > 0 ? campaign.targetMoney : 1}"/>
                                     <c:set var="percent" value="${(campaign.currentMoney.doubleValue() / target.doubleValue()) * 100}"/>
-                                    <div class="progress" style="height: 8px; background: rgba(255,255,255,0.1);">
-                                        <div class="progress-bar bg-primary" style="width: ${percent > 100 ? 100 : percent}%"></div>
+                                    <div class="progress liquid-progress-container" style="height: 20px;">
+                                        <div class="progress-bar liquid-progress-fill" style="width: ${percent > 100 ? 100 : percent}%">
+                                            <div class="liquid-wave"></div>
+                                            <div class="liquid-wave"></div>
+                                            <div class="liquid-text">${percent > 100 ? 100 : Math.round(percent)}%</div>
+                                        </div>
                                     </div>
                                 </div>
 

@@ -54,9 +54,13 @@
                 </div>
             </div>
             
-            <div class="progress mb-3" style="height: 6px; background-color: #eee;">
-                <div class="progress-bar" role="progressbar" style="width: ${percent > 100 ? 100 : percent}%" 
-                     aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100"></div>
+            <div class="progress liquid-progress-container mb-3" style="height: 12px;">
+                <div class="progress-bar liquid-progress-fill" role="progressbar" style="width: ${percent > 100 ? 100 : percent}%" 
+                     aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100">
+                    <div class="liquid-wave"></div>
+                    <div class="liquid-wave"></div>
+                    <div class="liquid-text" style="font-size: 0.7rem;">${percent > 100 ? 100 : Math.round(percent.doubleValue())}%</div>
+                </div>
             </div>
             
             <div class="d-flex justify-content-between align-items-center">

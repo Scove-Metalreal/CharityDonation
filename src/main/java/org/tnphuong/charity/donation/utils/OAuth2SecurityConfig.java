@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.tnphuong.charity.donation.entity.User;
 import org.tnphuong.charity.donation.service.UserService;
 
@@ -28,13 +29,14 @@ public class OAuth2SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Disable CSRF for simplicity in this session-based project
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .anyRequest().permitAll()
             )
             .oauth2Login(oauth2 -> oauth2
                 .loginPage("/auth/login")
                 .successHandler(oauth2SuccessHandler())
+                .failureHandler(oauth2FailureHandler())
             )
             .logout(logout -> logout
                 .logoutUrl("/auth/logout")
@@ -45,12 +47,20 @@ public class OAuth2SecurityConfig {
     }
 
     @Bean
+    public AuthenticationFailureHandler oauth2FailureHandler() {
+        return (request, response, exception) -> {
+            // Redirect to login page with error message
+            response.sendRedirect(request.getContextPath() + "/auth/login?error=google_auth_failed");
+        };
+    }
+
+    @Bean
     public AuthenticationSuccessHandler oauth2SuccessHandler() {
         return (HttpServletRequest request, HttpServletResponse response, Authentication authentication) -> {
             OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
             String email = oauth2User.getAttribute("email");
             String name = oauth2User.getAttribute("name");
-            String providerId = oauth2User.getAttribute("sub"); // Google unique ID
+            String providerId = oauth2User.getAttribute("sub");
             String picture = oauth2User.getAttribute("picture");
 
             Optional<User> userOpt = userService.getUserByEmail(email);
@@ -58,7 +68,7 @@ public class OAuth2SecurityConfig {
 
             if (userOpt.isPresent()) {
                 User user = userOpt.get();
-                // Update Google provider info if not set
+                // Link Google account if not already linked
                 if (user.getProviderId() == null) {
                     user.setAuthProvider("GOOGLE");
                     user.setProviderId(providerId);
@@ -66,19 +76,19 @@ public class OAuth2SecurityConfig {
                     userService.saveUser(user);
                 }
 
-                // Sync with existing session logic
+                // Set session attributes for SecurityInterceptor
                 session.setAttribute("userId", user.getId());
                 session.setAttribute("loggedInUser", user);
                 user.setLastLogin(java.time.LocalDateTime.now());
                 userService.saveUser(user);
 
-                if ("ADMIN".equalsIgnoreCase(user.getRole().getRoleName())) {
+                if (user.getRole() != null && "ADMIN".equalsIgnoreCase(user.getRole().getRoleName())) {
                     response.sendRedirect(request.getContextPath() + "/admin/dashboard");
                 } else {
                     response.sendRedirect(request.getContextPath() + "/");
                 }
             } else {
-                // Not registered - redirect to register with auto-filled info
+                // New user: Store info in session and redirect to complete registration
                 session.setAttribute("google_email", email);
                 session.setAttribute("google_name", name);
                 session.setAttribute("google_id", providerId);

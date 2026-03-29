@@ -102,7 +102,6 @@ public class AuthController {
     public String loginUser(@RequestParam String email, @RequestParam String password, 
                            HttpSession session, Model model) {
         String cleanEmail = email.trim();
-        System.out.println("DEBUG: Dang nhap voi email: [" + cleanEmail + "]");
         
         Optional<User> userOpt = userService.getUserByEmail(cleanEmail);
         
@@ -122,8 +121,6 @@ public class AuthController {
                 session.setAttribute("userId", user.getId());
                 // Van giu loggedInUser neu cac trang JSP dang dung, nhung Interceptor se check theo userId
                 session.setAttribute("loggedInUser", user); 
-                
-                System.out.println("DEBUG: Dang nhap thanh cong. Role: " + (user.getRole() != null ? user.getRole().getRoleName() : "NULL"));
                 
                 if (user.getRole() != null && "ADMIN".equalsIgnoreCase(user.getRole().getRoleName())) {
                     return "redirect:/admin/dashboard";

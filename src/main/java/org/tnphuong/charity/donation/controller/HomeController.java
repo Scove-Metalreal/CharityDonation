@@ -7,7 +7,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.tnphuong.charity.donation.dao.PaymentMethodRepository;
+import org.tnphuong.charity.donation.dao.RoleRepository;
 import org.tnphuong.charity.donation.entity.Campaign;
 import org.tnphuong.charity.donation.entity.Donation;
 import org.tnphuong.charity.donation.entity.PaymentMethod;
@@ -20,6 +22,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Controller
 public class HomeController {
@@ -35,6 +38,9 @@ public class HomeController {
 
     @Autowired
     private PaymentMethodRepository paymentMethodRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     private org.tnphuong.charity.donation.dao.UserFollowingRepository userFollowingRepository;
@@ -139,13 +145,54 @@ public class HomeController {
                          @RequestParam BigDecimal amount,
                          @RequestParam Integer paymentMethodId,
                          @RequestParam(required = false, defaultValue = "0") Integer isAnonymous,
-                         HttpSession session, Model model) {
+                         @RequestParam(required = false) String fullName,
+                         @RequestParam(required = false) String email,
+                         @RequestParam(required = false) String phone,
+                         @RequestParam(required = false) String address,
+                         @RequestParam(required = false) String message,
+                         HttpSession session,
+                         RedirectAttributes redirectAttributes) {
+
         Integer userId = (Integer) session.getAttribute("userId");
+        User user;
+
         if (userId == null) {
-            return "redirect:/auth/login";
+            // Handle guest user
+            if (email == null || email.isBlank()) {
+                redirectAttributes.addFlashAttribute("error", "Email is required for guest donations.");
+                return "redirect:/campaign/" + campaignId;
+            }
+
+            Optional<User> existingUser = userService.getUserByEmail(email);
+            if (existingUser.isPresent()) {
+                redirectAttributes.addFlashAttribute("error", "This email is already associated with an account. Please log in to donate.");
+                return "redirect:/auth/login";
+            }
+
+            // Create a new guest user
+            user = new User();
+            user.setFullName(fullName != null && !fullName.isBlank() ? fullName : "Guest Donor");
+            user.setEmail(email);
+            
+            // Generate a dummy phone number if not provided to avoid unique constraint violation
+            if (phone == null || phone.isBlank()) {
+                user.setPhoneNumber("GUEST_" + UUID.randomUUID().toString().substring(0, 8));
+            } else {
+                user.setPhoneNumber(phone);
+            }
+            
+            user.setAddress(address);
+            user.setRole(roleRepository.findByRoleName("GUEST").orElse(null)); // Assign GUEST role
+            user.setStatus(1);
+            user = userService.saveUser(user); // Save the new user and get persisted entity
+        } else {
+            // Handle logged-in user
+            user = userService.getUserById(userId).orElse(null);
+            if (user == null) {
+                return "redirect:/auth/login"; // Should not happen if session is valid
+            }
         }
 
-        User user = userService.getUserById(userId).get();
         Campaign campaign = campaignService.getCampaignById(campaignId).get();
         PaymentMethod pm = paymentMethodRepository.findById(paymentMethodId).get();
 
@@ -155,27 +202,26 @@ public class HomeController {
         donation.setAmount(amount);
         donation.setPaymentMethod(pm);
         donation.setIsAnonymous(isAnonymous);
-        
-        // Generate a unique message for manual bank transfer tracking
-        String transactionCode = "QG" + System.currentTimeMillis() % 1000000;
-        donation.setMessage(transactionCode);
 
-        // Logic logic for status
-        if ("BANK".equalsIgnoreCase(pm.getProvider())) {
-            donation.setStatus(Donation.STATUS_PENDING);
-        } else if ("MOMO".equalsIgnoreCase(pm.getProvider())) {
-            // For now, let's treat MOMO as pending until API is integrated
+        String transactionCode = "QG" + System.currentTimeMillis() % 1000000;
+        // Prepend user message if it exists
+        if (message != null && !message.isBlank()) {
+            donation.setMessage(message + " (Code: " + transactionCode + ")");
+        } else {
+            donation.setMessage("Transaction Code: " + transactionCode);
+        }
+
+        if ("BANK".equalsIgnoreCase(pm.getProvider()) || "MOMO".equalsIgnoreCase(pm.getProvider())) {
             donation.setStatus(Donation.STATUS_PENDING);
         } else {
-            donation.setStatus(Donation.STATUS_PENDING);
+            donation.setStatus(Donation.STATUS_CONFIRMED);
         }
-        
+
         donation.setCreatedAt(LocalDateTime.now());
         donationService.saveDonation(donation);
 
-        // Instead of redirecting immediately, let's show a success/instruction page
         if ("BANK".equalsIgnoreCase(pm.getProvider())) {
-            return "redirect:/campaign/" + campaignId + "?success=pending&code=" + transactionCode + "&pm=" + pm.getId();
+            return "redirect:/campaign/" + campaignId + "?success=pending&code=" + transactionCode;
         }
 
         return "redirect:/campaign/" + campaignId + "?success=donated";

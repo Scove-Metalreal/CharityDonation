@@ -13,11 +13,13 @@
     --color-text-muted: #6B7280;
     --color-border: #E5E7EB;
     
-    /* Themed Components */
-    --footer-bg: #111827; /* Dark by default, but using variable */
-    --footer-text: #F9FAFB;
-    --card-dark-bg: #1F2937;
-    --card-dark-text: #F9FAFB;
+    /* Themed Components (Standard: Light) */
+    --footer-bg: #FFFFFF; 
+    --footer-text: #1F2937;
+    --footer-link: #6B7280;
+    --card-dark-bg: #FFFFFF;
+    --card-dark-text: #1F2937;
+    --card-dark-border: #E5E7EB;
 
     /* Spacing & Effects */
     --radius-lg: 12px;
@@ -25,6 +27,21 @@
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --transition: all 0.3s ease;
+}
+
+/* Dark Mode Overrides (Bootstrap 5.3 standard) */
+[data-bs-theme="dark"] {
+    --color-bg-light: #111827;
+    --color-surface: #1F2937;
+    --color-text-main: #F9FAFB;
+    --color-text-muted: #9CA3AF;
+    --color-border: #374151;
+    
+    --footer-bg: #111827;
+    --footer-text: #F9FAFB;
+    --footer-link: #9CA3AF;
+    --card-dark-bg: #111827;
+    --card-dark-text: #F9FAFB;
 }
 
 /* Base resets and fixes */
@@ -188,7 +205,7 @@ img {
     color: var(--footer-text) !important;
 }
 .custom-footer a {
-    color: rgba(255,255,255,0.6) !important;
+    color: var(--footer-link) !important;
 }
 .custom-footer a:hover {
     color: var(--color-primary) !important;
@@ -200,6 +217,7 @@ img {
     color: var(--card-dark-text);
     border-radius: 24px;
     padding: 30px;
+    border: 1px solid var(--card-dark-border);
 }
 
 /* Top Donation Header Theme Fix */

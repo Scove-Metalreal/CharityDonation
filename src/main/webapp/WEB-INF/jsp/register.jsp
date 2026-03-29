@@ -136,18 +136,20 @@
         const strengthText = document.getElementById('strengthText');
         const texts = ['Rất yếu', 'Yếu', 'Trung bình', 'Mạnh', 'Rất mạnh'];
 
-        passwordInput.addEventListener('input', function() {
-            const val = passwordInput.value;
-            const result = zxcvbn(val);
-            const score = val.length > 0 ? result.score + 1 : 0;
+        if (passwordInput) {
+            passwordInput.addEventListener('input', function() {
+                const val = passwordInput.value;
+                const result = zxcvbn(val);
+                const score = val.length > 0 ? result.score + 1 : 0;
 
-            strengthBar.className = 'progress-bar strength-' + score;
-            strengthText.innerText = val.length > 0 ? texts[result.score] : 'Rất yếu';
-            
-            if(score < 3) strengthText.className = 'text-danger';
-            else if(score === 3) strengthText.className = 'text-warning';
-            else strengthText.className = 'text-success';
-        });
+                strengthBar.className = 'progress-bar strength-' + score;
+                strengthText.innerText = val.length > 0 ? texts[result.score] : 'Rất yếu';
+                
+                if(score < 3) strengthText.className = 'text-danger';
+                else if(score === 3) strengthText.className = 'text-warning';
+                else strengthText.className = 'text-success';
+            });
+        }
 
         // Form Validation
         (() => {
@@ -155,13 +157,19 @@
             const forms = document.querySelectorAll('.needs-validation')
             Array.from(forms).forEach(form => {
                 form.addEventListener('submit', event => {
-                    const pass = document.getElementById('passwordInput').value;
-                    const rePass = document.getElementById('rePassword').value;
-                    if (pass !== rePass) {
-                        alert('Mật khẩu nhập lại không khớp!');
-                        event.preventDefault();
-                        return;
+                    const passInput = document.getElementById('passwordInput');
+                    const rePassInput = document.getElementById('rePassword');
+                    
+                    if (passInput && rePassInput) {
+                        const pass = passInput.value;
+                        const rePass = rePassInput.value;
+                        if (pass !== rePass) {
+                            alert('Mật khẩu nhập lại không khớp!');
+                            event.preventDefault();
+                            return;
+                        }
                     }
+                    
                     if (!form.checkValidity()) {
                         event.preventDefault()
                         event.stopPropagation()
