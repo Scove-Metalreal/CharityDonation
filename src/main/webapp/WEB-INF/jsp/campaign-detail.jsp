@@ -26,7 +26,7 @@
         .donor-container { background: #f9fafb; border: 1px solid var(--color-border); border-radius: 20px; overflow: hidden; }
         .donor-row { padding: 15px 20px; display: flex; align-items: center; border-bottom: 1px solid var(--color-border); }
         .donor-row:last-child { border-bottom: none; }
-        .sponsor-list { border: 1px solid rgba(0, 255, 255, 0.2); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
+        .sponsor-list { border: 3px solid rgba(255, 255, 255, 0.2); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
         .brand-primary { color: var(--color-primary) !important; }
         .bg-brand-primary { background-color: var(--color-primary) !important; }
     </style>
@@ -87,7 +87,7 @@
                             <div class="mb-4">
                                 <label class="form-label small fw-bold text-muted text-uppercase d-flex justify-content-between">
                                     <span>Phương thức thanh toán</span>
-                                    <a href="javascript:void(0)" id="bankInfoLink" class="text-decoration-none d-none" style="font-size: 0.75rem;" onclick="showBankInfo()">
+                                    <a href="javascript:void(0)" id="bankInfoLink" class="text-decoration-none" style="font-size: 0.75rem;" onclick="showBankInfo()">
                                         <i class="fas fa-info-circle me-1"></i>Xem hướng dẫn
                                     </a>
                                 </label>
@@ -156,6 +156,64 @@
                     <div class="modal-body p-0 text-center">
                         <img id="lightboxImg" src="" class="img-fluid rounded shadow-lg" style="max-height: 90vh;">
                         <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Donors Modal -->
+        <div class="modal fade" id="topDonorsModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4">
+                    <div class="modal-header bg-brand-primary border-0 text-white p-4">
+                        <h5 class="modal-title fw-bold">NHÀ HẢO TÂM HÀNG ĐẦU</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-0" style="max-height: 70vh; overflow-y: auto;">
+                        <div class="donor-container border-0 rounded-0">
+                            <c:forEach var="d" items="${topDonors20}" varStatus="loop">
+                                <div class="donor-row">
+                                    <div class="fw-bold brand-primary me-3" style="width:20px">${loop.index + 1}</div>
+                                    <div class="flex-grow-1 text-truncate">
+                                        <strong>${d.isAnonymous == 1 ? 'Nhà hảo tâm ẩn danh' : d.user.fullName}</strong>
+                                        <div class="smallest text-muted">
+                                            <fmt:parseDate value="${d.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedCreatedAt" type="both" />
+                                            <fmt:formatDate value="${parsedCreatedAt}" pattern="dd/MM/yyyy" />
+                                        </div>
+                                    </div>
+                                    <div class="fw-bold brand-primary"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
+                                </div>
+                            </c:forEach>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Donors Modal -->
+        <div class="modal fade" id="recentDonorsModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4">
+                    <div class="modal-header bg-brand-primary border-0 text-white p-4">
+                        <h5 class="modal-title fw-bold">NHÀ HẢO TÂM MỚI NHẤT</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-0" style="max-height: 70vh; overflow-y: auto;">
+                        <div class="donor-container border-0 rounded-0">
+                            <c:forEach var="d" items="${recentDonors20}" varStatus="loop">
+                                <div class="donor-row">
+                                    <div class="fw-bold brand-primary me-3" style="width:20px">${loop.index + 1}</div>
+                                    <div class="flex-grow-1 text-truncate">
+                                        <strong>${d.isAnonymous == 1 ? 'Nhà hảo tâm ẩn danh' : d.user.fullName}</strong>
+                                        <div class="smallest text-muted">
+                                            <fmt:parseDate value="${d.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedCreatedAt" type="both" />
+                                            <fmt:formatDate value="${parsedCreatedAt}" pattern="dd/MM/yyyy" />
+                                        </div>
+                                    </div>
+                                    <div class="fw-bold brand-primary"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
+                                </div>
+                            </c:forEach>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -269,6 +327,18 @@
                                             <div class="liquid-text">${percent > 100 ? 100 : Math.round(percent)}%</div>
                                         </div>
                                     </div>
+                                    <table class="table table-borderless mt-3 mb-0" style="font-size: 0.85rem;">
+                                        <tr class="text-white-50">
+                                            <td class="pb-0 ps-0">Lượt quyên góp</td>
+                                            <td class="pb-0 text-center">Đạt được</td>
+                                            <td class="pb-0 text-end pe-0">Thời hạn còn</td>
+                                        </tr>
+                                        <tr class="fw-bold">
+                                            <td class="pt-0 ps-0">${donationCount}</td>
+                                            <td class="pt-0 text-center">${Math.round(percent)}%</td>
+                                            <td class="pt-0 text-end pe-0">${daysRemaining} Ngày</td>
+                                        </tr>
+                                    </table>
                                 </div>
 
                                 <c:if test="${empty sessionScope.loggedInUser or sessionScope.loggedInUser.role.roleName != 'ADMIN'}">
@@ -355,10 +425,16 @@
                                         <div class="col-md-6">
                                             <div class="donor-container h-100">
                                                 <div class="p-3 donor-header-themed fw-bold">NHÀ HẢO TÂM HÀNG ĐẦU</div>
-                                                <c:forEach var="d" items="${topDonors10}" varStatus="loop">
+                                                <c:forEach var="d" items="${topDonors10}" varStatus="loop" end="4">
                                                     <div class="donor-row">
                                                         <div class="fw-bold brand-primary me-3" style="width:20px">${loop.index + 1}</div>
-                                                        <div class="flex-grow-1 text-truncate"><strong>${d.isAnonymous == 1 ? 'Nhà hảo tâm ẩn danh' : d.user.fullName}</strong></div>
+                                                        <div class="flex-grow-1 text-truncate">
+                                                            <strong>${d.isAnonymous == 1 ? 'Nhà hảo tâm ẩn danh' : d.user.fullName}</strong>
+                                                            <div class="smallest text-muted">
+                                                                <fmt:parseDate value="${d.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedCreatedAt" type="both" />
+                                                                <fmt:formatDate value="${parsedCreatedAt}" pattern="dd/MM/yyyy" />
+                                                            </div>
+                                                        </div>
                                                         <div class="fw-bold brand-primary"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
                                                     </div>
                                                 </c:forEach>
@@ -372,7 +448,7 @@
                                         <div class="col-md-6">
                                             <div class="donor-container h-100">
                                                 <div class="p-3 donor-header-themed fw-bold  ">NHÀ HẢO TÂM MỚI NHẤT</div>
-                                                <c:forEach var="d" items="${recentDonors10}">
+                                                <c:forEach var="d" items="${recentDonors10}" varStatus="loop" end="4">
                                                     <div class="donor-row">
                                                         <div class="fw-bold brand-primary me-3" style="width:20px">${loop.index + 1}</div>
                                                         <div class="flex-grow-1 text-truncate">

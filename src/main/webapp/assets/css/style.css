@@ -621,3 +621,12 @@ img {
     font-weight: 600;
     color: var(--color-text-muted);
 }
+
+/* Ensure the close sidebar button is visible on mobile */
+@media (max-width: 991.98px) {
+    .sidebar-header .btn.d-lg-none {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+}

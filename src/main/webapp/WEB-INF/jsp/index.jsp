@@ -139,7 +139,7 @@
                             <div class="mb-4">
                                 <label class="form-label small fw-bold text-muted text-uppercase d-flex justify-content-between">
                                     <span>Phương thức thanh toán</span>
-                                    <a href="javascript:void(0)" id="bankInfoLink" class="text-decoration-none d-none" style="font-size: 0.75rem;" onclick="showBankInfo()">
+                                    <a href="javascript:void(0)" id="bankInfoLink" class="text-decoration-none" style="font-size: 0.75rem;" onclick="showBankInfo()">
                                         <i class="fas fa-info-circle me-1"></i>Xem hướng dẫn
                                     </a>
                                 </label>

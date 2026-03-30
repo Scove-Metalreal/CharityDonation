@@ -66,9 +66,17 @@ public class HomeController {
 
     @GetMapping("/campaign/{id}")
     public String campaignDetail(@PathVariable Integer id, Model model, HttpSession session) {
-        Optional<Campaign> campaign = campaignService.getCampaignById(id);
-        if (campaign.isPresent()) {
-            model.addAttribute("campaign", campaign.get());
+        Optional<Campaign> campaignOpt = campaignService.getCampaignById(id);
+        if (campaignOpt.isPresent()) {
+            Campaign campaign = campaignOpt.get();
+            model.addAttribute("campaign", campaign);
+
+            // Donation statistics
+            model.addAttribute("donationCount", donationService.countConfirmedDonationsByCampaignId(id));
+            
+            // Calculate days remaining
+            long daysRemaining = java.time.temporal.ChronoUnit.DAYS.between(java.time.LocalDate.now(), campaign.getEndDate());
+            model.addAttribute("daysRemaining", daysRemaining > 0 ? daysRemaining : 0);
 
             // Top Donors
             model.addAttribute("topDonors10", donationService.getTopDonorsByCampaignId(id, 10));
@@ -211,20 +219,12 @@ public class HomeController {
             donation.setMessage("Transaction Code: " + transactionCode);
         }
 
-        if ("BANK".equalsIgnoreCase(pm.getProvider()) || "MOMO".equalsIgnoreCase(pm.getProvider())) {
-            donation.setStatus(Donation.STATUS_PENDING);
-        } else {
-            donation.setStatus(Donation.STATUS_CONFIRMED);
-        }
+        donation.setStatus(Donation.STATUS_PENDING);
 
         donation.setCreatedAt(LocalDateTime.now());
         donationService.saveDonation(donation);
 
-        if ("BANK".equalsIgnoreCase(pm.getProvider())) {
-            return "redirect:/campaign/" + campaignId + "?success=pending&code=" + transactionCode;
-        }
-
-        return "redirect:/campaign/" + campaignId + "?success=dosrnated";
+        return "redirect:/campaign/" + campaignId + "?success=donated&pending=true&code=" + transactionCode;
     }
 }
 
