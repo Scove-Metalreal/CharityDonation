@@ -171,7 +171,7 @@ public class HomeController {
 
             // Create a new guest user
             user = new User();
-            user.setFullName(fullName != null && !fullName.isBlank() ? fullName : "Guest Donor");
+            user.setFullName(fullName != null && !fullName.isBlank() ? fullName : "Nhà hảo tâm ẩn danh");
             user.setEmail(email);
             
             // Generate a dummy phone number if not provided to avoid unique constraint violation

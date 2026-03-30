@@ -38,7 +38,7 @@
         <div class="modal fade" id="donateModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow-lg rounded-4">
-                    <div class="modal-header border-0 text-white p-4">
+                    <div class="modal-header bg-brand-primary border-0 text-white p-4">
                         <h5 class="modal-title fw-bold">QUYÊN GÓP CHO CHIẾN DỊCH</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -258,7 +258,7 @@
                                 <div class="funding-stats mt-4">
                                     <div class="mb-2">
                                         <span class="fs-3 fw-bold"><fmt:formatNumber value="${campaign.currentMoney}" type="number"/>đ</span>
-                                        <span class="text-50 small"> / <fmt:formatNumber value="${campaign.targetMoney}" type="number"/>đ</span>
+                                        <span class="text   -50 small"> / <fmt:formatNumber value="${campaign.targetMoney}" type="number"/>đ</span>
                                     </div>
                                     <c:set var="target" value="${campaign.targetMoney.doubleValue() > 0 ? campaign.targetMoney : 1}"/>
                                     <c:set var="percent" value="${(campaign.currentMoney.doubleValue() / target.doubleValue()) * 100}"/>
@@ -374,11 +374,12 @@
                                                 <div class="p-3 donor-header-themed fw-bold  ">NHÀ HẢO TÂM MỚI NHẤT</div>
                                                 <c:forEach var="d" items="${recentDonors10}">
                                                     <div class="donor-row">
+                                                        <div class="fw-bold brand-primary me-3" style="width:20px">${loop.index + 1}</div>
                                                         <div class="flex-grow-1 text-truncate">
                                                             <strong>${d.isAnonymous == 1 ? 'Nhà hảo tâm ẩn danh' : d.user.fullName}</strong>
                                                             <div class="smallest text-muted">${d.createdAt}</div>
                                                         </div>
-                                                        <div class="fw-bold text-dark"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
+                                                        <div class="fw-bold brand-primary"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
                                                     </div>
                                                 </c:forEach>
                                                 <c:if test="${empty recentDonors10}"><div class="p-4 text-center text-muted small">Chưa có quyên góp nào.</div></c:if>

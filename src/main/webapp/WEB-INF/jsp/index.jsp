@@ -86,51 +86,77 @@
 <body class="bg-light">
     <div class="container-fluid">
         <!-- Modals -->
-        <!-- Quick Donation Modal -->
-        <div class="modal fade" id="quickDonateModal" tabindex="-1" aria-hidden="true">
+        <!-- Donation Modal -->
+        <div class="modal fade" id="donateModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow-lg rounded-4">
-                    <div class="modal-header border-0 bg-dark text-white p-4">
+                    <div class="modal-header border-0 bg-brand-primary text-white p-4">
                         <h5 class="modal-title fw-bold">QUYÊN GÓP CHO CHIẾN DỊCH</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body p-4">
                         <div class="mb-3">
-                            <h6 id="quickDonateCampaignName" class="fw-bold brand-primary"></h6>
+                            <h6 id="donateCampaignName" class="fw-bold brand-primary"></h6>
                         </div>
                         <form action="${pageContext.request.contextPath}/campaign/donate" method="post">
-                            <input type="hidden" name="campaignId" id="quickDonateCampaignId">
+                            <input type="hidden" name="campaignId" id="donateCampaignId" value="">
+                            
+                            <c:if test="${not empty error}">
+                                <div class="alert alert-danger">${error}</div>
+                            </c:if>
+
                             <div class="mb-4">
                                 <label class="form-label small fw-bold text-muted text-uppercase">Số tiền quyên góp (VNĐ)</label>
                                 <input type="number" name="amount" class="form-control form-control-lg rounded-pill px-4" placeholder="Nhập số tiền..." required min="1000">
                             </div>
-                            <div class="mb-4">
-                                <label class="form-label small fw-bold text-muted text-uppercase">Phương thức thanh toán</label>
-                                <div class="payment-methods">
-                                    <c:forEach var="pm" items="${paymentMethods}">
-                                        <div class="form-check border rounded-pill p-3 mb-2 px-4 d-flex align-items-center">
-                                            <input class="form-check-input me-3" type="radio" name="paymentMethodId" value="${pm.id}" id="pm_quick_${pm.id}" required>
-                                            <label class="form-check-label flex-grow-1 fw-bold" for="pm_quick_${pm.id}">${pm.methodName}</label>
-                                            <i class="fas fa-wallet brand-primary"></i>
+
+                            <c:if test="${empty sessionScope.loggedInUser}">
+                                <div class="mb-4 bg-light p-3 rounded-4 border">
+                                    <h6 class="fw-bold mb-3 small text-uppercase text-muted">Thông tin người quyên góp</h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <input type="text" name="fullName" class="form-control" placeholder="Họ và tên (Tùy chọn)">
                                         </div>
-                                    </c:forEach>
+                                        <div class="col-md-6">
+                                            <input type="email" name="email" class="form-control" placeholder="Email (Bắt buộc)" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="text" name="phone" class="form-control" placeholder="Số điện thoại (Tùy chọn)">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="text" name="address" class="form-control" placeholder="Địa chỉ (Tùy chọn)">
+                                        </div>
+                                        <div class="col-12">
+                                            <textarea name="message" class="form-control" rows="2" placeholder="Lời nhắn (Tùy chọn)"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 small text-muted">
+                                        <i class="fas fa-info-circle me-1"></i> Nhập email để nhận biên lai xác nhận. Nếu email đã được đăng ký, vui lòng đăng nhập.
+                                    </div>
                                 </div>
+                            </c:if>
+
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold text-muted text-uppercase d-flex justify-content-between">
+                                    <span>Phương thức thanh toán</span>
+                                    <a href="javascript:void(0)" id="bankInfoLink" class="text-decoration-none d-none" style="font-size: 0.75rem;" onclick="showBankInfo()">
+                                        <i class="fas fa-info-circle me-1"></i>Xem hướng dẫn
+                                    </a>
+                                </label>
+                                <select name="paymentMethodId" id="paymentMethodSelect" class="form-select form-select-lg rounded-pill px-4" required onchange="handlePaymentMethodChange(this)">
+                                    <option value="" selected disabled>Chọn phương thức thanh toán...</option>
+                                    <c:forEach var="pm" items="${paymentMethods}">
+                                        <option value="${pm.id}" data-provider="${pm.provider}">${pm.methodName}</option>
+                                    </c:forEach>
+                                </select>
                             </div>
                             <div class="mb-4">
                                 <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" name="isAnonymous" value="1" id="anonymousCheckQuick">
-                                    <label class="form-check-label small fw-bold" for="anonymousCheckQuick">Quyên góp ẩn danh</label>
+                                    <input class="form-check-input" type="checkbox" name="isAnonymous" value="1" id="anonymousCheck">
+                                    <label class="form-check-label small fw-bold" for="anonymousCheck">Quyên góp ẩn danh (Không hiện tên trên danh sách)</label>
                                 </div>
                             </div>
-                            <c:choose>
-                                <c:when test="${not empty sessionScope.loggedInUser}">
-                                    <button type="submit" class="btn btn-brand-primary w-100 py-3 rounded-pill fw-bold shadow">XÁC NHẬN QUYÊN GÓP</button>
-                                </c:when>
-                                <c:otherwise>
-                                    <a href="${pageContext.request.contextPath}/auth/login" class="btn btn-brand-primary w-100 py-3 rounded-pill fw-bold shadow">ĐĂNG NHẬP ĐỂ QUYÊN GÓP</a>
-                                    <p class="text-center smallest text-muted mt-2">Bạn cần đăng nhập để thực hiện quyên góp.</p>
-                                </c:otherwise>
-                            </c:choose>
+                            <button type="submit" class="btn btn-brand-primary w-100 py-3 rounded-pill fw-bold shadow">XÁC NHẬN QUYÊN GÓP</button>
                         </form>
                     </div>
                 </div>
@@ -151,21 +177,21 @@
                         <div class="p-4 bg-light rounded-4 mb-4 text-start">
                             <div class="mb-3">
                                 <label class="smallest text-muted text-uppercase fw-bold d-block">Ngân hàng</label>
-                                <div class="fw-bold fs-5">MB Bank (Quân Đội)</div>
+                                <div class="fw-bold fs-5" id="instrBankName">MB Bank (Quân Đội)</div>
                             </div>
                             <div class="mb-3">
                                 <label class="smallest text-muted text-uppercase fw-bold d-block">Số tài khoản</label>
-                                <div class="fw-bold fs-4 brand-primary">0987654321</div>
+                                <div class="fw-bold fs-4 brand-primary" id="instrAccountNum">0987654321</div>
                             </div>
                             <div class="mb-3">
                                 <label class="smallest text-muted text-uppercase fw-bold d-block">Chủ tài khoản</label>
-                                <div class="fw-bold">TẠ NGỌC PHƯƠNG</div>
+                                <div class="fw-bold" id="instrAccountName">TẠ NGỌC PHƯƠNG</div>
                             </div>
                             <div class="mb-0">
                                 <label class="smallest text-muted text-uppercase fw-bold d-block">Nội dung chuyển khoản (BẮT BUỘC)</label>
                                 <div class="p-3 bg-white border border-primary border-dashed rounded-3 mt-1">
-                                    <span class="fw-bold fs-4 text-danger" id="instrCodeQuick">QG123456</span>
-                                    <button class="btn btn-sm btn-brand-secondary float-end" onclick="copyToClipboard('instrCodeQuick')">Sao chép</button>
+                                    <span class="fw-bold fs-4 text-danger" id="instrCode">QG123456</span>
+                                    <button class="btn btn-sm btn-brand-secondary float-end" onclick="copyToClipboard('instrCode')">Sao chép</button>
                                 </div>
                             </div>
                         </div>
@@ -372,10 +398,33 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        function handlePaymentMethodChange(select) {
+            const selectedOption = select.options[select.selectedIndex];
+            const provider = selectedOption.getAttribute('data-provider');
+            const bankInfoLink = document.getElementById('bankInfoLink');
+            
+            if (provider === 'BANK') {
+                bankInfoLink.classList.remove('d-none');
+            } else {
+                bankInfoLink.classList.add('d-none');
+            }
+        }
+
+        function showBankInfo() {
+            const modalEl = document.getElementById('bankInstructionsModal');
+            // Reset code if it's just a general preview
+            const instrCode = document.getElementById('instrCode');
+            if (instrCode.innerText === 'QG123456' || !instrCode.innerText) {
+                instrCode.innerText = 'QG' + Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+            }
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
+
         function openQuickDonate(id, name) {
-            document.getElementById('quickDonateCampaignId').value = id;
-            document.getElementById('quickDonateCampaignName').innerText = name;
-            const modalEl = document.getElementById('quickDonateModal');
+            document.getElementById('donateCampaignId').value = id;
+            document.getElementById('donateCampaignName').innerText = name;
+            const modalEl = document.getElementById('donateModal');
             const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
             modal.show();
         }
@@ -385,7 +434,7 @@
             if (urlParams.get('success') === 'pending') {
                 const code = urlParams.get('code');
                 if (code) {
-                    document.getElementById('instrCodeQuick').innerText = code;
+                    document.getElementById('instrCode').innerText = code;
                     const modalEl = document.getElementById('bankInstructionsModal');
                     const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
                     modal.show();

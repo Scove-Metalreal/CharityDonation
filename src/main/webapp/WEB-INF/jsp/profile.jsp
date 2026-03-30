@@ -112,8 +112,8 @@
                 <div class="row g-3 px-4 mb-5">
                     <div class="col-md-3">
                         <div class="card p-3 text-center border shadow-none h-100">
-                            <small class="text-muted uppercase fw-bold" style="font-size: 0.7rem;">NGÀY THAM GIA</small>
-                            <h5 class="mt-2 mb-0 fw-bold">12/03/2026</h5>
+                            <small class="brand-primary uppercase fw-bold" style="font-size: 0.7rem;">NGÀY THAM GIA</small>
+                            <h5 class="mt-2 mb-0 fw-bold brand-primary">12/03/2026</h5>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -124,17 +124,15 @@
                     </div>
                     <div class="col-md-3">
                         <div class="card p-3 text-center border shadow-none h-100">
-                            <small class="text-muted uppercase fw-bold" style="font-size: 0.7rem;">QUYÊN GÓP</small>
-                            <h5 class="mt-2 mb-0 fw-bold">${donations.size()}</h5>
+                            <small class="brand-primary uppercase fw-bold" style="font-size: 0.7rem;">QUYÊN GÓP</small>
+                            <h5 class="mt-2 mb-0 fw-bold brand-primary">${donations.size()}</h5>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <a href="#following" class="text-decoration-none h-100">
-                            <div class="card p-3 text-center border border-primary shadow-none h-100 hover-bg-light transition">
-                                <small class="brand-primary uppercase fw-bold" style="font-size: 0.7rem;">ĐANG THEO DÕI</small>
-                                <h5 class="mt-2 mb-0 fw-bold brand-primary">${followingList.size()}</h5>
-                            </div>
-                        </a>
+                        <div class="card p-3 text-center border shadow-none h-100 hover-bg-light transition">
+                            <small class="brand-primary uppercase fw-bold" style="font-size: 0.7rem;">ĐANG THEO DÕI</small>
+                            <h5 class="mt-2 mb-0 fw-bold brand-primary">${followingList.size()}</h5>
+                        </div>
                     </div>
                 </div>
 
