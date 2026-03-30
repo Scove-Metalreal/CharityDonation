@@ -18,7 +18,7 @@
         .main-feature-img { width: 100%; height: 500px; object-fit: cover; border-radius: 20px; cursor: pointer; }
         .thumb-img { width: 100%; height: 80px; object-fit: cover; border-radius: 12px; cursor: pointer; opacity: 0.6; transition: 0.3s; }
         .thumb-img:hover, .thumb-img.active { opacity: 1; border: 2px solid var(--color-primary); }
-        .donation-action-card-themed { background: var(--card-dark-bg); color: var(--card-dark-text); border-radius: 24px; padding: 30px; position: sticky; top: 20px; }
+        .donation-action-card-themed { border-radius: 24px; padding: 30px; position: sticky; top: 20px; }
         .sticky-tab-bar { position: sticky; top: 0; background: white; z-index: 100; border-bottom: 1px solid var(--color-border); margin-top: 40px; }
         .nav-tabs-custom .nav-link { border: none; color: var(--color-text-muted); font-weight: 600; padding: 15px 25px; position: relative; }
         .nav-tabs-custom .nav-link.active { color: var(--color-primary); background: transparent; }
@@ -26,6 +26,9 @@
         .donor-container { background: #f9fafb; border: 1px solid var(--color-border); border-radius: 20px; overflow: hidden; }
         .donor-row { padding: 15px 20px; display: flex; align-items: center; border-bottom: 1px solid var(--color-border); }
         .donor-row:last-child { border-bottom: none; }
+        
+        .brand-primary { color: var(--color-primary) !important; }
+        .bg-brand-primary { background-color: var(--color-primary) !important; }
     </style>
 </head>
 <body class="bg-light">
@@ -35,13 +38,13 @@
         <div class="modal fade" id="donateModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow-lg rounded-4">
-                    <div class="modal-header border-0 bg-dark text-white p-4">
+                    <div class="modal-header border-0 text-white p-4">
                         <h5 class="modal-title fw-bold">QUYÊN GÓP CHO CHIẾN DỊCH</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body p-4">
                         <div class="mb-3">
-                            <h6 id="donateCampaignName" class="fw-bold text-primary">${campaign.name}</h6>
+                            <h6 id="donateCampaignName" class="fw-bold brand-primary">${campaign.name}</h6>
                         </div>
                         <form action="${pageContext.request.contextPath}/campaign/donate" method="post">
                             <input type="hidden" name="campaignId" id="donateCampaignId" value="${campaign.id}">
@@ -82,16 +85,18 @@
                             </c:if>
 
                             <div class="mb-4">
-                                <label class="form-label small fw-bold text-muted text-uppercase">Phương thức thanh toán</label>
-                                <div class="payment-methods">
+                                <label class="form-label small fw-bold text-muted text-uppercase d-flex justify-content-between">
+                                    <span>Phương thức thanh toán</span>
+                                    <a href="javascript:void(0)" id="bankInfoLink" class="text-decoration-none d-none" style="font-size: 0.75rem;" onclick="showBankInfo()">
+                                        <i class="fas fa-info-circle me-1"></i>Xem hướng dẫn
+                                    </a>
+                                </label>
+                                <select name="paymentMethodId" id="paymentMethodSelect" class="form-select form-select-lg rounded-pill px-4" required onchange="handlePaymentMethodChange(this)">
+                                    <option value="" selected disabled>Chọn phương thức thanh toán...</option>
                                     <c:forEach var="pm" items="${paymentMethods}">
-                                        <div class="form-check border rounded-pill p-3 mb-2 px-4 d-flex align-items-center">
-                                            <input class="form-check-input me-3" type="radio" name="paymentMethodId" value="${pm.id}" id="pm_${pm.id}" required>
-                                            <label class="form-check-label flex-grow-1 fw-bold" for="pm_${pm.id}">${pm.methodName}</label>
-                                            <i class="fas fa-wallet text-primary"></i>
-                                        </div>
+                                        <option value="${pm.id}" data-provider="${pm.provider}">${pm.methodName}</option>
                                     </c:forEach>
-                                </div>
+                                </select>
                             </div>
                             <div class="mb-4">
                                 <div class="form-check form-switch">
@@ -99,7 +104,7 @@
                                     <label class="form-check-label small fw-bold" for="anonymousCheck">Quyên góp ẩn danh (Không hiện tên trên danh sách)</label>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow">XÁC NHẬN QUYÊN GÓP</button>
+                            <button type="submit" class="btn btn-brand-primary w-100 py-3 rounded-pill fw-bold shadow">XÁC NHẬN QUYÊN GÓP</button>
                         </form>
                     </div>
                 </div>
@@ -110,7 +115,7 @@
         <div class="modal fade" id="bankInstructionsModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow-lg rounded-4">
-                    <div class="modal-header border-0 bg-primary text-white p-4">
+                    <div class="modal-header border-0 bg-brand-primary text-white p-4">
                         <h5 class="modal-title fw-bold">HƯỚNG DẪN CHUYỂN KHOẢN</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -124,7 +129,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="smallest text-muted text-uppercase fw-bold d-block">Số tài khoản</label>
-                                <div class="fw-bold fs-4 text-primary" id="instrAccountNum">0987654321</div>
+                                <div class="fw-bold fs-4 brand-primary" id="instrAccountNum">0987654321</div>
                             </div>
                             <div class="mb-3">
                                 <label class="smallest text-muted text-uppercase fw-bold d-block">Chủ tài khoản</label>
@@ -134,11 +139,11 @@
                                 <label class="smallest text-muted text-uppercase fw-bold d-block">Nội dung chuyển khoản (BẮT BUỘC)</label>
                                 <div class="p-3 bg-white border border-primary border-dashed rounded-3 mt-1">
                                     <span class="fw-bold fs-4 text-danger" id="instrCode">QG123456</span>
-                                    <button class="btn btn-sm btn-outline-primary float-end" onclick="copyToClipboard('instrCode')">Sao chép</button>
+                                    <button class="btn btn-sm btn-brand-secondary float-end" onclick="copyToClipboard('instrCode')">Sao chép</button>
                                 </div>
                             </div>
                         </div>
-                        <button type="button" class="btn btn-primary w-100 py-3 rounded-pill fw-bold" data-bs-dismiss="modal">ĐÃ HIỂU</button>
+                        <button type="button" class="btn btn-brand-primary w-100 py-3 rounded-pill fw-bold" data-bs-dismiss="modal">ĐÃ HIỂU</button>
                     </div>
                 </div>
             </div>
@@ -253,7 +258,7 @@
                                 <div class="funding-stats mt-4">
                                     <div class="mb-2">
                                         <span class="fs-3 fw-bold"><fmt:formatNumber value="${campaign.currentMoney}" type="number"/>đ</span>
-                                        <span class="text-white-50 small"> / <fmt:formatNumber value="${campaign.targetMoney}" type="number"/>đ</span>
+                                        <span class="text-50 small"> / <fmt:formatNumber value="${campaign.targetMoney}" type="number"/>đ</span>
                                     </div>
                                     <c:set var="target" value="${campaign.targetMoney.doubleValue() > 0 ? campaign.targetMoney : 1}"/>
                                     <c:set var="percent" value="${(campaign.currentMoney.doubleValue() / target.doubleValue()) * 100}"/>
@@ -267,7 +272,7 @@
                                 </div>
 
                                 <c:if test="${empty sessionScope.loggedInUser or sessionScope.loggedInUser.role.roleName != 'ADMIN'}">
-                                    <button class="btn btn-primary w-100 py-3 rounded-pill fw-bold mt-4 shadow" data-bs-toggle="modal" data-bs-target="#donateModal" ${campaign.status != 1 ? 'disabled' : ''}>
+                                    <button class="btn btn-brand-primary w-100 py-3 rounded-pill fw-bold mt-4 shadow" data-bs-toggle="modal" data-bs-target="#donateModal" ${campaign.status != 1 ? 'disabled' : ''}>
                                         ${campaign.status == 1 ? 'QUYÊN GÓP NGAY' : 'CHIẾN DỊCH ĐÃ KẾT THÚC'}
                                     </button>
                                 </c:if>
@@ -318,7 +323,7 @@
                                     <div class="p-4 bg-light rounded-4 mb-4">
                                         <table class="table table-borderless m-0">
                                             <tr><td class="text-muted">Mã dự án:</td><td class="fw-bold">${campaign.code}</td></tr>
-                                            <tr><td class="text-muted">Mục tiêu:</td><td class="fw-bold text-primary"><fmt:formatNumber value="${campaign.targetMoney}" type="number"/>đ</td></tr>
+                                            <tr><td class="text-muted">Mục tiêu:</td><td class="fw-bold brand-primary"><fmt:formatNumber value="${campaign.targetMoney}" type="number"/>đ</td></tr>
                                             <tr><td class="text-muted">SĐT thụ hưởng:</td><td class="fw-bold">${campaign.beneficiaryPhone}</td></tr>
                                             <tr><td class="text-muted">Ngày bắt đầu:</td><td class="fw-bold">${campaign.startDate}</td></tr>
                                             <tr><td class="text-muted">Trạng thái:</td><td><span class="badge ${campaign.status == 1 ? 'bg-success' : 'bg-secondary'} rounded-pill">${campaign.status == 1 ? 'Đang quyên góp' : 'Đã kết thúc'}</span></td></tr>
@@ -352,9 +357,9 @@
                                                 <div class="p-3 donor-header-themed fw-bold">NHÀ HẢO TÂM HÀNG ĐẦU</div>
                                                 <c:forEach var="d" items="${topDonors10}" varStatus="loop">
                                                     <div class="donor-row">
-                                                        <div class="fw-bold text-primary me-3" style="width:20px">${loop.index + 1}</div>
+                                                        <div class="fw-bold brand-primary me-3" style="width:20px">${loop.index + 1}</div>
                                                         <div class="flex-grow-1 text-truncate"><strong>${d.isAnonymous == 1 ? 'Nhà hảo tâm ẩn danh' : d.user.fullName}</strong></div>
-                                                        <div class="fw-bold text-primary"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
+                                                        <div class="fw-bold brand-primary"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
                                                     </div>
                                                 </c:forEach>
                                                 <c:if test="${empty topDonors10}"><div class="p-4 text-center text-muted small">Chưa có quyên góp nào.</div></c:if>
@@ -366,7 +371,7 @@
                                         <!-- Table B: Latest Donors -->
                                         <div class="col-md-6">
                                             <div class="donor-container h-100">
-                                                <div class="p-3 bg-light fw-bold text-dark border-bottom">NHÀ HẢO TÂM MỚI NHẤT</div>
+                                                <div class="p-3 donor-header-themed fw-bold  ">NHÀ HẢO TÂM MỚI NHẤT</div>
                                                 <c:forEach var="d" items="${recentDonors10}">
                                                     <div class="donor-row">
                                                         <div class="flex-grow-1 text-truncate">
@@ -407,6 +412,29 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        function handlePaymentMethodChange(select) {
+            const selectedOption = select.options[select.selectedIndex];
+            const provider = selectedOption.getAttribute('data-provider');
+            const bankInfoLink = document.getElementById('bankInfoLink');
+            
+            if (provider === 'BANK') {
+                bankInfoLink.classList.remove('d-none');
+            } else {
+                bankInfoLink.classList.add('d-none');
+            }
+        }
+
+        function showBankInfo() {
+            const modalEl = document.getElementById('bankInstructionsModal');
+            // Reset code if it's just a general preview
+            const instrCode = document.getElementById('instrCode');
+            if (instrCode.innerText === 'QG123456' || !instrCode.innerText) {
+                instrCode.innerText = 'QG' + Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+            }
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
+
         function openQuickDonate(id, name) {
             if (id == '${campaign.id}') {
                 const modalEl = document.getElementById('donateModal');

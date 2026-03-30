@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <!-- Mobile Toggle Button (Floating) -->
-<button class="btn btn-primary rounded-circle shadow-lg d-lg-none mobile-drawer-btn" onclick="openSidebar()">
+<button class="btn btn-brand-primary rounded-circle shadow-lg d-lg-none mobile-drawer-btn" onclick="openSidebar()">
     <i class="fas fa-bars"></i>
 </button>
 
@@ -15,7 +15,7 @@
 
     <div class="sidebar-header mb-4 ps-3 pt-3 d-flex align-items-center justify-content-between">
         <a href="${pageContext.request.contextPath}/" class="text-decoration-none logo-container d-flex align-items-center">
-            <i class="fas fa-hand-holding-heart fa-2x text-primary logo-icon"></i>
+            <i class="fas fa-hand-holding-heart fa-2x logo-primary logo-icon"></i>
             <span class="fs-4 fw-bold text-dark ms-2 sidebar-text">Charity</span>
         </a>
         <button class="btn btn-sm btn-light rounded-circle d-lg-none" onclick="closeSidebar()">
@@ -45,7 +45,7 @@
     </nav>
 
     <div class="px-3 mb-4 donate-btn-container">
-        <a href="${pageContext.request.contextPath}/#campaigns" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm d-flex align-items-center justify-content-center">
+        <a href="${pageContext.request.contextPath}/#campaigns" class="btn btn-brand-primary w-100 py-3 rounded-pill fw-bold shadow-sm d-flex align-items-center justify-content-center">
             <i class="fas fa-plus"></i>
             <span class="sidebar-text ms-2">QUYÊN GÓP NGAY</span>
         </a>
@@ -75,10 +75,10 @@
             </c:when>
             <c:otherwise>
                 <div class="auth-buttons">
-                    <a href="${pageContext.request.contextPath}/auth/login" class="btn btn-outline-primary w-100 rounded-pill mb-2 fw-bold d-flex align-items-center justify-content-center">
+                    <a href="${pageContext.request.contextPath}/auth/login" class="btn btn-brand-secondary w-100 rounded-pill mb-2 fw-bold d-flex align-items-center justify-content-center">
                         <i class="fas fa-sign-in-alt"></i> <span class="sidebar-text ms-2">Đăng nhập</span>
                     </a>
-                    <a href="${pageContext.request.contextPath}/auth/register" class="btn btn-primary w-100 rounded-pill fw-bold d-flex align-items-center justify-content-center">
+                    <a href="${pageContext.request.contextPath}/auth/register" class="btn btn-brand-primary w-100 rounded-pill fw-bold d-flex align-items-center justify-content-center">
                         <i class="fas fa-user-plus"></i> <span class="sidebar-text ms-2">Đăng ký</span>
                     </a>
                 </div>
@@ -156,6 +156,10 @@
 <style>
     :root {
         --sidebar-width: 280px;
+    }
+    
+    .logo-primary {
+        color: var(--color-primary) !important;
     }
     
     .sidebar-x { 

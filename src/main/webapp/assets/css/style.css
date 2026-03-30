@@ -200,10 +200,6 @@ img {
 }
 
 /* Themed Footer */
-.custom-footer {
-    background-color: var(--footer-bg) !important;
-    color: var(--footer-text) !important;
-}
 .custom-footer a {
     color: var(--footer-link) !important;
 }
@@ -213,17 +209,8 @@ img {
 
 /* Donation Action Card Theme Fix */
 .donation-action-card-themed {
-    background: var(--card-dark-bg);
-    color: var(--card-dark-text);
     border-radius: 24px;
     padding: 30px;
-    border: 1px solid var(--card-dark-border);
-}
-
-/* Top Donation Header Theme Fix */
-.donor-header-themed {
-    background: var(--card-dark-bg) !important;
-    color: var(--card-dark-text) !important;
 }
 
 /* RESPONSIVE DESIGN */

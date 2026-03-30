@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="vi">
@@ -10,6 +10,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
+    <style>
+        .brand-primary { color: var(--color-primary) !important; }
+        .scrollable-main { height: 100vh; overflow-y: auto; scrollbar-width: none; }
+        .scrollable-main::-webkit-scrollbar { display: none; }
+    </style>
 </head>
 <body class="bg-light">
     <div class="container-fluid">
@@ -21,7 +26,7 @@
             </div>
 
             <!-- Content -->
-            <div class="col-lg-10 offset-lg-2 p-0">
+            <div class="col-lg-10 offset-lg-2 p-0 scrollable-main">
                 <nav class="bg-white d-flex justify-content-between align-items-center shadow-sm sticky-top px-4 py-3 mb-4">
                     <div class="d-flex align-items-center">
                         <button class="btn btn-light d-lg-none me-3" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
@@ -35,7 +40,7 @@
                 <div class="px-3 px-md-4 pb-5">
                     <div class="card border-0 shadow-sm overflow-hidden mx-auto" style="max-width: 800px;">
                         <div class="card-header bg-white py-3 border-0">
-                            <h6 class="fw-bold mb-0 text-primary">THÔNG TIN TÀI KHOẢN</h6>
+                            <h6 class="fw-bold mb-0 brand-primary">THÔNG TIN TÀI KHOẢN</h6>
                         </div>
                         <div class="card-body p-3 p-md-4 pt-0">
                             <form action="${pageContext.request.contextPath}/admin/users/save" method="post">
@@ -76,7 +81,7 @@
                                 </div>
                                 
                                 <div class="mt-4 pt-3 border-top d-flex flex-column flex-md-row gap-2">
-                                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold order-1 order-md-2">Lưu thay đổi</button>
+                                    <button type="submit" class="btn btn-brand-primary rounded-pill px-4 fw-bold order-1 order-md-2">Lưu thay đổi</button>
                                     <a href="${pageContext.request.contextPath}/admin/users" class="btn btn-light rounded-pill px-4 order-2 order-md-1">Hủy bỏ</a>
                                 </div>
                             </form>

@@ -79,7 +79,7 @@
 
                                 <div class="col-12 text-end border-top pt-4 d-flex flex-column flex-md-row justify-content-md-end gap-2">
                                     <a href="${pageContext.request.contextPath}/admin/campaigns" class="btn btn-light rounded-pill px-4 order-2 order-md-1">Hủy bỏ</a>
-                                    <button type="submit" class="btn btn-primary px-5 rounded-pill shadow-sm fw-bold order-1 order-md-2">LƯU CHIẾN DỊCH</button>
+                                    <button type="submit" class="btn btn-brand-primary px-5 rounded-pill shadow-sm fw-bold order-1 order-md-2">LƯU CHIẾN DỊCH</button>
                                 </div>
                             </div>
                         </form>

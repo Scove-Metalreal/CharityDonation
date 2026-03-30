@@ -224,7 +224,7 @@ public class HomeController {
             return "redirect:/campaign/" + campaignId + "?success=pending&code=" + transactionCode;
         }
 
-        return "redirect:/campaign/" + campaignId + "?success=donated";
+        return "redirect:/campaign/" + campaignId + "?success=dosrnated";
     }
 }
 

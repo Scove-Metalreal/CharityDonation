@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="vi">
@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
     <style>
+        .brand-primary { color: var(--color-primary) !important; }
         .strength-meter { height: 6px; border-radius: 3px; transition: all 0.3s; margin-top: 8px; }
         .strength-0 { width: 0%; }
         .strength-1 { width: 25%; background-color: #ef4444; }
@@ -39,7 +40,7 @@
                 <div class="w-100" style="max-width: 500px;">
                     <div class="text-center mb-4">
                         <div class="mb-2">
-                            <a href="${pageContext.request.contextPath}/"><i class="fas fa-user-plus fa-2x text-primary"></i></a>
+                            <a href="${pageContext.request.contextPath}/"><i class="fas fa-user-plus fa-2x brand-primary"></i></a>
                         </div>
                         <h2 class="fw-bold">Tạo tài khoản mới</h2>
                         <p class="text-muted small">Hãy trở thành một phần của cộng đồng thiện nguyện</p>
@@ -99,7 +100,7 @@
                             </div>
                         </c:if>
 
-                        <button type="submit" class="btn btn-primary w-100 py-3 mb-4 shadow-sm">
+                        <button type="submit" class="btn btn-brand-primary w-100 py-3 mb-4 shadow-sm">
                             ${googleMode ? 'HOÀN TẤT ĐĂNG KÝ' : 'ĐĂNG KÝ NGAY'}
                         </button>
 
@@ -121,7 +122,7 @@
 
                         <p class="text-center text-muted mb-0">
                             Bạn đã có tài khoản? 
-                            <a href="${pageContext.request.contextPath}/auth/login" class="text-primary fw-bold text-decoration-none">Đăng nhập</a>
+                            <a href="${pageContext.request.contextPath}/auth/login" class="brand-primary fw-bold text-decoration-none">Đăng nhập</a>
                         </p>
                     </form>
                 </div>

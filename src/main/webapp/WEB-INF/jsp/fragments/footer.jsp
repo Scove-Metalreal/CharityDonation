@@ -6,7 +6,7 @@
         <div class="row g-4 mb-5 text-start">
             <div class="col-md-4">
                 <div class="d-flex align-items-center mb-4">
-                    <i class="fas fa-hand-holding-heart fa-2x text-primary me-2"></i>
+                    <i class="fas fa-hand-holding-heart fa-2x brand-primary me-2"></i>
                     <h4 class="fw-bold mb-0">Charity</h4>
                 </div>
                 <p class="text-secondary small">Nền tảng quyên góp cộng đồng lớn nhất Việt Nam, nơi kết nối triệu trái tim chung tay vì những giá trị tốt đẹp.</p>
@@ -52,3 +52,7 @@
         </div>
     </div>
 </footer>
+
+<style>
+    .brand-primary { color: var(--color-primary) !important; }
+</style>

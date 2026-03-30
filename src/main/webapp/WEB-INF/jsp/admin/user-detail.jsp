@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿﻿﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -11,6 +11,12 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
+    <style>
+        .brand-primary { color: var(--color-primary) !important; }
+        .bg-brand-primary { background-color: var(--color-primary) !important; }
+        .scrollable-main { height: 100vh; overflow-y: auto; scrollbar-width: none; }
+        .scrollable-main::-webkit-scrollbar { display: none; }
+    </style>
 </head>
 <body class="bg-light">
     <div class="container-fluid">
@@ -39,7 +45,7 @@
                                 <div class="col-md-4 bg-light p-5 text-center border-end">
                                     <img src="${not empty user.avatarUrl ? user.avatarUrl : 'https://ui-avatars.com/api/?name='.concat(user.fullName).concat('&background=10B981&color=fff&size=200')}" class="rounded-circle shadow mb-4" width="150">
                                     <h4 class="fw-bold mb-1">${user.fullName}</h4>
-                                    <span class="badge bg-primary rounded-pill px-3">${user.role.roleName}</span>
+                                    <span class="badge bg-brand-primary rounded-pill px-3">${user.role.roleName}</span>
                                     
                                     <div class="mt-4 pt-4 border-top text-start">
                                         <div class="mb-3">
@@ -84,7 +90,7 @@
                                             <div class="col-md-4">
                                                 <div class="p-3 bg-light rounded-3 text-center">
                                                     <div class="text-muted smallest fw-bold">TỔNG QUYÊN GÓP</div>
-                                                    <div class="fs-4 fw-bold text-primary mt-1">15.000.000đ</div>
+                                                    <div class="fs-4 fw-bold brand-primary mt-1">15.000.000đ</div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">

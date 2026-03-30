@@ -35,12 +35,12 @@
                         <div class="p-3 border-bottom hover-bg-light" style="font-size: 0.85rem;">
                             <div class="fw-bold">${d.user.fullName}</div>
                             <div class="text-muted small">Quyên góp <fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
-                            <div class="smallest text-primary">${d.createdAt}</div>
+                            <div class="smallest brand-primary">${d.createdAt}</div>
                         </div>
                     </a>
                 </c:forEach>
                 <div class="p-2 text-center border-top">
-                    <a href="${pageContext.request.contextPath}/admin/donations" class="small fw-bold text-primary text-decoration-none">Xem tất cả</a>
+                    <a href="${pageContext.request.contextPath}/admin/donations" class="small fw-bold brand-primary text-decoration-none">Xem tất cả</a>
                 </div>
             </div>
         </div>
@@ -67,6 +67,7 @@
 </script>
 
 <style>
+    .brand-primary { color: var(--color-primary) !important; }
     .hover-bg-light:hover { background-color: #f8f9fa; }
     .smallest { font-size: 0.7rem; }
 </style>

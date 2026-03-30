@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
     <style>
+        .brand-primary { color: var(--color-primary) !important; }
         .scrollable-main { height: 100vh; overflow-y: auto; scrollbar-width: none; }
         .scrollable-main::-webkit-scrollbar { display: none; }
         .profile-cover { height: 200px; background: linear-gradient(to right, #10b981, #3b82f6); border-radius: 0; }
@@ -57,7 +58,7 @@
                     </form>
                     <div class="mb-2">
                         <a href="${pageContext.request.contextPath}/auth/logout" class="btn btn-outline-danger rounded-pill fw-bold me-2">Đăng xuất</a>
-                        <button class="btn btn-outline-primary rounded-pill fw-bold" data-bs-toggle="modal" data-bs-target="#editProfileModal">Chỉnh sửa hồ sơ</button>
+                        <button class="btn btn-brand-secondary rounded-pill fw-bold" data-bs-toggle="modal" data-bs-target="#editProfileModal">Chỉnh sửa hồ sơ</button>
                     </div>
                 </div>
 
@@ -130,8 +131,8 @@
                     <div class="col-md-3">
                         <a href="#following" class="text-decoration-none h-100">
                             <div class="card p-3 text-center border border-primary shadow-none h-100 hover-bg-light transition">
-                                <small class="text-primary uppercase fw-bold" style="font-size: 0.7rem;">ĐANG THEO DÕI</small>
-                                <h5 class="mt-2 mb-0 fw-bold text-primary">${followingList.size()}</h5>
+                                <small class="brand-primary uppercase fw-bold" style="font-size: 0.7rem;">ĐANG THEO DÕI</small>
+                                <h5 class="mt-2 mb-0 fw-bold brand-primary">${followingList.size()}</h5>
                             </div>
                         </a>
                     </div>
@@ -161,7 +162,7 @@
                                                     <div class="text-muted small">${d.createdAt.toString().replace('T', ' ').substring(0, 16)}</div>
                                                 </div>
                                                 <div class="text-end">
-                                                    <div class="fw-bold text-primary"><fmt:formatNumber value="${d.amount}" type="number"/> đ</div>
+                                                    <div class="fw-bold brand-primary"><fmt:formatNumber value="${d.amount}" type="number"/> đ</div>
                                                     <span class="badge ${d.status == 1 ? 'bg-success' : 'bg-warning'} bg-opacity-10 ${d.status == 1 ? 'text-success' : 'text-warning'} rounded-pill px-2" style="font-size: 0.6rem;">
                                                         ${d.status == 1 ? 'Đã xác nhận' : 'Chờ xác nhận'}
                                                     </span>
@@ -180,7 +181,7 @@
                                 <c:when test="${empty followingList}">
                                     <div class="text-center py-5 bg-light rounded-4">
                                         <p class="text-muted">Bạn chưa theo dõi chiến dịch nào.</p>
-                                        <a href="${pageContext.request.contextPath}/#campaigns" class="btn btn-primary rounded-pill btn-sm px-4">Khám phá ngay</a>
+                                        <a href="${pageContext.request.contextPath}/#campaigns" class="btn btn-brand-primary rounded-pill btn-sm px-4">Khám phá ngay</a>
                                     </div>
                                 </c:when>
                                 <c:otherwise>
@@ -196,7 +197,7 @@
                                                         <span class="badge ${f.campaign.status == 1 ? 'bg-success' : 'bg-secondary'} bg-opacity-10 ${f.campaign.status == 1 ? 'text-success' : 'text-secondary'} rounded-pill smallest">
                                                             ${f.campaign.status == 1 ? 'Đang chạy' : 'Kết thúc'}
                                                         </span>
-                                                        <c:if test="${f.receiveEmail == 1}"><i class="fas fa-bell text-primary smallest" title="Nhận thông báo email"></i></c:if>
+                                                        <c:if test="${f.receiveEmail == 1}"><i class="fas fa-bell brand-primary smallest" title="Nhận thông báo email"></i></c:if>
                                                     </div>
                                                 </div>
                                                 <form action="${pageContext.request.contextPath}/campaign/unfollow" method="post" class="m-0">
@@ -276,7 +277,7 @@
                             <label class="form-label small fw-bold">Địa chỉ</label>
                             <textarea name="address" class="form-control" rows="2">${user.address}</textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 rounded-pill py-2">Lưu thay đổi</button>
+                        <button type="submit" class="btn btn-brand-primary w-100 rounded-pill py-2">Lưu thay đổi</button>
                     </form>
 
                     <hr class="my-4 opacity-10">

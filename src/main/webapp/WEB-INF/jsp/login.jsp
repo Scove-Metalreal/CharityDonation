@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="vi">
@@ -10,6 +10,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
+    <style>
+        .brand-primary { color: var(--color-primary) !important; }
+    </style>
 </head>
 <body>
     <div class="container-fluid p-0">
@@ -32,7 +35,7 @@
                 <div class="w-100" style="max-width: 400px;">
                     <div class="text-center mb-5">
                         <div class="mb-3">
-                            <a href="${pageContext.request.contextPath}/"><i class="fas fa-hand-holding-heart fa-3x text-primary"></i></a>
+                            <a href="${pageContext.request.contextPath}/"><i class="fas fa-hand-holding-heart fa-3x brand-primary"></i></a>
                         </div>
                         <h2 class="fw-bold">Chào mừng trở lại</h2>
                         <p class="text-muted">Đăng nhập để tiếp tục hành trình nhân ái</p>
@@ -58,7 +61,7 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100 py-3 mb-4 shadow-sm">ĐĂNG NHẬP</button>
+                        <button type="submit" class="btn btn-brand-primary w-100 py-3 mb-4 shadow-sm">ĐĂNG NHẬP</button>
 
                         <div class="d-flex align-items-center mb-4 text-muted">
                             <hr class="flex-grow-1">
@@ -76,7 +79,7 @@
 
                         <p class="text-center text-muted mb-0">
                             Bạn chưa có tài khoản? 
-                            <a href="${pageContext.request.contextPath}/auth/register" class="text-primary fw-bold text-decoration-none">Đăng ký ngay</a>
+                            <a href="${pageContext.request.contextPath}/auth/register" class="brand-primary fw-bold text-decoration-none">Đăng ký ngay</a>
                         </p>
                     </form>
                 </div>

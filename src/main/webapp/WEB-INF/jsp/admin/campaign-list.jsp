@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -16,7 +16,11 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
     
     <style>
-        :root { --primary-color: #3b82f6; --bg-light: #f8fafc; }
+        :root { --primary-color: var(--color-primary); --bg-light: #f8fafc; }
+        .brand-primary { color: var(--color-primary) !important; }
+        .scrollable-main { height: 100vh; overflow-y: auto; scrollbar-width: none; }
+        .scrollable-main::-webkit-scrollbar { display: none; }
+        .bg-brand-primary { background-color: var(--color-primary) !important; }
         .action-btn { width: 34px; height: 34px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; border: none; transition: 0.2s; }
         
         /* Drag & Drop Zone */
@@ -59,13 +63,13 @@
                 <jsp:include page="../fragments/admin-sidebar.jsp"/>
             </div>
 
-            <div class="col p-0 bg-white" style="min-width: 0; min-height: 100vh;">
+            <div class="col scrollable-main p-0 bg-white" style="min-width: 0; min-height: 100vh;">
                 <jsp:include page="../fragments/admin-header.jsp"/>
 
                 <div class="px-4 pb-5">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h4 class="fw-bold text-dark mb-0">Quản lý Chiến dịch</h4>
-                        <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#addCampaignModal">
+                        <button type="button" class="btn btn-brand-primary rounded-pill px-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#addCampaignModal">
                             <i class="fas fa-plus-circle me-2"></i> Tạo chiến dịch
                         </button>
                     </div>
@@ -92,7 +96,7 @@
                                 <input type="text" name="phone" class="form-control form-control-sm rounded-pill px-3" value="${phone}" placeholder="Số điện thoại...">
                             </div>
                             <div class="col-md-3 d-flex align-items-end">
-                                <button type="submit" class="btn btn-primary btn-sm w-100 rounded-pill fw-bold">Tìm kiếm</button>
+                                <button type="submit" class="btn btn-brand-primary btn-sm w-100 rounded-pill fw-bold">Tìm kiếm</button>
                             </div>
                         </form>
                     </div>
@@ -118,12 +122,12 @@
                                             </td>
                                             <td>
                                                 <div class="d-flex justify-content-between smallest mb-1">
-                                                    <span class="fw-bold text-primary"><fmt:formatNumber value="${c.currentMoney}" type="number"/>đ</span>
+                                                    <span class="fw-bold brand-primary"><fmt:formatNumber value="${c.currentMoney}" type="number"/>đ</span>
                                                     <span class="text-muted">/ <fmt:formatNumber value="${c.targetMoney}" type="number"/>đ</span>
                                                 </div>
                                                 <div class="progress" style="height: 6px; border-radius: 10px;">
                                                     <c:set var="percent" value="${(c.currentMoney / c.targetMoney) * 100}"/>
-                                                    <div class="progress-bar bg-primary" style="width: ${percent > 100 ? 100 : percent}%"></div>
+                                                    <div class="progress-bar bg-brand-primary" style="width: ${percent > 100 ? 100 : percent}%"></div>
                                                 </div>
                                             </td>
                                             <td class="text-center">
@@ -141,7 +145,7 @@
                                             <td class="text-end">
                                                 <div class="d-flex justify-content-end gap-1">
                                                     <a href="${pageContext.request.contextPath}/campaign/${c.id}" class="action-btn bg-info bg-opacity-10 text-info" target="_blank"><i class="far fa-eye"></i></a>
-                                                    <a href="${pageContext.request.contextPath}/admin/campaigns/edit?id=${c.id}" class="action-btn bg-primary bg-opacity-10 text-primary ${c.status == 3 ? 'disabled' : ''}"><i class="far fa-edit"></i></a>
+                                                    <a href="${pageContext.request.contextPath}/admin/campaigns/edit?id=${c.id}" class="action-btn bg-brand-primary bg-opacity-10 brand-primary ${c.status == 3 ? 'disabled' : ''}"><i class="far fa-edit"></i></a>
                                                     <c:if test="${c.status == 2}">
                                                         <button class="action-btn bg-warning bg-opacity-10 text-warning" onclick="openExtendModal(${c.id}, '${c.endDate}')"><i class="fas fa-calendar-plus"></i></button>
                                                     </c:if>
@@ -196,7 +200,7 @@
                             <label class="form-label smallest fw-bold text-muted text-uppercase">Ngày kết thúc mới</label>
                             <input type="date" name="newEndDate" id="newEndDate" class="form-control rounded-pill px-4 border-0 bg-light shadow-sm" required>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow" id="extendSubmitBtn">XÁC NHẬN GIA HẠN</button>
+                        <button type="submit" class="btn btn-brand-primary w-100 py-3 rounded-pill fw-bold shadow" id="extendSubmitBtn">XÁC NHẬN GIA HẠN</button>
                     </form>
                 </div>
             </div>
@@ -270,7 +274,7 @@
                         </div>
                         <div class="mt-4 mt-md-5 pt-3 border-top text-end d-flex flex-column flex-md-row justify-content-md-end gap-2">
                             <button type="button" class="btn btn-light rounded-pill px-4 order-2 order-md-1 fw-bold text-muted" data-bs-dismiss="modal" onclick="resetCampaignForm()">Hủy bỏ</button>
-                            <button type="submit" class="btn btn-primary rounded-pill px-5 order-1 order-md-2 fw-bold shadow" id="submitBtn">LƯU CHIẾN DỊCH</button>
+                            <button type="submit" class="btn btn-brand-primary rounded-pill px-5 order-1 order-md-2 fw-bold shadow" id="submitBtn">LƯU CHIẾN DỊCH</button>
                         </div>
                     </form>
                 </div>

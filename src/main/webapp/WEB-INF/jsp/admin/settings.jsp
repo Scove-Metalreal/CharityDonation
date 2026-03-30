@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="vi">
@@ -10,6 +10,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
+    <style>
+        .brand-primary { color: var(--color-primary) !important; }
+        .scrollable-main { height: 100vh; overflow-y: auto; scrollbar-width: none; }
+        .scrollable-main::-webkit-scrollbar { display: none; }
+    </style>
 </head>
 <body class="bg-light">
     <div class="container-fluid">
@@ -21,7 +26,7 @@
             </div>
 
             <!-- Content -->
-            <div class="col p-0 bg-white" style="min-width: 0; min-height: 100vh;">
+            <div class="col scrollable-main p-0 bg-white" style="min-width: 0; min-height: 100vh;">
                 <!-- Top Navbar -->
                 <jsp:include page="../fragments/admin-header.jsp"/>
 
@@ -39,7 +44,7 @@
                                         <label class="form-label small fw-bold">Email hệ thống</label>
                                         <input type="email" class="form-control rounded-pill px-3" value="contact@charity.vn">
                                     </div>
-                                    <button class="btn btn-primary rounded-pill px-4 fw-bold mt-2">Cập nhật</button>
+                                    <button class="btn btn-brand-primary rounded-pill px-4 fw-bold mt-2">Cập nhật</button>
                                 </div>
                             </div>
                         </div>
@@ -58,7 +63,7 @@
                                         <label class="form-label small fw-bold">Phí nền tảng (%)</label>
                                         <input type="number" class="form-control rounded-pill px-3" value="0">
                                     </div>
-                                    <button class="btn btn-primary rounded-pill px-4 fw-bold mt-2">Cập nhật</button>
+                                    <button class="btn btn-brand-primary rounded-pill px-4 fw-bold mt-2">Cập nhật</button>
                                 </div>
                             </div>
                         </div>

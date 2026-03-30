@@ -6,7 +6,7 @@
 
     <div class="sidebar-header mb-4 ps-3 pt-3 d-flex align-items-center justify-content-between">
         <a href="${pageContext.request.contextPath}/" class="text-decoration-none d-flex align-items-center">
-            <i class="fas fa-hand-holding-heart fa-2x text-primary"></i>
+            <i class="fas fa-hand-holding-heart fa-2x brand-primary"></i>
             <div class="ms-2 sidebar-text">
                 <span class="fs-4 fw-bold text-dark">Charity</span>
                 <div class="text-muted smallest fw-bold">ADMIN PANEL</div>
@@ -123,7 +123,17 @@
 </script>
 
 <style>
-    .sidebar-x { width: 280px; transition: width 0.1s ease; height: 100vh; position: sticky; top: 0; }
+    .brand-primary { color: var(--color-primary) !important; }
+    .sidebar-x { 
+        width: 280px; 
+        transition: width 0.1s ease; 
+        height: 100vh; 
+        position: sticky; 
+        top: 0; 
+        overflow: hidden; 
+        display: flex;
+        flex-direction: column;
+    }
     
     .sidebar-resizer {
         position: absolute;

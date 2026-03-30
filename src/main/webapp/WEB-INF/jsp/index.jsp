@@ -16,6 +16,9 @@
         .scrollable-main { height: 100vh; overflow-y: auto; scrollbar-width: none; }
         .scrollable-main::-webkit-scrollbar { display: none; }
         
+        .brand-primary { color: var(--color-primary) !important; }
+        .bg-brand-primary { background-color: var(--color-primary) !important; }
+
         /* Section 1: Hero Banner */
         .hero-banner { border-radius: 24px; margin: 20px; overflow: hidden; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
         .carousel-item { padding: 80px 40px; min-height: 450px; }
@@ -93,7 +96,7 @@
                     </div>
                     <div class="modal-body p-4">
                         <div class="mb-3">
-                            <h6 id="quickDonateCampaignName" class="fw-bold text-primary"></h6>
+                            <h6 id="quickDonateCampaignName" class="fw-bold brand-primary"></h6>
                         </div>
                         <form action="${pageContext.request.contextPath}/campaign/donate" method="post">
                             <input type="hidden" name="campaignId" id="quickDonateCampaignId">
@@ -108,7 +111,7 @@
                                         <div class="form-check border rounded-pill p-3 mb-2 px-4 d-flex align-items-center">
                                             <input class="form-check-input me-3" type="radio" name="paymentMethodId" value="${pm.id}" id="pm_quick_${pm.id}" required>
                                             <label class="form-check-label flex-grow-1 fw-bold" for="pm_quick_${pm.id}">${pm.methodName}</label>
-                                            <i class="fas fa-wallet text-primary"></i>
+                                            <i class="fas fa-wallet brand-primary"></i>
                                         </div>
                                     </c:forEach>
                                 </div>
@@ -121,10 +124,10 @@
                             </div>
                             <c:choose>
                                 <c:when test="${not empty sessionScope.loggedInUser}">
-                                    <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow">XÁC NHẬN QUYÊN GÓP</button>
+                                    <button type="submit" class="btn btn-brand-primary w-100 py-3 rounded-pill fw-bold shadow">XÁC NHẬN QUYÊN GÓP</button>
                                 </c:when>
                                 <c:otherwise>
-                                    <a href="${pageContext.request.contextPath}/auth/login" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow">ĐĂNG NHẬP ĐỂ QUYÊN GÓP</a>
+                                    <a href="${pageContext.request.contextPath}/auth/login" class="btn btn-brand-primary w-100 py-3 rounded-pill fw-bold shadow">ĐĂNG NHẬP ĐỂ QUYÊN GÓP</a>
                                     <p class="text-center smallest text-muted mt-2">Bạn cần đăng nhập để thực hiện quyên góp.</p>
                                 </c:otherwise>
                             </c:choose>
@@ -138,7 +141,7 @@
         <div class="modal fade" id="bankInstructionsModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow-lg rounded-4">
-                    <div class="modal-header border-0 bg-primary text-white p-4">
+                    <div class="modal-header border-0 bg-brand-primary text-white p-4">
                         <h5 class="modal-title fw-bold">HƯỚNG DẪN CHUYỂN KHOẢN</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -152,7 +155,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="smallest text-muted text-uppercase fw-bold d-block">Số tài khoản</label>
-                                <div class="fw-bold fs-4 text-primary">0987654321</div>
+                                <div class="fw-bold fs-4 brand-primary">0987654321</div>
                             </div>
                             <div class="mb-3">
                                 <label class="smallest text-muted text-uppercase fw-bold d-block">Chủ tài khoản</label>
@@ -162,11 +165,11 @@
                                 <label class="smallest text-muted text-uppercase fw-bold d-block">Nội dung chuyển khoản (BẮT BUỘC)</label>
                                 <div class="p-3 bg-white border border-primary border-dashed rounded-3 mt-1">
                                     <span class="fw-bold fs-4 text-danger" id="instrCodeQuick">QG123456</span>
-                                    <button class="btn btn-sm btn-outline-primary float-end" onclick="copyToClipboard('instrCodeQuick')">Sao chép</button>
+                                    <button class="btn btn-sm btn-brand-secondary float-end" onclick="copyToClipboard('instrCodeQuick')">Sao chép</button>
                                 </div>
                             </div>
                         </div>
-                        <button type="button" class="btn btn-primary w-100 py-3 rounded-pill fw-bold" data-bs-dismiss="modal">ĐÃ HIỂU</button>
+                        <button type="button" class="btn btn-brand-primary w-100 py-3 rounded-pill fw-bold" data-bs-dismiss="modal">ĐÃ HIỂU</button>
                     </div>
                 </div>
             </div>
@@ -217,7 +220,7 @@
                                         <span class="badge bg-danger text-white mb-3 px-3 py-2 rounded-pill fw-bold">Kết nối yêu thương</span>
                                         <h1 class="hero-title fw-bold mb-4">HÀNH TRÌNH CỦA NHỮNG TRÁI TIM<br><span class="text-light">Lan tỏa nhân ái mỗi ngày</span></h1>
                                         <p class="lead text-white opacity-75 mb-5 fs-5">Tham gia cộng đồng hàng triệu nhà hảo tâm để cùng nhau tạo nên những thay đổi kỳ diệu.</p>
-                                        <a href="${pageContext.request.contextPath}/auth/register" class="btn btn-light text-primary rounded-pill px-5 py-3 fw-bold shadow-lg">THAM GIA NGAY</a>
+                                        <a href="${pageContext.request.contextPath}/auth/register" class="btn btn-light brand-primary rounded-pill px-5 py-3 fw-bold shadow-lg">THAM GIA NGAY</a>
                                     </div>
                                     <div class="col-md-4 d-none d-md-block text-center"><i class="fas fa-users-medical fa-10x text-white opacity-25"></i></div>
                                 </div>
@@ -239,14 +242,14 @@
                                 <div class="col-6 col-md-3"><div class="stat-item text-center"><span class="stat-value">63</span><div class="text-muted smallest fw-bold">TỈNH THÀNH</div></div></div>
                             </div>
                             <div class="d-flex gap-3">
-                                <a href="#campaigns" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm">Khám phá chiến dịch</a>
-                                <a href="#philosophy" class="btn btn-outline-primary rounded-pill px-4 py-2 fw-bold">Sứ mệnh của chúng tôi</a>
+                                <a href="#campaigns" class="btn btn-brand-primary rounded-pill px-4 py-2 fw-bold shadow-sm">Khám phá chiến dịch</a>
+                                <a href="#philosophy" class="btn btn-brand-secondary rounded-pill px-4 py-2 fw-bold">Sứ mệnh của chúng tôi</a>
                             </div>
                         </div>
                         <div class="col-lg-5 text-center">
                             <div class="position-relative p-3">
                                 <!-- Decorative element behind image -->
-                                <div class="position-absolute top-0 start-0 w-100 h-100 bg-primary opacity-10 rounded-4" style="transform: rotate(-3deg); z-index: 0;"></div>
+                                <div class="position-absolute top-0 start-0 w-100 h-100 bg-brand-primary opacity-10 rounded-4" style="transform: rotate(-3deg); z-index: 0;"></div>
                                 <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" 
                                      class="img-fluid rounded-4 shadow-lg position-relative" 
                                      style="z-index: 1;" 
@@ -274,7 +277,7 @@
 
                 <!-- 4. Partners Section -->
                 <section id="partners" class="py-5 px-5">
-                    <div class="text-center mb-5"><h2 class="fw-bold section-title text-primary">Đối tác đồng hành</h2></div>
+                    <div class="text-center mb-5"><h2 class="fw-bold section-title brand-primary">Đối tác đồng hành</h2></div>
                     <div id="partnerList" class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
                         <c:forEach var="comp" items="${companions}" varStatus="loop">
                             <div class="col partner-item ${loop.index >= 4 ? 'd-none' : ''}">
@@ -289,7 +292,7 @@
 
                 <!-- 5. Philosophy Section (RESTORED CLASSIC DESIGN) -->
                 <section id="philosophy" class="py-5 bg-white px-5">
-                    <div class="text-center mb-5"><h2 class="fw-bold section-title text-primary">Triết lý hoạt động</h2></div>
+                    <div class="text-center mb-5"><h2 class="fw-bold section-title brand-primary">Triết lý hoạt động</h2></div>
                     <div class="row align-items-center g-4">
                         <!-- Left Triết lý -->
                         <div class="col-lg-4">
@@ -332,7 +335,7 @@
                         <div class="row g-5 align-items-center">
                             <div class="col-md-6 border-end">
                                 <h3 class="fw-bold text-dark mb-4">Sứ mệnh của chúng tôi</h3>
-                                <p>CharityDonation ra đời với khao khát xóa bỏ rào cản giữa lòng tốt và những mảnh đời khó khăn. Chúng tôi tin rằng công nghệ có thể biến sự tử tế trở nên dễ dàng và có tác động lớn hơn bao giờ hết.</p>
+                                <p>CharityDonation ra đời with khao khát xóa bỏ rào cản giữa lòng tốt và những mảnh đời khó khăn. Chúng tôi tin rằng công nghệ có thể biến sự tử tế trở nên dễ dàng và có tác động lớn hơn bao giờ hết.</p>
                                 <p>Hơn cả một nền tảng quyên góp, chúng tôi xây dựng một hệ sinh thái của sự tử tế, nơi mỗi giao dịch không chỉ là con số, mà là một câu chuyện về tình người được viết tiếp.</p>
                             </div>
                             <div class="col-md-6">
@@ -349,7 +352,7 @@
 
                 <!-- 6. FAQ Section -->
                 <section id="faq" class="faq-section px-5">
-                    <div class="text-center mb-5"><h2 class="fw-bold section-title text-primary">Câu hỏi thường gặp</h2></div>
+                    <div class="text-center mb-5"><h2 class="fw-bold section-title brand-primary">Câu hỏi thường gặp</h2></div>
                     <div class="row row-cols-1 row-cols-md-2 g-4">
                         <div class="col"><div class="faq-card accordion-item"><h2 class="faq-header"><button class="faq-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q1"><div class="faq-icon-wrapper bg-soft-blue"><i class="fas fa-shield-alt"></i></div>Quyên góp có an toàn không?</button></h2><div id="q1" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="faq-body">Hệ thống tích hợp cổng thanh toán uy tín, sử dụng mã hóa SSL đa tầng đảm bảo bảo mật tuyệt đối cho mọi giao dịch của bạn.</div></div></div></div>
                         <div class="col"><div class="faq-card accordion-item"><h2 class="faq-header"><button class="faq-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q2"><div class="faq-icon-wrapper bg-soft-green"><i class="fas fa-user-check"></i></div>Làm sao tin tưởng tính minh bạch?</button></h2><div id="q2" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="faq-body">Mọi chiến dịch đều có báo cáo sao kê thời gian thực và hình ảnh thực tế từ các hoạt động trao tặng ngay trên trang chi tiết.</div></div></div></div>

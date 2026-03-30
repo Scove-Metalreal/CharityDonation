@@ -49,7 +49,7 @@
                     <div class="text-muted smallest">quyên góp</div>
                 </div>
                 <div class="stats-right text-end">
-                    <div class="small fw-bold text-primary"><fmt:formatNumber value="${percent}" maxFractionDigits="0"/>%</div>
+                    <div class="small fw-bold brand-primary"><fmt:formatNumber value="${percent}" maxFractionDigits="0"/>%</div>
                     <div class="text-muted smallest">đạt được</div>
                 </div>
             </div>
@@ -68,7 +68,7 @@
                     <i class="far fa-clock me-1"></i> Còn ${campaign.endDate}
                 </div>
                 <c:if test="${empty sessionScope.loggedInUser or sessionScope.loggedInUser.role.roleName != 'ADMIN'}">
-                    <div class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 fw-bold donate-btn-indicator" 
+                    <div class="btn btn-brand-secondary btn-sm rounded-pill px-3 py-1 fw-bold donate-btn-indicator" 
                          onclick="event.preventDefault(); event.stopPropagation(); if(typeof openQuickDonate === 'function') openQuickDonate('${campaign.id}', '${campaign.name}')">
                         Quyên góp
                     </div>

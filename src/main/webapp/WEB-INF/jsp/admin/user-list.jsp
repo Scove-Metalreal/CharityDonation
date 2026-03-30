@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -13,6 +13,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
     <style>
+        .brand-primary { color: var(--color-primary) !important; }
+        .scrollable-main { height: 100vh; overflow-y: auto; scrollbar-width: none; }
+        .scrollable-main::-webkit-scrollbar { display: none; }
+        .bg-brand-primary { background-color: var(--color-primary) !important; }
         .action-btn { width: 34px; height: 34px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; border: none; transition: 0.2s; }
         .strength-meter { height: 6px; border-radius: 3px; transition: all 0.3s; margin-top: 8px; }
         .strength-0 { width: 0%; }
@@ -30,13 +34,13 @@
                 <jsp:include page="../fragments/admin-sidebar.jsp"/>
             </div>
 
-            <div class="col p-0 bg-white" style="min-width: 0; min-height: 100vh;">
+            <div class="col scrollable-main p-0 bg-white" style="min-width: 0; min-height: 100vh;">
                 <jsp:include page="../fragments/admin-header.jsp"/>
 
                 <div class="px-4 pb-5">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h4 class="fw-bold text-dark mb-0">Quản lý Người dùng</h4>
-                        <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                        <button type="button" class="btn btn-brand-primary rounded-pill px-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#addUserModal">
                             <i class="fas fa-user-plus me-2"></i> Thêm người dùng
                         </button>
                     </div>
@@ -75,7 +79,7 @@
                                 </select>
                             </div>
                             <div class="col-md-2 d-flex align-items-end">
-                                <button type="submit" class="btn btn-primary btn-sm w-100 rounded-pill fw-bold">Lọc dữ liệu</button>
+                                <button type="submit" class="btn btn-brand-primary btn-sm w-100 rounded-pill fw-bold">Lọc dữ liệu</button>
                             </div>
                         </form>
                     </div>
@@ -230,7 +234,7 @@
                         </div>
                         <div class="mt-5 pt-3 border-top text-end">
                             <button type="button" class="btn btn-light rounded-pill px-4 me-2 fw-bold text-muted" data-bs-dismiss="modal" onclick="resetUserForm()">Hủy bỏ</button>
-                            <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow" id="userSubmitBtn">LƯU NGƯỜI DÙNG</button>
+                            <button type="submit" class="btn btn-brand-primary rounded-pill px-5 fw-bold shadow" id="userSubmitBtn">LƯU NGƯỜI DÙNG</button>
                         </div>
                     </form>
                 </div>

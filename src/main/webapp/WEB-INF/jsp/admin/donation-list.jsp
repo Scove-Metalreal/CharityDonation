@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿﻿﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -12,6 +12,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
     <style>
+        .brand-primary { color: var(--color-primary) !important; }
+        .scrollable-main { height: 100vh; overflow-y: auto; scrollbar-width: none; }
+        .scrollable-main::-webkit-scrollbar { display: none; }
         .action-btn { width: 32px; height: 32px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; border: none; }
     </style>
 </head>
@@ -22,7 +25,7 @@
                 <jsp:include page="../fragments/admin-sidebar.jsp"/>
             </div>
 
-            <div class="col p-0 bg-white" style="min-width: 0; min-height: 100vh;">
+            <div class="col scrollable-main p-0 bg-white" style="min-width: 0; min-height: 100vh;">
                 <jsp:include page="../fragments/admin-header.jsp"/>
 
                 <div class="px-4 pb-5">
@@ -42,7 +45,7 @@
                                 </select>
                             </div>
                             <div class="col-md-2 d-flex align-items-end">
-                                <button type="submit" class="btn btn-primary btn-sm w-100 rounded-pill fw-bold">Lọc</button>
+                                <button type="submit" class="btn btn-brand-primary btn-sm w-100 rounded-pill fw-bold">Lọc</button>
                             </div>
                         </form>
                     </div>
