@@ -15,6 +15,7 @@ public interface DonationService {
     void rejectDonation(Integer donationId);
     
     List<Donation> getConfirmedDonationsByCampaignId(Integer campaignId);
+    long countConfirmedDonationsByCampaignId(Integer campaignId);
     List<Donation> getTopDonorsByCampaignId(Integer campaignId, int limit);
     List<Donation> getRecentDonorsByCampaignId(Integer campaignId, int limit);
 }

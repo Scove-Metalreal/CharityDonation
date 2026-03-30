@@ -26,7 +26,7 @@
         .donor-container { background: #f9fafb; border: 1px solid var(--color-border); border-radius: 20px; overflow: hidden; }
         .donor-row { padding: 15px 20px; display: flex; align-items: center; border-bottom: 1px solid var(--color-border); }
         .donor-row:last-child { border-bottom: none; }
-        
+        .sponsor-list { border: 1px solid rgba(0, 255, 255, 0.2); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
         .brand-primary { color: var(--color-primary) !important; }
         .bg-brand-primary { background-color: var(--color-primary) !important; }
     </style>
@@ -364,7 +364,7 @@
                                                 </c:forEach>
                                                 <c:if test="${empty topDonors10}"><div class="p-4 text-center text-muted small">Chưa có quyên góp nào.</div></c:if>
                                                 <div class="p-3 text-center border-top">
-                                                    <button class="btn btn-link btn-sm fw-bold text-decoration-none" data-bs-toggle="modal" data-bs-target="#topDonorsModal">XEM THÊM</button>
+                                                    <button class="btn btn-link btn-sm fw-bold text-decoration-none brand-primary" data-bs-toggle="modal" data-bs-target="#topDonorsModal">XEM THÊM</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -377,14 +377,17 @@
                                                         <div class="fw-bold brand-primary me-3" style="width:20px">${loop.index + 1}</div>
                                                         <div class="flex-grow-1 text-truncate">
                                                             <strong>${d.isAnonymous == 1 ? 'Nhà hảo tâm ẩn danh' : d.user.fullName}</strong>
-                                                            <div class="smallest text-muted">${d.createdAt}</div>
+                                                            <div class="smallest text-muted">
+                                                                <fmt:parseDate value="${d.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedCreatedAt" type="both" />
+                                                                <fmt:formatDate value="${parsedCreatedAt}" pattern="dd/MM/yyyy" />
+                                                            </div>
                                                         </div>
                                                         <div class="fw-bold brand-primary"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
                                                     </div>
                                                 </c:forEach>
                                                 <c:if test="${empty recentDonors10}"><div class="p-4 text-center text-muted small">Chưa có quyên góp nào.</div></c:if>
                                                 <div class="p-3 text-center border-top">
-                                                    <button class="btn btn-link btn-sm fw-bold text-decoration-none" data-bs-toggle="modal" data-bs-target="#recentDonorsModal">XEM THÊM</button>
+                                                    <button class="btn btn-link btn-sm fw-bold text-decoration-none brand-primary" data-bs-toggle="modal" data-bs-target="#recentDonorsModal">XEM THÊM</button>
                                                 </div>
                                             </div>
                                         </div>

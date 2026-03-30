@@ -102,6 +102,23 @@ h1, h2, h3, h4, h5, h6 {
     transform: translateY(-2px);
 }
 
+.brand-secondary {
+    background-color: #e7f8f2 !important;
+}
+
+.brand-primary {
+    color: var(--color-primary) !important;
+}
+
+.sidebar-x .dropdown-item {
+    color: var(--color-text-main) !important;
+}
+
+.sidebar-x .dropdown-item:hover {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+    color: var(--color-primary) !important;
+}
+
 /* Global Image Scaling */
 img {
     object-fit: cover;

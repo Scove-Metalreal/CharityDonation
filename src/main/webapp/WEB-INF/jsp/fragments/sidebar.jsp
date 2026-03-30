@@ -63,7 +63,7 @@
                             <div class="text-muted smallest text-truncate">@user_${sessionScope.loggedInUser.id}</div>
                         </div>
                     </div>
-                    <ul class="dropdown-menu bg-brand-primary border-0 rounded-4 p-2 mb-2">
+                    <ul class="dropdown-menu brand-secondary border-0 rounded-4 p-2 mb-2">
                         <li><a class="dropdown-item rounded-3" href="${pageContext.request.contextPath}/user/profile"><i class="fas fa-user me-2"></i> Hồ sơ</a></li>
                         <c:if test="${sessionScope.loggedInUser.role.roleName == 'ADMIN'}">
                             <li><a class="dropdown-item rounded-3 text-warning" href="${pageContext.request.contextPath}/admin/dashboard"><i class="fas fa-user-shield me-2"></i> Dashboard</a></li>

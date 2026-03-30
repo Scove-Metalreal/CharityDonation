@@ -35,7 +35,10 @@
                         <div class="p-3 border-bottom hover-bg-light" style="font-size: 0.85rem;">
                             <div class="fw-bold">${d.user.fullName}</div>
                             <div class="text-muted small">Quyên góp <fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
-                            <div class="smallest brand-primary">${d.createdAt}</div>
+                            <div class="smallest brand-primary">
+                                <fmt:parseDate value="${d.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedCreatedAt" type="both" />
+                                <fmt:formatDate value="${parsedCreatedAt}" pattern="dd/MM/yyyy" />
+                            </div>
                         </div>
                     </a>
                 </c:forEach>

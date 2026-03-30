@@ -12,6 +12,7 @@ public interface DonationRepository extends JpaRepository<Donation, Integer> {
     List<Donation> findByCampaignId(Integer campaignId);
     List<Donation> findByUserId(Integer userId);
     List<Donation> findByCampaignIdAndStatus(Integer campaignId, Integer status);
+    long countByCampaignIdAndStatus(Integer campaignId, Integer status);
 
     @Query("SELECT d FROM Donation d WHERE d.campaign.id = :campaignId AND d.status = 1 ORDER BY d.amount DESC")
     List<Donation> findTopDonors(Integer campaignId, Pageable pageable);

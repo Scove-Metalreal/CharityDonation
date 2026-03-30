@@ -77,6 +77,11 @@ public class DonationServiceImpl implements DonationService {
     }
 
     @Override
+    public long countConfirmedDonationsByCampaignId(Integer campaignId) {
+        return donationRepository.countByCampaignIdAndStatus(campaignId, Donation.STATUS_CONFIRMED);
+    }
+
+    @Override
     public List<Donation> getTopDonorsByCampaignId(Integer campaignId, int limit) {
         return donationRepository.findTopDonors(campaignId, PageRequest.of(0, limit));
     }

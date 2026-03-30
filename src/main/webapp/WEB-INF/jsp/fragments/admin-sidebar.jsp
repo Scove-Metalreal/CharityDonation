@@ -49,7 +49,7 @@
                     <div class="text-muted smallest">Admin</div>
                 </div>
             </div>
-            <ul class="dropdown-menu dropdown-menu-dark shadow border-0 rounded-4 p-2 mb-2">
+            <ul class="dropdown-menu brand-secondary shadow border-0 rounded-4 p-2 mb-2">
                 <li><a class="dropdown-item rounded-3" href="${pageContext.request.contextPath}/user/profile"><i class="fas fa-user me-2"></i> Hồ sơ</a></li>
                 <li><hr class="dropdown-divider opacity-10"></li>
                 <li><a class="dropdown-item rounded-3 text-danger" href="${pageContext.request.contextPath}/auth/logout"><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a></li>
