@@ -1,5 +1,7 @@
 package org.tnphuong.charity.donation.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,9 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.tnphuong.charity.donation.entity.Campaign;
-import org.tnphuong.charity.donation.entity.Donation;
-import org.tnphuong.charity.donation.entity.User;
+import org.tnphuong.charity.donation.entity.*;
 import org.tnphuong.charity.donation.service.*;
 
 import java.nio.file.*;
@@ -21,6 +21,8 @@ import java.util.*;
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
 
     @Autowired
     private UserService userService;
@@ -40,7 +42,7 @@ public class AdminController {
     private void addCommonData(Model model, jakarta.servlet.http.HttpSession session) {
         model.addAttribute("recentDonations", donationService.getRecentDonations(5));
         
-        long pendingCount = donationService.countDonationsByStatus(0);
+        long pendingCount = donationService.countDonationsByStatus(DonationStatus.PENDING.getValue());
         Boolean notificationsRead = (Boolean) session.getAttribute("notificationsRead");
         
         if (notificationsRead != null && notificationsRead) {
@@ -63,8 +65,8 @@ public class AdminController {
         addCommonData(model, session);
         
         model.addAttribute("totalUsers", userService.countUsers());
-        model.addAttribute("activeCampaigns", campaignService.countCampaignsByStatus(1));
-        model.addAttribute("pendingDonations", donationService.countDonationsByStatus(0));
+        model.addAttribute("activeCampaigns", campaignService.countCampaignsByStatus(CampaignStatus.IN_PROGRESS.getValue()));
+        model.addAttribute("pendingDonations", donationService.countDonationsByStatus(DonationStatus.PENDING.getValue()));
         
         // Fetch 10 for dashboard table
         model.addAttribute("dashboardDonations", donationService.getDashboardDonations(10));
@@ -154,15 +156,21 @@ public class AdminController {
     @PostMapping("/users/toggle-status")
     public String toggleStatus(@RequestParam Integer userId) {
         userService.getUserById(userId).ifPresent(user -> {
-            user.setStatus(user.getStatus() == 1 ? 0 : 1);
+            user.setStatus(user.getStatus() == UserStatus.ACTIVE.getValue() ? UserStatus.LOCKED.getValue() : UserStatus.ACTIVE.getValue());
             userService.saveUser(user);
+            logger.info("Admin toggled status for user ID {}: now {}", userId, user.getStatus());
         });
         return "redirect:/admin/users";
     }
 
     @PostMapping("/users/delete")
     public String deleteUser(@RequestParam Integer userId) {
-        userService.deleteUser(userId);
+        try {
+            userService.deleteUser(userId);
+            logger.info("Admin deleted user ID: {}", userId);
+        } catch (Exception e) {
+            logger.error("Failed to delete user ID {}: {}", userId, e.getMessage());
+        }
         return "redirect:/admin/users";
     }
 
@@ -176,6 +184,7 @@ public class AdminController {
             User user = userOpt.get();
             user.setRole(roleOpt.get());
             userService.saveUser(user);
+            logger.info("Admin updated role for user ID {} to role ID {}", userId, roleId);
             return ResponseEntity.ok().body(Map.of("message", "Cập nhật vai trò thành công!"));
         }
         return ResponseEntity.badRequest().body(Map.of("error", "Không tìm thấy người dùng hoặc vai trò!"));
@@ -227,12 +236,10 @@ public class AdminController {
                                          @RequestParam(value = "companionIds", required = false) List<Integer> companionIds) {
         Map<String, String> errors = new HashMap<>();
         
-        // 1. Uniqueness check
         if (campaign.getId() == null && campaignService.existsByCode(campaign.getCode())) {
             errors.put("code", "Mã chiến dịch đã tồn tại!");
         }
 
-        // 2. Strict Date check
         if (campaign.getStartDate() == null) errors.put("startDate", "Vui lòng chọn ngày bắt đầu!");
         if (campaign.getEndDate() == null) errors.put("endDate", "Vui lòng chọn ngày kết thúc!");
         
@@ -242,14 +249,12 @@ public class AdminController {
             }
         }
 
-        // 3. Money check
         if (campaign.getTargetMoney() == null || campaign.getTargetMoney().compareTo(java.math.BigDecimal.valueOf(1000000)) < 0) {
             errors.put("money", "Mục tiêu tối thiểu là 1,000,000 VNĐ!");
         }
 
         if (!errors.isEmpty()) return ResponseEntity.badRequest().body(errors);
 
-        // 4. Multiple Image Upload (Max 5)
         if (files != null && files.length > 0 && !files[0].isEmpty()) {
             try {
                 StringBuilder galleryStr = new StringBuilder();
@@ -274,17 +279,18 @@ public class AdminController {
                 }
                 if (galleryStr.length() > 0) campaign.setGalleryUrls(galleryStr.toString());
             } catch (Exception e) {
+                logger.error("Image upload failed for campaign {}: {}", campaign.getCode(), e.getMessage());
                 return ResponseEntity.internalServerError().body(Map.of("error", "Lỗi upload ảnh: " + e.getMessage()));
             }
         }
 
-        // 5. Handle Companions
         if (companionIds != null && !companionIds.isEmpty()) {
             List<org.tnphuong.charity.donation.entity.Companion> companions = companionService.getAllCompanionsByIds(companionIds);
             campaign.setCompanions(companions);
         }
 
         campaignService.saveCampaign(campaign);
+        logger.info("Admin saved campaign: {}", campaign.getCode());
         return ResponseEntity.ok().body(Map.of("message", "Lưu chiến dịch thành công!"));
     }
 
@@ -294,16 +300,12 @@ public class AdminController {
         Optional<Campaign> campaignOpt = campaignService.getCampaignById(id);
         if (campaignOpt.isPresent()) {
             Campaign current = campaignOpt.get();
-            
-            // Nếu TRONG DB đang là 3 thì chặn
-            if (current.getStatus() == 3) {
+            if (current.getStatus() == CampaignStatus.CLOSED.getValue()) { // 3 = CLOSED
                 return ResponseEntity.badRequest().body(Map.of("error", "Chiến dịch đã đóng, không thể thay đổi trạng thái!"));
             }
-            
-            // Note: Since we are replacing repository call, we might need updateStatus in Service
-            // For now, using saveCampaign after setting status
             current.setStatus(status);
             campaignService.saveCampaign(current);
+            logger.info("Admin updated status for campaign ID {} to {}", id, status);
             return ResponseEntity.ok().body(Map.of("message", "Cập nhật trạng thái thành công!"));
         }
         return ResponseEntity.badRequest().body(Map.of("error", "Không tìm thấy chiến dịch!"));
@@ -313,7 +315,10 @@ public class AdminController {
     public String deleteCampaign(@RequestParam Integer id) {
         try {
             campaignService.deleteCampaign(id);
-        } catch (Exception e) {}
+            logger.info("Admin deleted campaign ID: {}", id);
+        } catch (Exception e) {
+            logger.error("Failed to delete campaign ID {}: {}", id, e.getMessage());
+        }
         return "redirect:/admin/campaigns";
     }
 
@@ -342,18 +347,21 @@ public class AdminController {
     @PostMapping("/donations/confirm")
     public String confirmDonation(@RequestParam Integer donationId) {
         donationService.confirmDonation(donationId);
+        logger.info("Admin confirmed donation ID: {}", donationId);
         return "redirect:/admin/donations";
     }
     
     @PostMapping("/donations/reject")
     public String rejectDonation(@RequestParam Integer donationId, @RequestParam(required = false, defaultValue = "Thông tin không hợp lệ") String reason) {
         donationService.rejectDonation(donationId, reason);
+        logger.info("Admin rejected donation ID: {} for reason: {}", donationId, reason);
         return "redirect:/admin/donations";
     }
 
     @PostMapping("/campaigns/extend")
     public String extendCampaign(@RequestParam Integer id, @RequestParam String newEndDate) {
         campaignService.extendCampaign(id, java.time.LocalDate.parse(newEndDate));
+        logger.info("Admin extended campaign ID: {} to {}", id, newEndDate);
         return "redirect:/admin/campaigns";
     }
 

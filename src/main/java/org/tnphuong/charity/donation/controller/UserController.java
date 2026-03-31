@@ -1,6 +1,8 @@
 package org.tnphuong.charity.donation.controller;
 
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,6 +27,8 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/user")
 public class UserController {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     private UserService userService;
@@ -90,9 +94,10 @@ public class UserController {
                 user.setAvatarUrl("/uploads/avatars/" + fileName);
                 userService.saveUser(user);
                 session.setAttribute("loggedInUser", user);
+                logger.info("User ID {} updated avatar: {}", userId, fileName);
                 
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("Failed to upload avatar for user ID {}: {}", userId, e.getMessage());
                 return "redirect:/user/profile?error=upload-failed";
             }
         }
@@ -109,13 +114,11 @@ public class UserController {
         String newEmail = userUpdate.getEmail().trim();
         String newPhone = userUpdate.getPhoneNumber() != null ? userUpdate.getPhoneNumber().trim() : "";
 
-        // Check trung Email (khac user hien tai)
         Optional<User> existingEmailUser = userService.getUserByEmail(newEmail);
         if (existingEmailUser.isPresent() && !existingEmailUser.get().getId().equals(userId)) {
             return "redirect:/user/profile?error=duplicate-email";
         }
 
-        // Check trung Phone (khac user hien tai)
         if (!newPhone.isEmpty()) {
             Optional<User> existingPhoneUser = userService.getUserByPhoneNumber(newPhone);
             if (existingPhoneUser.isPresent() && !existingPhoneUser.get().getId().equals(userId)) {
@@ -130,6 +133,7 @@ public class UserController {
         
         userService.saveUser(user);
         session.setAttribute("loggedInUser", user);
+        logger.info("User ID {} updated profile info", userId);
         
         return "redirect:/user/profile?message=updated";
     }
@@ -158,6 +162,7 @@ public class UserController {
 
         user.setPassword(PasswordUtils.hashPassword(newPassword));
         userService.saveUser(user);
+        logger.info("User ID {} changed password", userId);
         
         return "redirect:/user/profile?messagePw=success";
     }

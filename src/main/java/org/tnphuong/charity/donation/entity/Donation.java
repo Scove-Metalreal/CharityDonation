@@ -42,6 +42,14 @@ public class Donation {
     @Column(name = "status")
     private Integer status = 0;
 
+    public DonationStatus getStatusEnum() {
+        return DonationStatus.fromInt(this.status);
+    }
+
+    public void setStatusEnum(DonationStatus status) {
+        this.status = (status != null) ? status.getValue() : 0;
+    }
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 }

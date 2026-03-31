@@ -1,5 +1,7 @@
 package org.tnphuong.charity.donation.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -7,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tnphuong.charity.donation.dao.CampaignRepository;
 import org.tnphuong.charity.donation.entity.Campaign;
+import org.tnphuong.charity.donation.entity.CampaignStatus;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -14,6 +17,8 @@ import java.util.Optional;
 
 @Service
 public class CampaignServiceImpl implements CampaignService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CampaignServiceImpl.class);
 
     @Autowired
     private CampaignRepository campaignRepository;
@@ -34,36 +39,38 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
     @Override
+    @Transactional
     public Campaign saveCampaign(Campaign campaign) {
         if (campaign.getId() != null) {
-            // Kiểm tra bản ghi hiện tại trong DB
             Campaign currentInDb = campaignRepository.findById(campaign.getId())
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy chiến dịch!"));
             
-            // Nếu trạng thái TRONG DB đã là 3 (Đóng), thì không cho phép lưu bất cứ gì nữa
-            if (currentInDb.getStatus() == 3) {
+            if (currentInDb.getStatus() == CampaignStatus.CLOSED.getValue()) { // 3 = CLOSED
+                logger.warn("Attempt to modify closed campaign ID: {}", campaign.getId());
                 throw new RuntimeException("Chiến dịch đã đóng, không thể thay đổi thông tin.");
             }
+            logger.debug("Updating campaign ID: {}", campaign.getId());
         } else {
-            // Khởi tạo cho chiến dịch mới
-            if (campaign.getStatus() == null) campaign.setStatus(0);
+            if (campaign.getStatus() == null) campaign.setStatus(CampaignStatus.NEW.getValue()); // 0 = NEW
             if (campaign.getCurrentMoney() == null) campaign.setCurrentMoney(BigDecimal.ZERO);
             if (campaign.getCreatedAt() == null) campaign.setCreatedAt(java.time.LocalDateTime.now());
+            logger.info("Creating new campaign with code: {}", campaign.getCode());
         }
         return campaignRepository.save(campaign);
     }
 
     @Override
+    @Transactional
     public void deleteCampaign(Integer id) {
-        // Chỉ cho phép xóa khi trạng thái là Mới tạo (0)
-        Optional<Campaign> campaign = campaignRepository.findById(id);
-        if (campaign.isPresent()) {
-            if (campaign.get().getStatus() == 0) {
+        campaignRepository.findById(id).ifPresent(campaign -> {
+            if (campaign.getStatus() == CampaignStatus.NEW.getValue()) { // 0 = NEW
+                logger.info("Deleting campaign ID: {}, Code: {}", id, campaign.getCode());
                 campaignRepository.deleteById(id);
             } else {
+                logger.warn("Failed deletion attempt for active campaign ID: {}", id);
                 throw new RuntimeException("Chỉ có thể xóa chiến dịch ở trạng thái Mới tạo.");
             }
-        }
+        });
     }
 
     @Override
@@ -86,50 +93,47 @@ public class CampaignServiceImpl implements CampaignService {
     @Override
     @Transactional
     public void addCurrentMoney(Integer campaignId, BigDecimal amount) {
-        Optional<Campaign> campaignOpt = campaignRepository.findById(campaignId);
-        if (campaignOpt.isPresent()) {
-            Campaign campaign = campaignOpt.get();
+        campaignRepository.findById(campaignId).ifPresent(campaign -> {
             BigDecimal current = campaign.getCurrentMoney() != null ? campaign.getCurrentMoney() : BigDecimal.ZERO;
             campaign.setCurrentMoney(current.add(amount));
             
-            // Nếu đang ở trạng thái Mới tạo (0), tự động chuyển sang Đang quyên góp (1) khi có tiền
-            if (campaign.getStatus() == 0) {
-                campaign.setStatus(1);
+            if (campaign.getStatus() == CampaignStatus.NEW.getValue()) { // 0 = NEW
+                campaign.setStatus(CampaignStatus.IN_PROGRESS.getValue()); // 1 = IN_PROGRESS
             }
 
-            // Tự động kết thúc nếu đủ tiền (trừ khi đã đóng)
-            if (campaign.getStatus() == 1 && campaign.getCurrentMoney().compareTo(campaign.getTargetMoney()) >= 0) {
-                campaign.setStatus(2); // Kết thúc quyên góp
+            if (campaign.getStatus() == CampaignStatus.IN_PROGRESS.getValue() && campaign.getCurrentMoney().compareTo(campaign.getTargetMoney()) >= 0) {
+                logger.info("Campaign ID: {} reached target. Setting status to COMPLETED.", campaignId);
+                campaign.setStatus(CampaignStatus.COMPLETED.getValue()); // 2 = COMPLETED
             }
             campaignRepository.save(campaign);
-        }
+            logger.debug("Added {} to campaign ID: {}. New total: {}", amount, campaignId, campaign.getCurrentMoney());
+        });
     }
 
     @Override
     @Transactional
     public void subtractCurrentMoney(Integer campaignId, BigDecimal amount) {
-        Optional<Campaign> campaignOpt = campaignRepository.findById(campaignId);
-        if (campaignOpt.isPresent()) {
-            Campaign campaign = campaignOpt.get();
+        campaignRepository.findById(campaignId).ifPresent(campaign -> {
             BigDecimal current = campaign.getCurrentMoney() != null ? campaign.getCurrentMoney() : BigDecimal.ZERO;
             campaign.setCurrentMoney(current.subtract(amount));
             
-            // Nếu hụt tiền xuống dưới mục tiêu và đang ở trạng thái Kết thúc (2), đưa về Đang quyên góp (1)
-            if (campaign.getStatus() == 2 && campaign.getCurrentMoney().compareTo(campaign.getTargetMoney()) < 0) {
-                campaign.setStatus(1);
+            if (campaign.getStatus() == CampaignStatus.COMPLETED.getValue() && campaign.getCurrentMoney().compareTo(campaign.getTargetMoney()) < 0) {
+                logger.info("Campaign ID: {} fell below target. Reverting status to IN_PROGRESS.", campaignId);
+                campaign.setStatus(CampaignStatus.IN_PROGRESS.getValue()); // 1 = IN_PROGRESS
             }
             campaignRepository.save(campaign);
-        }
+            logger.debug("Subtracted {} from campaign ID: {}. New total: {}", amount, campaignId, campaign.getCurrentMoney());
+        });
     }
 
     @Override
     @Transactional
     public void extendCampaign(Integer campaignId, java.time.LocalDate newEndDate) {
         campaignRepository.findById(campaignId).ifPresent(campaign -> {
+            logger.info("Extending campaign ID: {} to {}", campaignId, newEndDate);
             campaign.setEndDate(newEndDate);
-            // If it was ended, put it back to in-progress
-            if (campaign.getStatus() == Campaign.STATUS_ENDED) {
-                campaign.setStatus(Campaign.STATUS_IN_PROGRESS);
+            if (campaign.getStatus() == CampaignStatus.COMPLETED.getValue()) { // 2 = COMPLETED
+                campaign.setStatus(CampaignStatus.IN_PROGRESS.getValue()); // 1 = IN_PROGRESS
             }
             campaignRepository.save(campaign);
         });

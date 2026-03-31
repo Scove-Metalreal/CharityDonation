@@ -1,5 +1,7 @@
 package org.tnphuong.charity.donation.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +18,8 @@ import java.util.Optional;
 
 @Service
 public class DonationServiceImpl implements DonationService {
+
+    private static final Logger logger = LoggerFactory.getLogger(DonationServiceImpl.class);
 
     @Autowired
     private DonationRepository donationRepository;
@@ -60,6 +64,7 @@ public class DonationServiceImpl implements DonationService {
     @Transactional
     public void confirmDonation(Integer donationId) {
         donationRepository.findById(donationId).ifPresent(donation -> {
+            logger.info("Confirming donation ID: {}, Amount: {}", donationId, donation.getAmount());
             donation.setStatus(1); // 1 = STATUS_CONFIRMED
             donationRepository.save(donation);
             
@@ -75,7 +80,7 @@ public class DonationServiceImpl implements DonationService {
                     donation.getAmount()
                 );
             } catch (Exception e) {
-                System.err.println("Failed to send approval email: " + e.getMessage());
+                logger.error("Failed to send approval email for donation ID {}: {}", donationId, e.getMessage());
             }
         });
     }
@@ -84,6 +89,7 @@ public class DonationServiceImpl implements DonationService {
     @Transactional
     public void rejectDonation(Integer donationId, String reason) {
         donationRepository.findById(donationId).ifPresent(donation -> {
+            logger.info("Rejecting donation ID: {}, Reason: {}", donationId, reason);
             donation.setStatus(2); // 2 = STATUS_REJECTED
             donationRepository.save(donation);
 
@@ -97,7 +103,7 @@ public class DonationServiceImpl implements DonationService {
                     reason
                 );
             } catch (Exception e) {
-                System.err.println("Failed to send rejection email: " + e.getMessage());
+                logger.error("Failed to send rejection email for donation ID {}: {}", donationId, e.getMessage());
             }
         });
     }

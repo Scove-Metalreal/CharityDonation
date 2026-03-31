@@ -1,6 +1,8 @@
 package org.tnphuong.charity.donation.controller;
 
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,6 +18,8 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/auth")
 public class AuthController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @Autowired
     private UserService userService;
@@ -86,6 +90,7 @@ public class AuthController {
         user.setStatus(1); 
         userService.saveUser(user);
 
+        logger.info("New user registered: {}", email);
         return "redirect:/auth/login?success=register&email=" + email;
     }
 
@@ -123,6 +128,7 @@ public class AuthController {
                 // Van giu loggedInUser neu cac trang JSP dang dung, nhung Interceptor se check theo userId
                 session.setAttribute("loggedInUser", user); 
                 
+                logger.info("User logged in: {}", cleanEmail);
                 if (user.getRole() != null && "ADMIN".equalsIgnoreCase(user.getRole().getRoleName())) {
                     return "redirect:/admin/dashboard";
                 } else {
@@ -131,13 +137,21 @@ public class AuthController {
             }
         }
         
+        logger.warn("Failed login attempt for email: {}", cleanEmail);
         model.addAttribute("error", "Email hoặc mật khẩu không chính xác!");
         return "login";
     }
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
+        String userEmail = "";
+        Object userObj = session.getAttribute("loggedInUser");
+        if (userObj instanceof User) {
+            userEmail = ((User) userObj).getEmail();
+        }
+        
         session.invalidate();
+        logger.info("User logged out: {}", userEmail);
         return "redirect:/auth/login";
     }
 }

@@ -45,6 +45,14 @@ public class User {
     @Column(name = "status")
     private Integer status = 1;
 
+    public UserStatus getStatusEnum() {
+        return UserStatus.fromInt(this.status);
+    }
+
+    public void setStatusEnum(UserStatus status) {
+        this.status = (status != null) ? status.getValue() : 1;
+    }
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
