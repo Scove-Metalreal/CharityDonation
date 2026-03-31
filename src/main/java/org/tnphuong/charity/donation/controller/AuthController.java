@@ -70,16 +70,17 @@ public class AuthController {
         user.setEmail(email);
         user.setPhoneNumber(phone);
         
-        // If Google user, password is not required, but we set a dummy one
+        // Always hash the provided password, whether it's a local or Google registration
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            user.setPassword(PasswordUtils.hashPassword(user.getPassword()));
+        }
+
         if ("GOOGLE".equals(user.getAuthProvider())) {
-            user.setPassword(PasswordUtils.hashPassword("GOOGLE_USER_NO_PASSWORD_" + System.currentTimeMillis()));
             // Clear google session data
             session.removeAttribute("google_email");
             session.removeAttribute("google_name");
             session.removeAttribute("google_id");
             session.removeAttribute("google_picture");
-        } else {
-            user.setPassword(PasswordUtils.hashPassword(user.getPassword()));
         }
         
         user.setStatus(1); 

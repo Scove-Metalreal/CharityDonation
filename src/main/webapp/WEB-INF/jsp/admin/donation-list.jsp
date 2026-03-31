@@ -1,4 +1,4 @@
-﻿﻿﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -76,15 +76,17 @@
                                             </td>
                                             <td class="text-end">
                                                 <c:if test="${d.status == 0}">
-                                                    <div class="d-flex justify-content-end gap-1">
+                                                    <div class="d-flex gap-1 justify-content-end">
                                                         <form action="${pageContext.request.contextPath}/admin/donations/confirm" method="post" class="m-0">
                                                             <input type="hidden" name="donationId" value="${d.id}">
-                                                            <button type="submit" class="action-btn bg-success bg-opacity-10 text-success"><i class="fas fa-check"></i></button>
+                                                            <button type="submit" class="action-btn bg-success bg-opacity-10 text-success" title="Xác nhận">
+                                                                <i class="fas fa-check"></i>
+                                                            </button>
                                                         </form>
-                                                        <form action="${pageContext.request.contextPath}/admin/donations/reject" method="post" class="m-0">
-                                                            <input type="hidden" name="donationId" value="${d.id}">
-                                                            <button type="submit" class="action-btn bg-danger bg-opacity-10 text-danger"><i class="fas fa-times"></i></button>
-                                                        </form>
+                                                        <button type="button" class="action-btn bg-danger bg-opacity-10 text-danger" title="Từ chối" 
+                                                                onclick="confirmRejectDonation(${d.id})">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
                                                     </div>
                                                 </c:if>
                                             </td>
@@ -96,7 +98,7 @@
 
                         <!-- Custom Pagination -->
                         <div class="d-flex flex-column align-items-center mt-4">
-                            <div class="page-info">Trang ${currentPage} / ${totalPages}</div>
+                            <div class="page-info mb-2 text-muted smallest fw-bold">Trang ${currentPage} / ${totalPages}</div>
                             <div class="custom-pagination">
                                 <a class="page-btn ${currentPage <= 1 ? 'disabled' : ''}" href="?page=${currentPage - 1}&keyword=${keyword}&status=${status}"><i class="fas fa-chevron-left"></i></a>
                                 <c:forEach var="i" begin="1" end="${totalPages > 0 ? totalPages : 1}">
@@ -111,6 +113,48 @@
             </div>
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmRejectDonation(donationId) {
+            Swal.fire({
+                title: 'Từ chối quyên góp',
+                text: 'Vui lòng nhập lý do từ chối:',
+                input: 'text',
+                inputPlaceholder: 'Lý do (ví dụ: Thông tin giao dịch không chính xác)',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Từ chối ngay',
+                cancelButtonText: 'Hủy bỏ',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'Bạn cần nhập lý do từ chối!';
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '${pageContext.request.contextPath}/admin/donations/reject';
+
+                    const idInput = document.createElement('input');
+                    idInput.type = 'hidden';
+                    idInput.name = 'donationId';
+                    idInput.value = donationId;
+
+                    const reasonInput = document.createElement('input');
+                    reasonInput.type = 'hidden';
+                    reasonInput.name = 'reason';
+                    reasonInput.value = result.value;
+
+                    form.appendChild(idInput);
+                    form.appendChild(reasonInput);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+    </script>
 </body>
 </html>

@@ -3,9 +3,9 @@ package org.tnphuong.charity.donation.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.tnphuong.charity.donation.dao.DonationRepository;
 import org.tnphuong.charity.donation.entity.Donation;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -14,9 +14,12 @@ public class DonationServiceImpl implements DonationService {
 
     @Autowired
     private DonationRepository donationRepository;
-    
+
     @Autowired
     private CampaignService campaignService;
+
+    @Autowired
+    private EmailService emailService;
 
     @Override
     public List<Donation> getAllDonations() {
@@ -44,41 +47,57 @@ public class DonationServiceImpl implements DonationService {
     }
 
     @Override
-    @Transactional
     public void confirmDonation(Integer donationId) {
-        Optional<Donation> donationOpt = donationRepository.findById(donationId);
-        if (donationOpt.isPresent()) {
-            Donation donation = donationOpt.get();
-            if (donation.getStatus() == Donation.STATUS_PENDING) {
-                donation.setStatus(Donation.STATUS_CONFIRMED);
-                donationRepository.save(donation);
-                
-                // Update Campaign current money
-                campaignService.addCurrentMoney(donation.getCampaign().getId(), donation.getAmount());
+        donationRepository.findById(donationId).ifPresent(donation -> {
+            donation.setStatus(1); // 1 = STATUS_CONFIRMED
+            donationRepository.save(donation);
+            
+            // Cập nhật số tiền hiện tại của chiến dịch
+            campaignService.addCurrentMoney(donation.getCampaign().getId(), donation.getAmount());
+
+            // Send approval email
+            try {
+                emailService.sendDonationApprovalEmail(
+                    donation.getUser().getEmail(), 
+                    donation.getUser().getFullName(), 
+                    donation.getCampaign().getName(), 
+                    donation.getAmount()
+                );
+            } catch (Exception e) {
+                System.err.println("Failed to send approval email: " + e.getMessage());
             }
-        }
+        });
     }
 
     @Override
-    public void rejectDonation(Integer donationId) {
-        Optional<Donation> donationOpt = donationRepository.findById(donationId);
-        if (donationOpt.isPresent()) {
-            Donation donation = donationOpt.get();
-            if (donation.getStatus() == Donation.STATUS_PENDING) {
-                donation.setStatus(Donation.STATUS_REJECTED);
-                donationRepository.save(donation);
+    public void rejectDonation(Integer donationId, String reason) {
+        donationRepository.findById(donationId).ifPresent(donation -> {
+            donation.setStatus(2); // 2 = STATUS_REJECTED
+            donationRepository.save(donation);
+
+            // Send rejection email
+            try {
+                emailService.sendDonationRejectionEmail(
+                    donation.getUser().getEmail(), 
+                    donation.getUser().getFullName(), 
+                    donation.getCampaign().getName(), 
+                    donation.getAmount(),
+                    reason
+                );
+            } catch (Exception e) {
+                System.err.println("Failed to send rejection email: " + e.getMessage());
             }
-        }
+        });
     }
 
     @Override
     public List<Donation> getConfirmedDonationsByCampaignId(Integer campaignId) {
-        return donationRepository.findByCampaignIdAndStatus(campaignId, Donation.STATUS_CONFIRMED);
+        return donationRepository.findByCampaignIdAndStatus(campaignId, 1);
     }
 
     @Override
     public long countConfirmedDonationsByCampaignId(Integer campaignId) {
-        return donationRepository.countByCampaignIdAndStatus(campaignId, Donation.STATUS_CONFIRMED);
+        return donationRepository.countByCampaignIdAndStatus(campaignId, 1);
     }
 
     @Override

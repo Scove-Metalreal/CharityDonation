@@ -12,7 +12,7 @@ public interface DonationService {
     List<Donation> getDonationsByUserId(Integer userId);
     
     void confirmDonation(Integer donationId);
-    void rejectDonation(Integer donationId);
+    void rejectDonation(Integer donationId, String reason);
     
     List<Donation> getConfirmedDonationsByCampaignId(Integer campaignId);
     long countConfirmedDonationsByCampaignId(Integer campaignId);

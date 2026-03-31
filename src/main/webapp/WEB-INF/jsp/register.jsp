@@ -81,24 +81,22 @@
                             <label for="email">Địa chỉ Email</label>
                         </div>
 
-                        <c:if test="${!googleMode}">
-                            <div class="form-floating mb-3">
-                                <input type="password" name="password" class="form-control" id="passwordInput" placeholder="Password" required minlength="6">
-                                <label for="passwordInput">Mật khẩu</label>
-                                <div class="progress strength-meter bg-light">
-                                    <div id="strengthBar" class="progress-bar strength-0"></div>
-                                </div>
-                                <div class="d-flex justify-content-between mt-1">
-                                    <small class="text-muted small">Độ mạnh: <span id="strengthText">Rất yếu</span></small>
-                                    <small class="text-muted small">Tối thiểu 6 ký tự</small>
-                                </div>
+                        <div class="form-floating mb-3">
+                            <input type="password" name="password" class="form-control" id="passwordInput" placeholder="Password" required minlength="6">
+                            <label for="passwordInput">Mật khẩu</label>
+                            <div class="progress strength-meter bg-light">
+                                <div id="strengthBar" class="progress-bar strength-0"></div>
                             </div>
+                            <div class="d-flex justify-content-between mt-1">
+                                <small class="text-muted small">Độ mạnh: <span id="strengthText">Rất yếu</span></small>
+                                <small class="text-muted small">Tối thiểu 6 ký tự</small>
+                            </div>
+                        </div>
 
-                            <div class="form-floating mb-4">
-                                <input type="password" class="form-control" id="rePassword" placeholder="Confirm Password" required>
-                                <label for="rePassword">Nhập lại mật khẩu</label>
-                            </div>
-                        </c:if>
+                        <div class="form-floating mb-4">
+                            <input type="password" class="form-control" id="rePassword" placeholder="Confirm Password" required>
+                            <label for="rePassword">Nhập lại mật khẩu</label>
+                        </div>
 
                         <button type="submit" class="btn btn-brand-primary w-100 py-3 mb-4 shadow-sm">
                             ${googleMode ? 'HOÀN TẤT ĐĂNG KÝ' : 'ĐĂNG KÝ NGAY'}

@@ -357,8 +357,8 @@ public class AdminController {
     }
     
     @PostMapping("/donations/reject")
-    public String rejectDonation(@RequestParam Integer donationId) {
-        donationService.rejectDonation(donationId);
+    public String rejectDonation(@RequestParam Integer donationId, @RequestParam(required = false, defaultValue = "Thông tin không hợp lệ") String reason) {
+        donationService.rejectDonation(donationId, reason);
         return "redirect:/admin/donations";
     }
 

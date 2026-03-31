@@ -16,6 +16,7 @@ import org.tnphuong.charity.donation.entity.PaymentMethod;
 import org.tnphuong.charity.donation.entity.User;
 import org.tnphuong.charity.donation.service.CampaignService;
 import org.tnphuong.charity.donation.service.DonationService;
+import org.tnphuong.charity.donation.service.EmailService;
 import org.tnphuong.charity.donation.service.UserService;
 
 import java.math.BigDecimal;
@@ -35,6 +36,9 @@ public class HomeController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private PaymentMethodRepository paymentMethodRepository;
@@ -229,6 +233,13 @@ public class HomeController {
 
         donation.setCreatedAt(LocalDateTime.now());
         donationService.saveDonation(donation);
+
+        // Send submission email
+        try {
+            emailService.sendDonationSubmissionEmail(user.getEmail(), user.getFullName(), campaign.getName(), amount, transactionCode);
+        } catch (Exception e) {
+            System.err.println("Failed to send donation submission email: " + e.getMessage());
+        }
 
         return "redirect:/campaign/" + campaignId + "?success=donated&pending=true&code=" + transactionCode;
     }
