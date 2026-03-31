@@ -1,6 +1,7 @@
 package org.tnphuong.charity.donation.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 import java.math.BigDecimal;
@@ -23,9 +24,13 @@ public class Campaign {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @NotBlank(message = "Mã chiến dịch không được để trống")
+    @Size(max = 50, message = "Mã chiến dịch không được vượt quá 50 ký tự")
     @Column(name = "code", length = 50, nullable = false, unique = true)
     private String code;
 
+    @NotBlank(message = "Tên chiến dịch không được để trống")
+    @Size(max = 255, message = "Tên chiến dịch không được vượt quá 255 ký tự")
     @Column(name = "name", length = 255, nullable = false)
     private String name;
 
@@ -44,14 +49,18 @@ public class Campaign {
     @Column(name = "gallery_urls", columnDefinition = "TEXT")
     private String galleryUrls;
 
+    @NotNull(message = "Vui lòng chọn ngày bắt đầu")
     @Column(name = "start_date", nullable = false)
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate startDate;
 
+    @NotNull(message = "Vui lòng chọn ngày kết thúc")
     @Column(name = "end_date", nullable = false)
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate endDate;
 
+    @NotNull(message = "Mục tiêu quyên góp không được để trống")
+    @Min(value = 1000000, message = "Mục tiêu tối thiểu là 1,000,000 VNĐ")
     @Column(name = "target_money", precision = 15, scale = 2)
     private BigDecimal targetMoney = BigDecimal.ZERO;
 

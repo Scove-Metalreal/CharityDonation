@@ -8,9 +8,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.tnphuong.charity.donation.entity.Donation;
+import org.tnphuong.charity.donation.entity.DonationStatus;
 import org.tnphuong.charity.donation.entity.User;
+import org.tnphuong.charity.donation.entity.UserFollowing;
 import org.tnphuong.charity.donation.service.DonationService;
 import org.tnphuong.charity.donation.service.UserService;
+import org.tnphuong.charity.donation.service.UserFollowingService;
 import org.tnphuong.charity.donation.utils.PasswordUtils;
 
 import java.util.List;
@@ -37,7 +40,7 @@ public class UserController {
     private DonationService donationService;
 
     @Autowired
-    private org.tnphuong.charity.donation.dao.UserFollowingRepository userFollowingRepository;
+    private UserFollowingService userFollowingService;
 
     @Value("${upload.path:uploads/avatars}")
     private String uploadPath;
@@ -59,13 +62,13 @@ public class UserController {
 
         User user = userService.getUserById(userId).get();
         List<Donation> donations = donationService.getDonationsByUserId(userId, donationStatus, campaignStatus, sortObj);
-        List<org.tnphuong.charity.donation.entity.UserFollowing> followingList = userFollowingRepository.findByUserId(userId);
+        List<UserFollowing> followingList = userFollowingService.getFollowingByUserId(userId);
         
         model.addAttribute("user", user);
         model.addAttribute("donations", donations);
         model.addAttribute("followingList", followingList);
         model.addAttribute("totalDonated", donations.stream()
-                .filter(d -> d.getStatus() == 1)
+                .filter(d -> d.getStatus() == DonationStatus.CONFIRMED.getValue())
                 .mapToDouble(d -> d.getAmount().doubleValue()).sum());
         
         model.addAttribute("donationStatus", donationStatus);

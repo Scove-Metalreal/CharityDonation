@@ -1,8 +1,12 @@
 package org.tnphuong.charity.donation.utils;
 
 import org.mindrot.jbcrypt.BCrypt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PasswordUtils {
+    private static final Logger logger = LoggerFactory.getLogger(PasswordUtils.class);
+
     public static String hashPassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());
     }
@@ -14,7 +18,7 @@ public class PasswordUtils {
             }
             return BCrypt.checkpw(password, hashedPassword);
         } catch (Exception e) {
-            System.err.println("ERROR: Mat khau trong DB khong dung dinh dang BCrypt: " + e.getMessage());
+            logger.error("Password format error: {}", e.getMessage());
             return false;
         }
     }

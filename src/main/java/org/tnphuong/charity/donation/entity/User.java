@@ -1,6 +1,7 @@
 package org.tnphuong.charity.donation.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
@@ -14,15 +15,22 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @NotBlank(message = "Họ và tên không được để trống")
+    @Size(max = 100, message = "Họ và tên không được vượt quá 100 ký tự")
     @Column(name = "full_name", length = 100, nullable = false)
     private String fullName;
 
+    @NotBlank(message = "Email không được để trống")
+    @Email(message = "Địa chỉ email không hợp lệ")
+    @Size(max = 100, message = "Email không được vượt quá 100 ký tự")
     @Column(name = "email", length = 100, nullable = false, unique = true)
     private String email;
 
     @Column(name = "password", length = 255)
     private String password;
 
+    @NotBlank(message = "Số điện thoại không được để trống")
+    @Pattern(regexp = "^(0|84)(3|5|7|8|9)[0-9]{8}$", message = "Số điện thoại không đúng định dạng Việt Nam")
     @Column(name = "phone_number", length = 20, unique = true)
     private String phoneNumber;
 

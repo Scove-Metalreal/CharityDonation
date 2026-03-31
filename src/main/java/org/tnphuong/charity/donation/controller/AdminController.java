@@ -10,11 +10,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.tnphuong.charity.donation.entity.*;
 import org.tnphuong.charity.donation.service.*;
 
+import jakarta.validation.Valid;
 import java.nio.file.*;
 import java.util.*;
 
@@ -68,7 +70,6 @@ public class AdminController {
         model.addAttribute("activeCampaigns", campaignService.countCampaignsByStatus(CampaignStatus.IN_PROGRESS.getValue()));
         model.addAttribute("pendingDonations", donationService.countDonationsByStatus(DonationStatus.PENDING.getValue()));
         
-        // Fetch 10 for dashboard table
         model.addAttribute("dashboardDonations", donationService.getDashboardDonations(10));
         
         java.math.BigDecimal totalAmount = donationService.getTotalDonatedAmount();
@@ -135,19 +136,21 @@ public class AdminController {
 
     @PostMapping("/users/save")
     @ResponseBody
-    public ResponseEntity<?> saveUser(@ModelAttribute("user") User user) {
-        Map<String, String> errors = new HashMap<>();
+    public ResponseEntity<?> saveUser(@Valid @ModelAttribute("user") User user, BindingResult result) {
+        if (result.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            result.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+            return ResponseEntity.badRequest().body(errors);
+        }
+
         if (user.getId() == null) {
             if (userService.getUserByEmail(user.getEmail()).isPresent()) {
-                errors.put("email", "Email đã tồn tại!");
+                return ResponseEntity.badRequest().body(Map.of("email", "Email đã tồn tại!"));
             }
             if (user.getPhoneNumber() != null && !user.getPhoneNumber().isEmpty() 
                 && userService.getUserByPhoneNumber(user.getPhoneNumber()).isPresent()) {
-                errors.put("phone", "Số điện thoại đã tồn tại!");
+                return ResponseEntity.badRequest().body(Map.of("phone", "Số điện thoại đã tồn tại!"));
             }
-        }
-        if (!errors.isEmpty()) {
-            return ResponseEntity.badRequest().body(errors);
         }
         userService.saveUser(user);
         return ResponseEntity.ok().body(Map.of("message", "Lưu người dùng thành công!"));
@@ -178,7 +181,7 @@ public class AdminController {
     @ResponseBody
     public ResponseEntity<?> updateRole(@RequestParam Integer userId, @RequestParam Integer roleId) {
         Optional<User> userOpt = userService.getUserById(userId);
-        Optional<org.tnphuong.charity.donation.entity.Role> roleOpt = roleService.getRoleById(roleId);
+        Optional<Role> roleOpt = roleService.getRoleById(roleId);
         
         if (userOpt.isPresent() && roleOpt.isPresent()) {
             User user = userOpt.get();
@@ -231,29 +234,26 @@ public class AdminController {
 
     @PostMapping("/campaigns/save")
     @ResponseBody
-    public ResponseEntity<?> saveCampaign(@ModelAttribute("campaign") Campaign campaign,
+    public ResponseEntity<?> saveCampaign(@Valid @ModelAttribute("campaign") Campaign campaign,
+                                         BindingResult result,
                                          @RequestParam(value = "imageFiles", required = false) MultipartFile[] files,
                                          @RequestParam(value = "companionIds", required = false) List<Integer> companionIds) {
-        Map<String, String> errors = new HashMap<>();
         
-        if (campaign.getId() == null && campaignService.existsByCode(campaign.getCode())) {
-            errors.put("code", "Mã chiến dịch đã tồn tại!");
+        if (result.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            result.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+            return ResponseEntity.badRequest().body(errors);
         }
 
-        if (campaign.getStartDate() == null) errors.put("startDate", "Vui lòng chọn ngày bắt đầu!");
-        if (campaign.getEndDate() == null) errors.put("endDate", "Vui lòng chọn ngày kết thúc!");
-        
+        if (campaign.getId() == null && campaignService.existsByCode(campaign.getCode())) {
+            return ResponseEntity.badRequest().body(Map.of("code", "Mã chiến dịch đã tồn tại!"));
+        }
+
         if (campaign.getStartDate() != null && campaign.getEndDate() != null) {
             if (!campaign.getStartDate().isBefore(campaign.getEndDate())) {
-                errors.put("date", "Ngày bắt đầu phải TRƯỚC ngày kết thúc!");
+                return ResponseEntity.badRequest().body(Map.of("date", "Ngày bắt đầu phải TRƯỚC ngày kết thúc!"));
             }
         }
-
-        if (campaign.getTargetMoney() == null || campaign.getTargetMoney().compareTo(java.math.BigDecimal.valueOf(1000000)) < 0) {
-            errors.put("money", "Mục tiêu tối thiểu là 1,000,000 VNĐ!");
-        }
-
-        if (!errors.isEmpty()) return ResponseEntity.badRequest().body(errors);
 
         if (files != null && files.length > 0 && !files[0].isEmpty()) {
             try {
@@ -285,7 +285,7 @@ public class AdminController {
         }
 
         if (companionIds != null && !companionIds.isEmpty()) {
-            List<org.tnphuong.charity.donation.entity.Companion> companions = companionService.getAllCompanionsByIds(companionIds);
+            List<Companion> companions = companionService.getAllCompanionsByIds(companionIds);
             campaign.setCompanions(companions);
         }
 

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tnphuong.charity.donation.dao.DonationRepository;
 import org.tnphuong.charity.donation.entity.Donation;
+import org.tnphuong.charity.donation.entity.DonationStatus;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -65,7 +66,7 @@ public class DonationServiceImpl implements DonationService {
     public void confirmDonation(Integer donationId) {
         donationRepository.findById(donationId).ifPresent(donation -> {
             logger.info("Confirming donation ID: {}, Amount: {}", donationId, donation.getAmount());
-            donation.setStatus(1); // 1 = STATUS_CONFIRMED
+            donation.setStatus(DonationStatus.CONFIRMED.getValue()); // 1 = STATUS_CONFIRMED
             donationRepository.save(donation);
             
             // Cập nhật số tiền hiện tại của chiến dịch
@@ -90,7 +91,7 @@ public class DonationServiceImpl implements DonationService {
     public void rejectDonation(Integer donationId, String reason) {
         donationRepository.findById(donationId).ifPresent(donation -> {
             logger.info("Rejecting donation ID: {}, Reason: {}", donationId, reason);
-            donation.setStatus(2); // 2 = STATUS_REJECTED
+            donation.setStatus(DonationStatus.REJECTED.getValue()); // 2 = STATUS_REJECTED
             donationRepository.save(donation);
 
             // Send rejection email
@@ -110,12 +111,12 @@ public class DonationServiceImpl implements DonationService {
 
     @Override
     public List<Donation> getConfirmedDonationsByCampaignId(Integer campaignId) {
-        return donationRepository.findByCampaignIdAndStatus(campaignId, 1);
+        return donationRepository.findByCampaignIdAndStatus(campaignId, DonationStatus.CONFIRMED.getValue());
     }
 
     @Override
     public long countConfirmedDonationsByCampaignId(Integer campaignId) {
-        return donationRepository.countByCampaignIdAndStatus(campaignId, 1);
+        return donationRepository.countByCampaignIdAndStatus(campaignId, DonationStatus.CONFIRMED.getValue());
     }
 
     @Override

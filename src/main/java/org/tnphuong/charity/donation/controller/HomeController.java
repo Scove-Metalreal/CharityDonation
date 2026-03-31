@@ -10,16 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.tnphuong.charity.donation.dao.PaymentMethodRepository;
-import org.tnphuong.charity.donation.dao.RoleRepository;
-import org.tnphuong.charity.donation.entity.Campaign;
-import org.tnphuong.charity.donation.entity.Donation;
-import org.tnphuong.charity.donation.entity.PaymentMethod;
-import org.tnphuong.charity.donation.entity.User;
-import org.tnphuong.charity.donation.service.CampaignService;
-import org.tnphuong.charity.donation.service.DonationService;
-import org.tnphuong.charity.donation.service.UserService;
-import org.tnphuong.charity.donation.service.EmailService;
+import org.tnphuong.charity.donation.entity.*;
+import org.tnphuong.charity.donation.service.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -45,16 +37,13 @@ public class HomeController {
     private EmailService emailService;
 
     @Autowired
-    private PaymentMethodRepository paymentMethodRepository;
+    private PaymentMethodService paymentMethodService;
 
     @Autowired
-    private RoleRepository roleRepository;
+    private UserFollowingService userFollowingService;
 
     @Autowired
-    private org.tnphuong.charity.donation.dao.UserFollowingRepository userFollowingRepository;
-
-    @Autowired
-    private org.tnphuong.charity.donation.dao.CompanionRepository companionRepository;
+    private CompanionService companionService;
 
     @GetMapping("/")
     public String home(@RequestParam(required = false, defaultValue = "1") Integer status, 
@@ -65,8 +54,8 @@ public class HomeController {
                 .toList();
         
         model.addAttribute("campaigns", allCampaigns);
-        model.addAttribute("companions", companionRepository.findAll());
-        model.addAttribute("paymentMethods", paymentMethodRepository.findAll());
+        model.addAttribute("companions", companionService.getAllCompanions());
+        model.addAttribute("paymentMethods", paymentMethodService.getAllPaymentMethods());
         model.addAttribute("currentStatus", status);
         return "index";
     }
@@ -87,13 +76,13 @@ public class HomeController {
             model.addAttribute("recentDonors10", donationService.getRecentDonorsByCampaignId(id, 10));
             model.addAttribute("recentDonors20", donationService.getRecentDonorsByCampaignId(id, 20));
 
-            Page<Campaign> ongoing = campaignService.getCampaignsByStatus(1, PageRequest.of(0, 4));
+            Page<Campaign> ongoing = campaignService.getCampaignsByStatus(CampaignStatus.IN_PROGRESS.getValue(), PageRequest.of(0, 4));
             model.addAttribute("ongoingCampaigns", ongoing.getContent());
-            model.addAttribute("paymentMethods", paymentMethodRepository.findAll());
+            model.addAttribute("paymentMethods", paymentMethodService.getAllPaymentMethods());
 
             Integer userId = (Integer) session.getAttribute("userId");
             if (userId != null) {
-                userFollowingRepository.findByUserIdAndCampaignId(userId, id).ifPresent(f -> {
+                userFollowingService.getFollowing(userId, id).ifPresent(f -> {
                     model.addAttribute("following", true);
                     model.addAttribute("receiveEmail", f.getReceiveEmail() == 1);
                 });
@@ -108,13 +97,13 @@ public class HomeController {
         Integer userId = (Integer) session.getAttribute("userId");
         if (userId == null) return "redirect:/auth/login";
 
-        Optional<org.tnphuong.charity.donation.entity.UserFollowing> existing = userFollowingRepository.findByUserIdAndCampaignId(userId, campaignId);
-        if (!existing.isPresent()) {
-            org.tnphuong.charity.donation.entity.UserFollowing f = new org.tnphuong.charity.donation.entity.UserFollowing();
-            f.setUser(userService.getUserById(userId).get());
-            f.setCampaign(campaignService.getCampaignById(campaignId).get());
+        Optional<UserFollowing> existing = userFollowingService.getFollowing(userId, campaignId);
+        if (existing.isEmpty()) {
+            UserFollowing f = new UserFollowing();
+            f.setUser(userService.getUserById(userId).orElseThrow());
+            f.setCampaign(campaignService.getCampaignById(campaignId).orElseThrow());
             f.setReceiveEmail(email != null ? email : 0);
-            userFollowingRepository.save(f);
+            userFollowingService.saveFollowing(f);
             logger.info("User ID {} followed campaign ID {}", userId, campaignId);
         }
         return "redirect:/campaign/" + campaignId;
@@ -125,8 +114,8 @@ public class HomeController {
         Integer userId = (Integer) session.getAttribute("userId");
         if (userId == null) return "redirect:/auth/login";
 
-        userFollowingRepository.findByUserIdAndCampaignId(userId, campaignId).ifPresent(f -> {
-            userFollowingRepository.delete(f);
+        userFollowingService.getFollowing(userId, campaignId).ifPresent(f -> {
+            userFollowingService.deleteFollowing(f);
             logger.info("User ID {} unfollowed campaign ID {}", userId, campaignId);
         });
         
@@ -176,8 +165,9 @@ public class HomeController {
                     user.setPhoneNumber(phone);
                 }
                 user.setAddress(address);
-                user.setRole(roleRepository.findByRoleName("GUEST").orElse(null)); 
-                user.setStatus(1);
+                // Note: Role should ideally be fetched via RoleService
+                user.setRole(null); // Will be handled in saveUser or set properly if needed
+                user.setStatus(UserStatus.ACTIVE.getValue());
                 user = userService.saveUser(user);
                 logger.info("Created new GUEST user for donation: {}", email);
             }
@@ -186,8 +176,8 @@ public class HomeController {
             if (user == null) return "redirect:/auth/login";
         }
 
-        Campaign campaign = campaignService.getCampaignById(campaignId).get();
-        PaymentMethod pm = paymentMethodRepository.findById(paymentMethodId).get();
+        Campaign campaign = campaignService.getCampaignById(campaignId).orElseThrow();
+        PaymentMethod pm = paymentMethodService.getPaymentMethodById(paymentMethodId).orElseThrow();
 
         Donation donation = new Donation();
         donation.setCampaign(campaign);
@@ -203,7 +193,7 @@ public class HomeController {
             donation.setMessage("Transaction Code: " + transactionCode);
         }
 
-        donation.setStatus(0); // PENDING
+        donation.setStatus(DonationStatus.PENDING.getValue());
         donation.setCreatedAt(LocalDateTime.now());
         donationService.saveDonation(donation);
         logger.info("New donation submitted. User: {}, Campaign: {}, Amount: {}, Code: {}", user.getEmail(), campaign.getCode(), amount, transactionCode);

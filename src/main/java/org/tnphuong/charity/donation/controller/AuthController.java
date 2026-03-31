@@ -1,15 +1,18 @@
 package org.tnphuong.charity.donation.controller;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.tnphuong.charity.donation.dao.RoleRepository;
 import org.tnphuong.charity.donation.entity.Role;
 import org.tnphuong.charity.donation.entity.User;
+import org.tnphuong.charity.donation.entity.UserStatus;
 import org.tnphuong.charity.donation.service.UserService;
 import org.tnphuong.charity.donation.utils.PasswordUtils;
 
@@ -30,14 +33,11 @@ public class AuthController {
     @GetMapping("/register")
     public String showRegisterForm(@RequestParam(value = "google", required = false) String googleParam, Model model, HttpSession session) {
         User user = new User();
-        
-        // Auto-fill from Google if available
         String googleEmail = (String) session.getAttribute("google_email");
-        String googleName = (String) session.getAttribute("google_name");
         
         if (googleEmail != null || "new".equals(googleParam)) {
             user.setEmail(googleEmail);
-            user.setFullName(googleName);
+            user.setFullName((String) session.getAttribute("google_name"));
             user.setAuthProvider("GOOGLE");
             user.setProviderId((String) session.getAttribute("google_id"));
             user.setAvatarUrl((String) session.getAttribute("google_picture"));
@@ -51,47 +51,40 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String registerUser(@ModelAttribute("user") User user, HttpSession session, Model model) {
-        String email = user.getEmail().trim();
-        String phone = user.getPhoneNumber() != null ? user.getPhoneNumber().trim() : "";
+    public String registerUser(@Valid @ModelAttribute("user") User user, BindingResult result, HttpSession session, Model model) {
+        if (result.hasErrors()) {
+            return "register";
+        }
 
-        if (userService.getUserByEmail(email).isPresent()) {
+        if (userService.getUserByEmail(user.getEmail()).isPresent()) {
             model.addAttribute("error", "Email này đã được sử dụng!");
             return "register";
         }
 
-        // Kiem tra trung so dien thoai
-        if (!phone.isEmpty() && userService.getAllUsers().stream().anyMatch(u -> phone.equals(u.getPhoneNumber()))) {
+        if (user.getPhoneNumber() != null && !user.getPhoneNumber().isEmpty() 
+            && userService.getUserByPhoneNumber(user.getPhoneNumber()).isPresent()) {
             model.addAttribute("error", "Số điện thoại này đã được sử dụng!");
             return "register";
         }
 
-        Optional<Role> userRole = roleRepository.findByRoleName("USER");
-        if (userRole.isPresent()) {
-            user.setRole(userRole.get());
-        }
-
-        user.setEmail(email);
-        user.setPhoneNumber(phone);
+        roleRepository.findByRoleName("USER").ifPresent(user::setRole);
         
-        // Always hash the provided password, whether it's a local or Google registration
         if (user.getPassword() != null && !user.getPassword().isEmpty()) {
             user.setPassword(PasswordUtils.hashPassword(user.getPassword()));
         }
 
         if ("GOOGLE".equals(user.getAuthProvider())) {
-            // Clear google session data
             session.removeAttribute("google_email");
             session.removeAttribute("google_name");
             session.removeAttribute("google_id");
             session.removeAttribute("google_picture");
         }
         
-        user.setStatus(1); 
+        user.setStatus(UserStatus.ACTIVE.getValue()); 
         userService.saveUser(user);
 
-        logger.info("New user registered: {}", email);
-        return "redirect:/auth/login?success=register&email=" + email;
+        logger.info("New user registered: {}", user.getEmail());
+        return "redirect:/auth/login?success=register&email=" + user.getEmail();
     }
 
     @GetMapping("/login")
@@ -108,32 +101,25 @@ public class AuthController {
     public String loginUser(@RequestParam String email, @RequestParam String password, 
                            HttpSession session, Model model) {
         String cleanEmail = email.trim();
-        
         Optional<User> userOpt = userService.getUserByEmail(cleanEmail);
         
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             if (PasswordUtils.checkPassword(password, user.getPassword())) {
-                if (user.getStatus() != null && user.getStatus() == 0) {
+                if (user.getStatus() != null && user.getStatus() == UserStatus.LOCKED.getValue()) {
                     model.addAttribute("error", "Tài khoản của bạn đã bị khóa!");
                     return "login";
                 }
 
-                // Cập nhật thời gian đăng nhập cuối
                 user.setLastLogin(java.time.LocalDateTime.now());
                 userService.saveUser(user);
                 
-                // Luu userId vao session thay vi ca object User de tranh loi Hibernate
                 session.setAttribute("userId", user.getId());
-                // Van giu loggedInUser neu cac trang JSP dang dung, nhung Interceptor se check theo userId
                 session.setAttribute("loggedInUser", user); 
                 
                 logger.info("User logged in: {}", cleanEmail);
-                if (user.getRole() != null && "ADMIN".equalsIgnoreCase(user.getRole().getRoleName())) {
-                    return "redirect:/admin/dashboard";
-                } else {
-                    return "redirect:/";
-                }
+                return (user.getRole() != null && "ADMIN".equalsIgnoreCase(user.getRole().getRoleName())) 
+                        ? "redirect:/admin/dashboard" : "redirect:/";
             }
         }
         
@@ -144,14 +130,7 @@ public class AuthController {
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
-        String userEmail = "";
-        Object userObj = session.getAttribute("loggedInUser");
-        if (userObj instanceof User) {
-            userEmail = ((User) userObj).getEmail();
-        }
-        
         session.invalidate();
-        logger.info("User logged out: {}", userEmail);
         return "redirect:/auth/login";
     }
 }
