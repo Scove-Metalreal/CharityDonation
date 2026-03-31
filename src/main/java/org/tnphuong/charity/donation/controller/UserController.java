@@ -39,21 +39,35 @@ public class UserController {
     private String uploadPath;
 
     @GetMapping("/profile")
-    public String showProfile(HttpSession session, Model model) {
+    public String showProfile(
+            @RequestParam(required = false) Integer donationStatus,
+            @RequestParam(required = false) Integer campaignStatus,
+            @RequestParam(required = false, defaultValue = "desc") String sort,
+            HttpSession session, Model model) {
         Integer userId = (Integer) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/auth/login";
         }
         
+        org.springframework.data.domain.Sort sortObj = "asc".equalsIgnoreCase(sort) 
+                ? org.springframework.data.domain.Sort.by("createdAt").ascending() 
+                : org.springframework.data.domain.Sort.by("createdAt").descending();
+
         User user = userService.getUserById(userId).get();
-        List<Donation> donations = donationService.getDonationsByUserId(userId);
+        List<Donation> donations = donationService.getDonationsByUserId(userId, donationStatus, campaignStatus, sortObj);
         List<org.tnphuong.charity.donation.entity.UserFollowing> followingList = userFollowingRepository.findByUserId(userId);
         
         model.addAttribute("user", user);
         model.addAttribute("donations", donations);
         model.addAttribute("followingList", followingList);
-        model.addAttribute("totalDonated", donations.stream().mapToDouble(d -> d.getAmount().doubleValue()).sum());
+        model.addAttribute("totalDonated", donations.stream()
+                .filter(d -> d.getStatus() == 1)
+                .mapToDouble(d -> d.getAmount().doubleValue()).sum());
         
+        model.addAttribute("donationStatus", donationStatus);
+        model.addAttribute("campaignStatus", campaignStatus);
+        model.addAttribute("sort", sort);
+
         return "profile";
     }
 

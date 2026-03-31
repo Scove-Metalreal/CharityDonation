@@ -47,6 +47,11 @@ public class DonationServiceImpl implements DonationService {
     }
 
     @Override
+    public List<Donation> getDonationsByUserId(Integer userId, Integer donationStatus, Integer campaignStatus, org.springframework.data.domain.Sort sort) {
+        return donationRepository.findByUserAndFilters(userId, donationStatus, campaignStatus, sort);
+    }
+
+    @Override
     public void confirmDonation(Integer donationId) {
         donationRepository.findById(donationId).ifPresent(donation -> {
             donation.setStatus(1); // 1 = STATUS_CONFIRMED

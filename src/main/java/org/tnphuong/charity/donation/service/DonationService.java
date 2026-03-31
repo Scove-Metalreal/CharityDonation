@@ -18,4 +18,6 @@ public interface DonationService {
     long countConfirmedDonationsByCampaignId(Integer campaignId);
     List<Donation> getTopDonorsByCampaignId(Integer campaignId, int limit);
     List<Donation> getRecentDonorsByCampaignId(Integer campaignId, int limit);
+
+    List<Donation> getDonationsByUserId(Integer userId, Integer donationStatus, Integer campaignStatus, org.springframework.data.domain.Sort sort);
 }

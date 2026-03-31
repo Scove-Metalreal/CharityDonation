@@ -145,25 +145,141 @@
                     <div class="tab-content">
                         <!-- Donation History -->
                         <div class="tab-pane fade show active" id="historyTab">
+                            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                                <h5 class="fw-bold mb-0">Lịch sử quyên góp</h5>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <div class="btn-group border rounded-pill p-1 bg-light">
+                                        <button type="button" class="btn btn-sm rounded-pill px-3 active border-0" id="viewGridBtn" onclick="switchView('grid')">
+                                            <i class="fas fa-th-large"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm rounded-pill px-3 border-0" id="viewListBtn" onclick="switchView('list')">
+                                            <i class="fas fa-list"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="dropdown">
+                                        <button type="button" class="btn btn-sm border rounded-pill px-3 bg-white fw-bold dropdown-toggle" data-bs-toggle="dropdown">
+                                            <i class="fas fa-sort-amount-down me-1"></i> ${sort == 'asc' ? 'Cũ nhất' : 'Mới nhất'}
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm rounded-3 mt-2">
+                                            <li><a class="dropdown-item small fw-bold ${sort == 'desc' ? 'text-primary' : ''}" href="?sort=desc&donationStatus=${donationStatus}&campaignStatus=${campaignStatus}">Mới nhất</a></li>
+                                            <li><a class="dropdown-item small fw-bold ${sort == 'asc' ? 'text-primary' : ''}" href="?sort=asc&donationStatus=${donationStatus}&campaignStatus=${campaignStatus}">Cũ nhất</a></li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="dropdown">
+                                        <button type="button" class="btn btn-sm border rounded-pill px-3 bg-white fw-bold dropdown-toggle" data-bs-toggle="dropdown">
+                                            <i class="fas fa-filter me-1"></i> Lọc
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-end p-3 border-0 shadow-lg rounded-4 mt-2" style="min-width: 250px;">
+                                            <form action="" method="get">
+                                                <input type="hidden" name="sort" value="${sort}">
+                                                
+                                                <div class="mb-3">
+                                                    <label class="form-label smallest fw-bold text-muted text-uppercase">Tình trạng donate</label>
+                                                    <select name="donationStatus" class="form-select form-select-sm rounded-pill px-3">
+                                                        <option value="">Tất cả</option>
+                                                        <option value="0" ${donationStatus == 0 ? 'selected' : ''}>Chờ xác nhận</option>
+                                                        <option value="1" ${donationStatus == 1 ? 'selected' : ''}>Đã xác nhận</option>
+                                                        <option value="2" ${donationStatus == 2 ? 'selected' : ''}>Đã từ chối</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label class="form-label smallest fw-bold text-muted text-uppercase">Tình trạng chiến dịch</label>
+                                                    <select name="campaignStatus" class="form-select form-select-sm rounded-pill px-3">
+                                                        <option value="">Tất cả</option>
+                                                        <option value="0" ${campaignStatus == 0 ? 'selected' : ''}>Mới tạo</option>
+                                                        <option value="1" ${campaignStatus == 1 ? 'selected' : ''}>Đang chạy</option>
+                                                        <option value="2" ${campaignStatus == 2 ? 'selected' : ''}>Đã kết thúc</option>
+                                                        <option value="3" ${campaignStatus == 3 ? 'selected' : ''}>Đã đóng</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="d-flex gap-2 mt-4">
+                                                    <a href="?" class="btn btn-light btn-sm rounded-pill flex-grow-1 fw-bold text-muted">Xóa lọc</a>
+                                                    <button type="submit" class="btn btn-brand-primary btn-sm rounded-pill flex-grow-1 fw-bold">Áp dụng</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <c:choose>
                                 <c:when test="${empty donations}">
                                     <div class="text-center py-5 bg-light rounded-4">
-                                        <p class="text-muted">Bạn chưa thực hiện quyên góp nào.</p>
+                                        <p class="text-muted">Không tìm thấy bản ghi quyên góp nào phù hợp.</p>
+                                        <c:if test="${not empty donationStatus || not empty campaignStatus}">
+                                            <a href="?" class="btn btn-brand-primary rounded-pill btn-sm px-4">Xem tất cả</a>
+                                        </c:if>
                                     </div>
                                 </c:when>
                                 <c:otherwise>
-                                    <div class="d-flex flex-column gap-3">
+                                    <div id="donationContainer" class="row g-4 view-grid">
                                         <c:forEach var="d" items="${donations}">
-                                            <div class="p-3 history-card d-flex align-items-center">
-                                                <div class="flex-grow-1 overflow-hidden">
-                                                    <a href="${pageContext.request.contextPath}/campaign/${d.campaign.id}" class="text-decoration-none fw-bold text-dark text-truncate small d-block">${d.campaign.name}</a>
-                                                    <div class="text-muted small">${d.createdAt.toString().replace('T', ' ').substring(0, 16)}</div>
-                                                </div>
-                                                <div class="text-end">
-                                                    <div class="fw-bold brand-primary"><fmt:formatNumber value="${d.amount}" type="number"/> đ</div>
-                                                    <span class="badge ${d.status == 1 ? 'bg-success' : 'bg-warning'} bg-opacity-10 ${d.status == 1 ? 'text-success' : 'text-warning'} rounded-pill px-2" style="font-size: 0.6rem;">
-                                                        ${d.status == 1 ? 'Đã xác nhận' : 'Chờ xác nhận'}
-                                                    </span>
+                                            <!-- Card Column -->
+                                            <div class="col-md-6 donation-item">
+                                                <div class="card border h-100 shadow-none history-card-refined p-4 position-relative" 
+                                                     style="cursor: pointer;"
+                                                     onclick="window.location.href='${pageContext.request.contextPath}/campaign/${d.campaign.id}'">
+                                                    <!-- Top Row: Campaign Info & Status -->
+                                                    <div class="d-flex justify-content-between align-items-start mb-4">
+                                                        <div class="d-flex align-items-center overflow-hidden">
+                                                            <div class="campaign-icon-wrapper flex-shrink-0 me-3 bg-light rounded-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                                                <i class="fas fa-hand-holding-heart brand-primary fs-4"></i>
+                                                            </div>
+                                                            <div class="overflow-hidden">
+                                                                <span class="text-decoration-none fw-bold text-dark text-truncate d-block mb-1" title="${d.campaign.name}">
+                                                                    ${d.campaign.name}
+                                                                </span>
+                                                                <span class="badge ${d.status == 1 ? 'bg-success' : (d.status == 2 ? 'bg-danger' : 'bg-warning')} bg-opacity-10 ${d.status == 1 ? 'text-success' : (d.status == 2 ? 'text-danger' : 'text-warning')} rounded-pill px-2" style="font-size: 0.65rem;">
+                                                                    <i class="fas ${d.status == 1 ? 'fa-check-circle' : (d.status == 2 ? 'fa-times-circle' : 'fa-clock')} me-1"></i>
+                                                                    ${d.status == 1 ? 'Đã xác nhận' : (d.status == 2 ? 'Đã từ chối' : 'Chờ xác nhận')}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Middle Row: Details Grid -->
+                                                    <div class="row g-0 py-3 border-top border-bottom mb-3 stats-row">
+                                                        <div class="col-4 border-end pe-2">
+                                                            <small class="text-muted smallest d-block text-uppercase fw-bold mb-1">Thời gian</small>
+                                                            <div class="small fw-bold text-dark text-nowrap">
+                                                                <fmt:parseDate value="${d.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" type="both" />
+                                                                <fmt:formatDate value="${parsedDate}" pattern="dd/MM/yyyy" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-4 border-end px-2 text-center">
+                                                            <small class="text-muted smallest d-block text-uppercase fw-bold mb-1">Hình thức</small>
+                                                            <div class="small fw-bold text-dark text-truncate">${d.paymentMethod.methodName}</div>
+                                                        </div>
+                                                        <div class="col-4 ps-2 text-end">
+                                                            <small class="text-muted smallest d-block text-uppercase fw-bold mb-1">Số tiền</small>
+                                                            <div class="small fw-bold brand-primary"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Bottom Row: Message & Identity -->
+                                                    <div class="d-flex justify-content-between align-items-center mt-auto">
+                                                        <div class="message-preview small text-muted text-truncate me-3" style="max-width: 70%;">
+                                                            <i class="far fa-comment-alt me-1"></i> 
+                                                            <c:choose>
+                                                                <c:when test="${not empty d.message}">${d.message}</c:when>
+                                                                <c:otherwise>Không có lời nhắn</c:otherwise>
+                                                            </c:choose>
+                                                        </div>
+                                                        <div class="identity-indicator">
+                                                            <c:choose>
+                                                                <c:when test="${d.isAnonymous == 1}">
+                                                                    <span class="smallest fw-bold text-secondary text-uppercase bg-light rounded px-2 py-1">Ẩn danh</span>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <span class="smallest fw-bold brand-primary text-uppercase border border-success border-opacity-25 rounded px-2 py-1">Công khai</span>
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </c:forEach>
@@ -193,7 +309,7 @@
                                                     <p class="text-muted small text-truncate mb-1">${f.campaign.content.replaceAll("<[^>]*>", "").substring(0, 100)}...</p>
                                                     <div class="d-flex gap-2 align-items-center">
                                                         <span class="badge ${f.campaign.status == 1 ? 'bg-success' : 'bg-secondary'} bg-opacity-10 ${f.campaign.status == 1 ? 'text-success' : 'text-secondary'} rounded-pill smallest">
-                                                            ${f.campaign.status == 1 ? 'Đang chạy' : 'Kết thúc'}
+                                                            ${f.campaign.status == 1 ? 'Đang chạy' : (f.campaign.status == 2 ? 'Đã kết thúc' : 'Đã đóng')}
                                                         </span>
                                                         <c:if test="${f.receiveEmail == 1}"><i class="fas fa-bell brand-primary smallest" title="Nhận thông báo email"></i></c:if>
                                                     </div>
@@ -217,7 +333,7 @@
         </div>
     </div>
 
-    <!-- Script for Tab Handling -->
+    <!-- Script for Tab & View Handling -->
     <script>
         window.addEventListener('load', function() {
             if (window.location.hash === '#following') {
@@ -238,6 +354,33 @@
                 e.target.classList.add('text-dark');
             });
         });
+
+        function switchView(view) {
+            const container = document.getElementById('donationContainer');
+            const gridBtn = document.getElementById('viewGridBtn');
+            const listBtn = document.getElementById('viewListBtn');
+            const items = document.querySelectorAll('.donation-item');
+
+            if (view === 'grid') {
+                container.classList.remove('flex-column');
+                container.classList.add('row');
+                items.forEach(item => {
+                    item.classList.remove('col-12');
+                    item.classList.add('col-md-6');
+                });
+                gridBtn.classList.add('active');
+                listBtn.classList.remove('active');
+            } else {
+                container.classList.remove('row');
+                container.classList.add('flex-column');
+                items.forEach(item => {
+                    item.classList.remove('col-md-6');
+                    item.classList.add('col-12');
+                });
+                listBtn.classList.add('active');
+                gridBtn.classList.remove('active');
+            }
+        }
     </script>
     <style>
         .nav-tabs-custom .nav-link.active::after {
@@ -247,6 +390,36 @@
         .hover-bg-light:hover { background-color: #f8fafc; }
         .transition { transition: all 0.2s ease-in-out; }
         .object-fit-cover { object-fit: cover; }
+        
+        /* Refined History Card Styles */
+        .history-card-refined {
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        .history-card-refined:hover {
+            border-color: var(--color-primary) !important;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.1) !important;
+            transform: translateY(-4px);
+        }
+        .campaign-icon-wrapper {
+            background-color: rgba(16, 185, 129, 0.05);
+        }
+        .stats-row {
+            background-color: #fcfdfd;
+            margin-left: -1.5rem;
+            margin-right: -1.5rem;
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+        }
+        .btn-group .btn.active {
+            background-color: white !important;
+            color: var(--color-primary) !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .dropdown-item:active {
+            background-color: var(--color-primary);
+        }
     </style>
 
     <!-- Edit Profile Modal -->

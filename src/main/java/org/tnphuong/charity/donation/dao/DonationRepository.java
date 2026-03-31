@@ -28,6 +28,14 @@ public interface DonationRepository extends JpaRepository<Donation, Integer> {
     List<Donation> findTop5ByOrderByCreatedAtDesc();
     List<Donation> findTop10ByOrderByCreatedAtDesc();
 
+    @Query("SELECT d FROM Donation d WHERE d.user.id = :userId AND " +
+           "(:donationStatus IS NULL OR d.status = :donationStatus) AND " +
+           "(:campaignStatus IS NULL OR d.campaign.status = :campaignStatus)")
+    List<Donation> findByUserAndFilters(@Param("userId") Integer userId, 
+                                       @Param("donationStatus") Integer donationStatus, 
+                                       @Param("campaignStatus") Integer campaignStatus,
+                                       org.springframework.data.domain.Sort sort);
+
     @Query("SELECT d FROM Donation d WHERE " +
            "(:keyword IS NULL OR d.user.fullName LIKE %:keyword% OR d.campaign.name LIKE %:keyword%) AND " +
            "(:status IS NULL OR d.status = :status)")
