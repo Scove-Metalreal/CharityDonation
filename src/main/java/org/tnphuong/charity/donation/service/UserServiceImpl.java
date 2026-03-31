@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tnphuong.charity.donation.dao.UserRepository;
 import org.tnphuong.charity.donation.dao.DonationRepository;
+import org.tnphuong.charity.donation.dao.RoleRepository;
+import org.tnphuong.charity.donation.dto.UserDTO;
 import org.tnphuong.charity.donation.entity.User;
 import org.tnphuong.charity.donation.entity.Donation;
 import org.tnphuong.charity.donation.entity.UserStatus;
@@ -35,6 +37,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private CampaignService campaignService;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Override
     public List<User> getAllUsers() {
@@ -68,6 +73,10 @@ public class UserServiceImpl implements UserService {
             }
             if (user.getStatus() == null) {
                 user.setStatus(UserStatus.ACTIVE.getValue()); // Default Active
+            }
+            // Auto-assign USER role if none provided
+            if (user.getRole() == null) {
+                roleRepository.findByRoleName("USER").ifPresent(user::setRole);
             }
             logger.info("Creating new user: {}", user.getEmail());
         } else {
@@ -120,5 +129,23 @@ public class UserServiceImpl implements UserService {
     @Override
     public long countUsers() {
         return userRepository.count();
+    }
+
+    @Override
+    public UserDTO convertToDTO(User user) {
+        if (user == null) return null;
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setFullName(user.getFullName());
+        dto.setEmail(user.getEmail());
+        dto.setPhoneNumber(user.getPhoneNumber());
+        dto.setAddress(user.getAddress());
+        dto.setAvatarUrl(user.getAvatarUrl());
+        dto.setAuthProvider(user.getAuthProvider());
+        dto.setRoleName(user.getRole() != null ? user.getRole().getRoleName() : null);
+        dto.setStatus(user.getStatus());
+        dto.setCreatedAt(user.getCreatedAt());
+        dto.setLastLogin(user.getLastLogin());
+        return dto;
     }
 }

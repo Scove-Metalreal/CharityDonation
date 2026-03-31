@@ -1,4 +1,4 @@
-﻿﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -64,7 +64,7 @@
 
                 <div class="px-4 mt-3 mb-5">
                     <h3 class="fw-bold mb-0 text-dark">${user.fullName}</h3>
-                    <p class="text-muted mb-3"><i class="fas fa-user-tag me-1 small"></i> ${user.role.roleName}</p>
+                    <p class="text-muted mb-3"><i class="fas fa-user-tag me-1 small"></i> ${user.roleName}</p>
                     
                     <c:if test="${not empty param.message}">
                         <div class="alert alert-success alert-dismissible fade show small py-2 mb-3" role="alert">
@@ -113,7 +113,10 @@
                     <div class="col-md-3">
                         <div class="card p-3 text-center border shadow-none h-100">
                             <small class="brand-primary uppercase fw-bold" style="font-size: 0.7rem;">NGÀY THAM GIA</small>
-                            <h5 class="mt-2 mb-0 fw-bold brand-primary">12/03/2026</h5>
+                            <h5 class="mt-2 mb-0 fw-bold brand-primary">
+                                <fmt:parseDate value="${user.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedJoinDate" type="both" />
+                                <fmt:formatDate value="${parsedJoinDate}" pattern="dd/MM/yyyy" />
+                            </h5>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -222,7 +225,7 @@
                                             <div class="col-md-6 donation-item">
                                                 <div class="card border h-100 shadow-none history-card-refined p-4 position-relative" 
                                                      style="cursor: pointer;"
-                                                     onclick="window.location.href='${pageContext.request.contextPath}/campaign/${d.campaign.id}'">
+                                                     onclick="window.location.href='${pageContext.request.contextPath}/campaign/${d.campaignId}'">
                                                     <!-- Top Row: Campaign Info & Status -->
                                                     <div class="d-flex justify-content-between align-items-start mb-4">
                                                         <div class="d-flex align-items-center overflow-hidden">
@@ -230,8 +233,8 @@
                                                                 <i class="fas fa-hand-holding-heart brand-primary fs-4"></i>
                                                             </div>
                                                             <div class="overflow-hidden">
-                                                                <span class="text-decoration-none fw-bold text-dark text-truncate d-block mb-1" title="${d.campaign.name}">
-                                                                    ${d.campaign.name}
+                                                                <span class="text-decoration-none fw-bold text-dark text-truncate d-block mb-1" title="${d.campaignName}">
+                                                                    ${d.campaignName}
                                                                 </span>
                                                                 <span class="badge ${d.status == 1 ? 'bg-success' : (d.status == 2 ? 'bg-danger' : 'bg-warning')} bg-opacity-10 ${d.status == 1 ? 'text-success' : (d.status == 2 ? 'text-danger' : 'text-warning')} rounded-pill px-2" style="font-size: 0.65rem;">
                                                                     <i class="fas ${d.status == 1 ? 'fa-check-circle' : (d.status == 2 ? 'fa-times-circle' : 'fa-clock')} me-1"></i>
@@ -252,7 +255,7 @@
                                                         </div>
                                                         <div class="col-4 border-end px-2 text-center">
                                                             <small class="text-muted smallest d-block text-uppercase fw-bold mb-1">Hình thức</small>
-                                                            <div class="small fw-bold text-dark text-truncate">${d.paymentMethod.methodName}</div>
+                                                            <div class="small fw-bold text-dark text-truncate">${d.paymentMethodName}</div>
                                                         </div>
                                                         <div class="col-4 ps-2 text-end">
                                                             <small class="text-muted smallest d-block text-uppercase fw-bold mb-1">Số tiền</small>

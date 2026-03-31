@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.tnphuong.charity.donation.entity.*;
 import org.tnphuong.charity.donation.service.*;
+import org.tnphuong.charity.donation.dto.*;
 
 import jakarta.validation.Valid;
 import java.nio.file.*;
@@ -42,7 +43,7 @@ public class AdminController {
     private CompanionService companionService;
 
     private void addCommonData(Model model, jakarta.servlet.http.HttpSession session) {
-        model.addAttribute("recentDonations", donationService.getRecentDonations(5));
+        model.addAttribute("recentDonations", donationService.getRecentDonations(5).stream().map(donationService::convertToDTO).toList());
         
         long pendingCount = donationService.countDonationsByStatus(DonationStatus.PENDING.getValue());
         Boolean notificationsRead = (Boolean) session.getAttribute("notificationsRead");
@@ -70,7 +71,7 @@ public class AdminController {
         model.addAttribute("activeCampaigns", campaignService.countCampaignsByStatus(CampaignStatus.IN_PROGRESS.getValue()));
         model.addAttribute("pendingDonations", donationService.countDonationsByStatus(DonationStatus.PENDING.getValue()));
         
-        model.addAttribute("dashboardDonations", donationService.getDashboardDonations(10));
+        model.addAttribute("dashboardDonations", donationService.getDashboardDonations(10).stream().map(donationService::convertToDTO).toList());
         
         java.math.BigDecimal totalAmount = donationService.getTotalDonatedAmount();
         model.addAttribute("totalAmount", totalAmount != null ? totalAmount : java.math.BigDecimal.ZERO);
@@ -105,7 +106,7 @@ public class AdminController {
         String trimmedKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
         Page<User> userPage = userService.searchUsers(trimmedKeyword, roleId, status, inactiveSince, pageable);
         
-        model.addAttribute("users", userPage.getContent());
+        model.addAttribute("users", userPage.getContent().stream().map(userService::convertToDTO).toList());
         model.addAttribute("keyword", keyword);
         model.addAttribute("roleId", roleId);
         model.addAttribute("status", status);
@@ -121,7 +122,7 @@ public class AdminController {
     public String userDetail(@PathVariable Integer id, Model model, jakarta.servlet.http.HttpSession session) {
         model.addAttribute("activePage", "admin-users");
         addCommonData(model, session);
-        userService.getUserById(id).ifPresent(user -> model.addAttribute("user", user));
+        userService.getUserById(id).ifPresent(user -> model.addAttribute("user", userService.convertToDTO(user)));
         return "admin/user-detail";
     }
 
@@ -181,7 +182,7 @@ public class AdminController {
     @ResponseBody
     public ResponseEntity<?> updateRole(@RequestParam Integer userId, @RequestParam Integer roleId) {
         Optional<User> userOpt = userService.getUserById(userId);
-        Optional<Role> roleOpt = roleService.getRoleById(roleId);
+        Optional<org.tnphuong.charity.donation.entity.Role> roleOpt = roleService.getRoleById(roleId);
         
         if (userOpt.isPresent() && roleOpt.isPresent()) {
             User user = userOpt.get();
@@ -205,7 +206,7 @@ public class AdminController {
         Pageable pageable = PageRequest.of(page - 1, 20); 
         Page<Campaign> campaignPage = campaignService.searchCampaigns(status, phone, code, pageable);
         
-        model.addAttribute("campaigns", campaignPage.getContent());
+        model.addAttribute("campaigns", campaignPage.getContent().stream().map(campaignService::convertToDTO).toList());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", campaignPage.getTotalPages());
         model.addAttribute("status", status);
@@ -297,18 +298,20 @@ public class AdminController {
     @PostMapping("/campaigns/update-status")
     @ResponseBody
     public ResponseEntity<?> updateCampaignStatus(@RequestParam Integer id, @RequestParam Integer status) {
-        Optional<Campaign> campaignOpt = campaignService.getCampaignById(id);
-        if (campaignOpt.isPresent()) {
-            Campaign current = campaignOpt.get();
-            if (current.getStatus() == CampaignStatus.CLOSED.getValue()) { // 3 = CLOSED
-                return ResponseEntity.badRequest().body(Map.of("error", "Chiến dịch đã đóng, không thể thay đổi trạng thái!"));
+        try {
+            Optional<Campaign> campaignOpt = campaignService.getCampaignById(id);
+            if (campaignOpt.isPresent()) {
+                Campaign current = campaignOpt.get();
+                // We logic: allow status change, but saveCampaign will handle the rules
+                current.setStatus(status);
+                campaignService.saveCampaign(current);
+                logger.info("Admin updated status for campaign ID {} to {}", id, status);
+                return ResponseEntity.ok().body(Map.of("message", "Cập nhật trạng thái thành công!"));
             }
-            current.setStatus(status);
-            campaignService.saveCampaign(current);
-            logger.info("Admin updated status for campaign ID {} to {}", id, status);
-            return ResponseEntity.ok().body(Map.of("message", "Cập nhật trạng thái thành công!"));
+            return ResponseEntity.badRequest().body(Map.of("error", "Không tìm thấy chiến dịch!"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
-        return ResponseEntity.badRequest().body(Map.of("error", "Không tìm thấy chiến dịch!"));
     }
 
     @PostMapping("/campaigns/delete")
@@ -335,7 +338,7 @@ public class AdminController {
         
         Page<Donation> donationPage = donationService.searchDonations(trimmedKeyword, status, pageable);
         
-        model.addAttribute("donations", donationPage.getContent());
+        model.addAttribute("donations", donationPage.getContent().stream().map(donationService::convertToDTO).toList());
         model.addAttribute("keyword", keyword);
         model.addAttribute("status", status);
         model.addAttribute("currentPage", page);

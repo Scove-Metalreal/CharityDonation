@@ -11,7 +11,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.tnphuong.charity.donation.entity.*;
+import org.tnphuong.charity.donation.dto.*;
 import org.tnphuong.charity.donation.service.*;
+import org.tnphuong.charity.donation.dao.RoleRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -45,12 +47,16 @@ public class HomeController {
     @Autowired
     private CompanionService companionService;
 
+    @Autowired
+    private RoleRepository roleRepository;
+
     @GetMapping("/")
     public String home(@RequestParam(required = false, defaultValue = "1") Integer status, 
                        Model model) {
-        List<Campaign> allCampaigns = campaignService.getAllCampaigns().stream()
+        List<CampaignDTO> allCampaigns = campaignService.getAllCampaigns().stream()
                 .filter(c -> c.getStatus().equals(status))
                 .sorted((c1, c2) -> c2.getCreatedAt().compareTo(c1.getCreatedAt()))
+                .map(campaignService::convertToDTO)
                 .toList();
         
         model.addAttribute("campaigns", allCampaigns);
@@ -65,19 +71,20 @@ public class HomeController {
         Optional<Campaign> campaignOpt = campaignService.getCampaignById(id);
         if (campaignOpt.isPresent()) {
             Campaign campaign = campaignOpt.get();
-            model.addAttribute("campaign", campaign);
+            model.addAttribute("campaign", campaignService.convertToDTO(campaign));
             model.addAttribute("donationCount", donationService.countConfirmedDonationsByCampaignId(id));
             
             long daysRemaining = java.time.temporal.ChronoUnit.DAYS.between(java.time.LocalDate.now(), campaign.getEndDate());
             model.addAttribute("daysRemaining", daysRemaining > 0 ? daysRemaining : 0);
 
-            model.addAttribute("topDonors10", donationService.getTopDonorsByCampaignId(id, 10));
-            model.addAttribute("topDonors20", donationService.getTopDonorsByCampaignId(id, 20));
-            model.addAttribute("recentDonors10", donationService.getRecentDonorsByCampaignId(id, 10));
-            model.addAttribute("recentDonors20", donationService.getRecentDonorsByCampaignId(id, 20));
+            model.addAttribute("topDonors10", donationService.getTopDonorsByCampaignId(id, 10).stream().map(donationService::convertToDTO).toList());
+            model.addAttribute("topDonors20", donationService.getTopDonorsByCampaignId(id, 20).stream().map(donationService::convertToDTO).toList());
+            model.addAttribute("recentDonors10", donationService.getRecentDonorsByCampaignId(id, 10).stream().map(donationService::convertToDTO).toList());
+            model.addAttribute("recentDonors20", donationService.getRecentDonorsByCampaignId(id, 20).stream().map(donationService::convertToDTO).toList());
 
-            Page<Campaign> ongoing = campaignService.getCampaignsByStatus(CampaignStatus.IN_PROGRESS.getValue(), PageRequest.of(0, 4));
-            model.addAttribute("ongoingCampaigns", ongoing.getContent());
+            List<CampaignDTO> ongoing = campaignService.getCampaignsByStatus(CampaignStatus.IN_PROGRESS.getValue(), PageRequest.of(0, 4))
+                    .getContent().stream().map(campaignService::convertToDTO).toList();
+            model.addAttribute("ongoingCampaigns", ongoing);
             model.addAttribute("paymentMethods", paymentMethodService.getAllPaymentMethods());
 
             Integer userId = (Integer) session.getAttribute("userId");
@@ -165,8 +172,8 @@ public class HomeController {
                     user.setPhoneNumber(phone);
                 }
                 user.setAddress(address);
-                // Note: Role should ideally be fetched via RoleService
-                user.setRole(null); // Will be handled in saveUser or set properly if needed
+                // Assign GUEST role
+                roleRepository.findByRoleName("GUEST").ifPresent(user::setRole);
                 user.setStatus(UserStatus.ACTIVE.getValue());
                 user = userService.saveUser(user);
                 logger.info("Created new GUEST user for donation: {}", email);
@@ -188,7 +195,11 @@ public class HomeController {
 
         String transactionCode = "QG" + System.currentTimeMillis() % 1000000;
         if (message != null && !message.isBlank()) {
-            donation.setMessage(message + " (Code: " + transactionCode + ")");
+            String cleanMessage = message.trim();
+            if (cleanMessage.length() > 450) {
+                cleanMessage = cleanMessage.substring(0, 450) + "...";
+            }
+            donation.setMessage(cleanMessage + " (Code: " + transactionCode + ")");
         } else {
             donation.setMessage("Transaction Code: " + transactionCode);
         }

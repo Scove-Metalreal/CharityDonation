@@ -3,17 +3,22 @@ package org.tnphuong.charity.donation.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tnphuong.charity.donation.dao.CampaignRepository;
+import org.tnphuong.charity.donation.dto.CampaignDTO;
+import org.tnphuong.charity.donation.dto.CompanionDTO;
 import org.tnphuong.charity.donation.entity.Campaign;
 import org.tnphuong.charity.donation.entity.CampaignStatus;
+import org.tnphuong.charity.donation.entity.Companion;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CampaignServiceImpl implements CampaignService {
@@ -22,6 +27,10 @@ public class CampaignServiceImpl implements CampaignService {
 
     @Autowired
     private CampaignRepository campaignRepository;
+
+    @Autowired
+    @Lazy
+    private DonationService donationService;
 
     @Override
     public List<Campaign> getAllCampaigns() {
@@ -45,8 +54,11 @@ public class CampaignServiceImpl implements CampaignService {
             Campaign currentInDb = campaignRepository.findById(campaign.getId())
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy chiến dịch!"));
             
-            if (currentInDb.getStatus() == CampaignStatus.CLOSED.getValue()) { // 3 = CLOSED
-                logger.warn("Attempt to modify closed campaign ID: {}", campaign.getId());
+            // Allow status update even if it was closed, but prevent data modification if it remains closed
+            if (currentInDb.getStatus() == CampaignStatus.CLOSED.getValue() && campaign.getStatus() == CampaignStatus.CLOSED.getValue()) {
+                // If it was closed and we are not changing the status, prevent other changes
+                // You might want to allow status change FROM closed TO something else by admin
+                logger.warn("Attempt to modify data of closed campaign ID: {}", campaign.getId());
                 throw new RuntimeException("Chiến dịch đã đóng, không thể thay đổi thông tin.");
             }
             logger.debug("Updating campaign ID: {}", campaign.getId());
@@ -147,5 +159,49 @@ public class CampaignServiceImpl implements CampaignService {
     @Override
     public boolean existsByCode(String code) {
         return campaignRepository.existsByCode(code);
+    }
+
+    @Override
+    public CampaignDTO convertToDTO(Campaign campaign) {
+        if (campaign == null) return null;
+        CampaignDTO dto = new CampaignDTO();
+        dto.setId(campaign.getId());
+        dto.setCode(campaign.getCode());
+        dto.setName(campaign.getName());
+        dto.setBackground(campaign.getBackground());
+        dto.setContent(campaign.getContent());
+        dto.setImageUrl(campaign.getImageUrl());
+        dto.setGalleryUrls(campaign.getGalleryUrls());
+        dto.setStartDate(campaign.getStartDate());
+        dto.setEndDate(campaign.getEndDate());
+        dto.setTargetMoney(campaign.getTargetMoney());
+        dto.setCurrentMoney(campaign.getCurrentMoney());
+        dto.setBeneficiaryPhone(campaign.getBeneficiaryPhone());
+        dto.setStatus(campaign.getStatus());
+        dto.setCreatedAt(campaign.getCreatedAt());
+        
+        dto.setDonationCount((int) donationService.countConfirmedDonationsByCampaignId(campaign.getId()));
+        if (campaign.getEndDate() != null) {
+            long days = java.time.temporal.ChronoUnit.DAYS.between(java.time.LocalDate.now(), campaign.getEndDate());
+            dto.setDaysRemaining(days > 0 ? days : 0);
+        }
+
+        if (campaign.getCompanions() != null) {
+            dto.setCompanions(campaign.getCompanions().stream()
+                    .map(this::convertCompanionToDTO)
+                    .collect(Collectors.toList()));
+        }
+        
+        return dto;
+    }
+
+    private CompanionDTO convertCompanionToDTO(Companion companion) {
+        if (companion == null) return null;
+        CompanionDTO dto = new CompanionDTO();
+        dto.setId(companion.getId());
+        dto.setName(companion.getName());
+        dto.setLogoUrl(companion.getLogoUrl());
+        dto.setDescription(companion.getDescription());
+        return dto;
     }
 }

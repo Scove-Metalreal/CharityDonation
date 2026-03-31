@@ -86,13 +86,13 @@
                                             <c:forEach var="d" items="${dashboardDonations}">
                                                 <tr>
                                                     <td>
-                                                        <div class="fw-bold small">${d.user.fullName}</div>
+                                                        <div class="fw-bold small">${d.donorName}</div>
                                                         <small class="text-muted smallest">
                                                             <fmt:parseDate value="${d.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedCreatedAt" type="both" />
                                                             <fmt:formatDate value="${parsedCreatedAt}" pattern="dd/MM/yyyy" />
                                                         </small>
                                                     </td>
-                                                    <td class="small text-truncate" style="max-width: 200px;">${d.campaign.name}</td>
+                                                    <td class="small text-truncate" style="max-width: 200px;">${d.campaignName}</td>
                                                     <td class="text-end fw-bold brand-primary"><fmt:formatNumber value="${d.amount}" type="number"/>đ</td>
                                                     <td class="text-center">
                                                         <c:choose>

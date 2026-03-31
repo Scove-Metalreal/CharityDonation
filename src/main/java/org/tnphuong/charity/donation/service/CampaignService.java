@@ -2,6 +2,7 @@ package org.tnphuong.charity.donation.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.tnphuong.charity.donation.dto.CampaignDTO;
 import org.tnphuong.charity.donation.entity.Campaign;
 import java.math.BigDecimal;
 import java.util.List;
@@ -26,4 +27,6 @@ public interface CampaignService {
 
     long countCampaignsByStatus(Integer status);
     boolean existsByCode(String code);
+
+    CampaignDTO convertToDTO(Campaign campaign);
 }

@@ -115,9 +115,9 @@
                                             </td>
                                             <td>
                                                 <select class="form-select form-select-sm border-0 bg-light rounded-pill px-3 fw-bold" 
-                                                        onchange="confirmRoleChange(${u.id}, this, '${u.role.roleName}')" style="max-width: 150px;">
+                                                        onchange="confirmRoleChange(${u.id}, this, '${u.roleName}')" style="max-width: 150px;">
                                                     <c:forEach var="r" items="${roles}">
-                                                        <option value="${r.id}" ${u.role.id == r.id ? 'selected' : ''}>${r.roleName}</option>
+                                                        <option value="${r.id}" ${u.roleName == r.roleName ? 'selected' : ''}>${r.roleName}</option>
                                                     </c:forEach>
                                                 </select>
                                             </td>

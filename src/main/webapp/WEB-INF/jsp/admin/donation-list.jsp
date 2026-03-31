@@ -65,10 +65,10 @@
                                     <c:forEach var="d" items="${donations}">
                                         <tr>
                                             <td>
-                                                <div class="fw-bold text-dark">${d.user.fullName}</div>
+                                                <div class="fw-bold text-dark">${d.donorName}</div>
                                                 <small class="text-muted smallest">Quyên góp: <fmt:formatNumber value="${d.amount}" type="number"/>đ</small>
                                             </td>
-                                            <td><div class="small text-dark text-truncate" style="max-width: 200px;">${d.campaign.name}</div></td>
+                                            <td><div class="small text-dark text-truncate" style="max-width: 200px;">${d.campaignName}</div></td>
                                             <td class="text-center">
                                                 <span class="badge ${d.status == 0 ? 'bg-warning' : (d.status == 1 ? 'bg-success' : 'bg-danger')} bg-opacity-10 ${d.status == 0 ? 'text-warning' : (d.status == 1 ? 'text-success' : 'text-danger')} rounded-pill px-3">
                                                     ${d.status == 0 ? 'Chờ duyệt' : (d.status == 1 ? 'Đã nhận' : 'Từ chối')}

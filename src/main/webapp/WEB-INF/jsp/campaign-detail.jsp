@@ -182,7 +182,7 @@
                                 <div class="donor-row">
                                     <div class="fw-bold brand-primary me-3" style="width:20px">${loop.index + 1}</div>
                                     <div class="flex-grow-1 text-truncate">
-                                        <strong>${d.isAnonymous == 1 ? 'Nhà hảo tâm ẩn danh' : d.user.fullName}</strong>
+                                        <strong>${d.donorName}</strong>
                                         <div class="smallest text-muted">
                                             <fmt:parseDate value="${d.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedCreatedAt" type="both" />
                                             <fmt:formatDate value="${parsedCreatedAt}" pattern="dd/MM/yyyy" />
@@ -211,7 +211,7 @@
                                 <div class="donor-row">
                                     <div class="fw-bold brand-primary me-3" style="width:20px">${loop.index + 1}</div>
                                     <div class="flex-grow-1 text-truncate">
-                                        <strong>${d.isAnonymous == 1 ? 'Nhà hảo tâm ẩn danh' : d.user.fullName}</strong>
+                                        <strong>${d.donorName}</strong>
                                         <div class="smallest text-muted">
                                             <fmt:parseDate value="${d.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedCreatedAt" type="both" />
                                             <fmt:formatDate value="${parsedCreatedAt}" pattern="dd/MM/yyyy" />
@@ -436,7 +436,7 @@
                                                     <div class="donor-row">
                                                         <div class="fw-bold brand-primary me-3" style="width:20px">${loop.index + 1}</div>
                                                         <div class="flex-grow-1 text-truncate">
-                                                            <strong>${d.isAnonymous == 1 ? 'Nhà hảo tâm ẩn danh' : d.user.fullName}</strong>
+                                                            <strong>${d.donorName}</strong>
                                                             <div class="smallest text-muted">
                                                                 <fmt:parseDate value="${d.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedCreatedAt" type="both" />
                                                                 <fmt:formatDate value="${parsedCreatedAt}" pattern="dd/MM/yyyy" />
@@ -459,7 +459,7 @@
                                                     <div class="donor-row">
                                                         <div class="fw-bold brand-primary me-3" style="width:20px">${loop.index + 1}</div>
                                                         <div class="flex-grow-1 text-truncate">
-                                                            <strong>${d.isAnonymous == 1 ? 'Nhà hảo tâm ẩn danh' : d.user.fullName}</strong>
+                                                            <strong>${d.donorName}</strong>
                                                             <div class="smallest text-muted">
                                                                 <fmt:parseDate value="${d.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedCreatedAt" type="both" />
                                                                 <fmt:formatDate value="${parsedCreatedAt}" pattern="dd/MM/yyyy" />

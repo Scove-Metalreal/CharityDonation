@@ -62,10 +62,10 @@ public class UserController {
 
         User user = userService.getUserById(userId).get();
         List<Donation> donations = donationService.getDonationsByUserId(userId, donationStatus, campaignStatus, sortObj);
-        List<UserFollowing> followingList = userFollowingService.getFollowingByUserId(userId);
+        List<org.tnphuong.charity.donation.entity.UserFollowing> followingList = userFollowingService.getFollowingByUserId(userId);
         
-        model.addAttribute("user", user);
-        model.addAttribute("donations", donations);
+        model.addAttribute("user", userService.convertToDTO(user));
+        model.addAttribute("donations", donations.stream().map(donationService::convertToDTO).toList());
         model.addAttribute("followingList", followingList);
         model.addAttribute("totalDonated", donations.stream()
                 .filter(d -> d.getStatus() == DonationStatus.CONFIRMED.getValue())

@@ -2,6 +2,7 @@ package org.tnphuong.charity.donation.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.tnphuong.charity.donation.dto.DonationDTO;
 import org.tnphuong.charity.donation.entity.Donation;
 import java.util.List;
 import java.util.Optional;
@@ -29,4 +30,6 @@ public interface DonationService {
     java.math.BigDecimal getTotalDonatedAmount();
 
     Page<Donation> searchDonations(String keyword, Integer status, Pageable pageable);
+
+    DonationDTO convertToDTO(Donation donation);
 }

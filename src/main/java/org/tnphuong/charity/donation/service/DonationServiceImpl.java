@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tnphuong.charity.donation.dao.DonationRepository;
+import org.tnphuong.charity.donation.dto.DonationDTO;
 import org.tnphuong.charity.donation.entity.Donation;
 import org.tnphuong.charity.donation.entity.DonationStatus;
 
@@ -153,5 +154,23 @@ public class DonationServiceImpl implements DonationService {
     @Override
     public Page<Donation> searchDonations(String keyword, Integer status, Pageable pageable) {
         return donationRepository.searchDonations(keyword, status, pageable);
+    }
+
+    @Override
+    public DonationDTO convertToDTO(Donation donation) {
+        if (donation == null) return null;
+        DonationDTO dto = new DonationDTO();
+        dto.setId(donation.getId());
+        dto.setUserId(donation.getUser().getId());
+        dto.setDonorName(donation.getIsAnonymous() == 1 ? "Nhà hảo tâm ẩn danh" : donation.getUser().getFullName());
+        dto.setCampaignId(donation.getCampaign().getId());
+        dto.setCampaignName(donation.getCampaign().getName());
+        dto.setPaymentMethodName(donation.getPaymentMethod().getMethodName());
+        dto.setAmount(donation.getAmount());
+        dto.setMessage(donation.getMessage());
+        dto.setIsAnonymous(donation.getIsAnonymous());
+        dto.setStatus(donation.getStatus());
+        dto.setCreatedAt(donation.getCreatedAt());
+        return dto;
     }
 }
