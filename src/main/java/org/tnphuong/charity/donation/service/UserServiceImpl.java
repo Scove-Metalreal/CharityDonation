@@ -4,8 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.tnphuong.charity.donation.dao.UserRepository;
+import org.tnphuong.charity.donation.dao.DonationRepository;
 import org.tnphuong.charity.donation.entity.User;
+import org.tnphuong.charity.donation.entity.Donation;
+import org.tnphuong.charity.donation.utils.PasswordUtils;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +19,12 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private DonationRepository donationRepository;
+
+    @Autowired
+    private CampaignService campaignService;
 
     @Override
     public List<User> getAllUsers() {
@@ -36,9 +47,9 @@ public class UserServiceImpl implements UserService {
             // New user: must have a password
             String pwd = user.getPassword();
             if (pwd == null || pwd.isEmpty()) {
-                user.setPassword(org.tnphuong.charity.donation.utils.PasswordUtils.hashPassword("123456"));
+                user.setPassword(PasswordUtils.hashPassword("123456"));
             } else if (!pwd.startsWith("$2a$")) {
-                user.setPassword(org.tnphuong.charity.donation.utils.PasswordUtils.hashPassword(pwd));
+                user.setPassword(PasswordUtils.hashPassword(pwd));
             }
             
             if (user.getCreatedAt() == null) {
@@ -51,14 +62,22 @@ public class UserServiceImpl implements UserService {
             // Update user: only hash if password was changed
             String pwd = user.getPassword();
             if (pwd != null && !pwd.isEmpty() && !pwd.startsWith("$2a$")) {
-                user.setPassword(org.tnphuong.charity.donation.utils.PasswordUtils.hashPassword(pwd));
+                user.setPassword(PasswordUtils.hashPassword(pwd));
             }
         }
         return userRepository.save(user);
     }
 
     @Override
+    @Transactional
     public void deleteUser(Integer id) {
+        // Lấy danh sách quyên góp của user này để trừ tiền campaign nếu đã được confirm
+        List<Donation> donations = donationRepository.findByUserId(id);
+        for (Donation d : donations) {
+            if (d.getStatus() == 1) { // 1 = STATUS_CONFIRMED
+                campaignService.subtractCurrentMoney(d.getCampaign().getId(), d.getAmount());
+            }
+        }
         userRepository.deleteById(id);
     }
 

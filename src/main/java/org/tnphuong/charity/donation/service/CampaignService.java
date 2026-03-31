@@ -20,6 +20,7 @@ public interface CampaignService {
     
     // Core Logic for Task 6
     void addCurrentMoney(Integer campaignId, BigDecimal amount);
+    void subtractCurrentMoney(Integer campaignId, BigDecimal amount);
     
     void extendCampaign(Integer campaignId, java.time.LocalDate newEndDate);
 }

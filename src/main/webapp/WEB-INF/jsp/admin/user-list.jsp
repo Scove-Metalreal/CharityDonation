@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -84,6 +84,10 @@
                         </form>
                     </div>
 
+                    <form action="${pageContext.request.contextPath}/admin/users/delete" method="post" id="deleteUserForm" style="display:none;">
+                        <input type="hidden" name="userId" id="deleteUserId">
+                    </form>
+
                     <div class="card border-0 shadow-sm p-4" style="border-radius: 1rem;">
                         <div class="table-responsive">
                             <table class="table table-hover align-middle">
@@ -141,6 +145,12 @@
                                                             <i class="fas ${u.status == 1 ? 'fa-user-slash' : 'fa-user-check'}"></i>
                                                         </button>
                                                     </form>
+                                                    <!-- Delete Button -->
+                                                    <a href="javascript:void(0);" 
+                                                       class="action-btn bg-danger bg-opacity-10 text-danger" 
+                                                       onclick="confirmDeleteUser(${u.id}, '${u.fullName}')">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </a>
                                                 </div>
                                             </td>
                                         </tr>
@@ -278,6 +288,7 @@
             form.classList.remove('was-validated');
             adminStrengthBar.className = 'progress-bar strength-0';
             adminStrengthText.innerText = 'Chưa nhập';
+            adminStrengthText.className = 'text-muted smallest fw-bold';
         }
 
         // --- AJAX Form Submission ---
@@ -309,12 +320,11 @@
 
                 const result = await response.json();
                 if (response.ok) {
-                    await Swal.fire({ icon: 'success', title: 'Thành công', text: result.message, timer: 1500, showConfirmButton: false });
-                    location.reload();
+                    await Swal.fire({ icon: 'success', title: 'Thành công', text: result.message, timer: 1500, showConfirmButton: false }).then(() => location.reload());
                 } else {
                     let errorMsg = "";
-                    for (const key in result) { errorMsg += `\${result[key]}<br>`; }
-                    Swal.fire({ icon: 'error', title: 'Lỗi dữ liệu', html: `<div class="text-start text-danger">\${errorMsg}</div>` });
+                    for (const key in result) { errorMsg += `${result[key]}<br>`; }
+                    Swal.fire({ icon: 'error', title: 'Lỗi dữ liệu', html: `<div class="text-start text-danger">${errorMsg}</div>` });
                 }
             } catch (error) {
                 Swal.fire('Lỗi', 'Kết nối server thất bại!', 'error');
@@ -330,8 +340,8 @@
             const newRoleId = selectElement.value;
 
             const confirm = await Swal.fire({
-                title: 'Thay đổi vai trò?',
-                text: `Chuyển người dùng từ "\${oldRoleName}" sang "\${newRoleName}"?`,
+                title: `Thay đổi vai trò?`,
+                text: `Chuyển người dùng từ "${oldRoleName}" sang "${newRoleName}"?`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'Đồng ý',
@@ -352,7 +362,7 @@
 
                     const result = await response.json();
                     if (response.ok) {
-                        Swal.fire({ icon: 'success', title: 'Thành công', text: result.message, timer: 1500, showConfirmButton: false }).then(() => location.reload());
+                        await Swal.fire({ icon: 'success', title: 'Thành công', text: result.message, timer: 1500, showConfirmButton: false }).then(() => location.reload());
                     } else {
                         Swal.fire('Lỗi', result.error, 'error').then(() => location.reload());
                     }
@@ -360,15 +370,15 @@
                     Swal.fire('Lỗi', 'Kết nối thất bại!', 'error').then(() => location.reload());
                 }
             } else {
-                location.reload();
+                location.reload(); // Revert selection if cancelled
             }
         }
 
         function confirmToggleStatus(form, currentStatus) {
             const action = currentStatus === 1 ? 'Khóa' : 'Mở khóa';
             Swal.fire({
-                title: `\${action} tài khoản?`,
-                text: `Bạn có chắc muốn \${action.toLowerCase()} người dùng này không?`,
+                title: `${action} tài khoản?`,
+                text: `Bạn có chắc muốn ${action.toLowerCase()} người dùng này không?`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: currentStatus === 1 ? '#d33' : '#28a745',
@@ -376,6 +386,25 @@
                 cancelButtonText: 'Hủy'
             }).then((result) => {
                 if (result.isConfirmed) form.submit();
+            });
+        }
+
+        // --- New function for delete confirmation ---
+        function confirmDeleteUser(userId, userName) {
+            Swal.fire({
+                title: `Xóa người dùng ${userName}?`,
+                text: `Bạn có chắc muốn xóa người dùng "${userName}" không? Hành động này không thể hoàn tác.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33', // Red color for delete
+                confirmButtonText: 'Xóa ngay',
+                cancelButtonText: 'Hủy bỏ'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Submit via the hidden POST form
+                    document.getElementById('deleteUserId').value = userId;
+                    document.getElementById('deleteUserForm').submit();
+                }
             });
         }
     </script>

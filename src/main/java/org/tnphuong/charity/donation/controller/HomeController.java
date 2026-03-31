@@ -173,26 +173,32 @@ public class HomeController {
 
             Optional<User> existingUser = userService.getUserByEmail(email);
             if (existingUser.isPresent()) {
-                redirectAttributes.addFlashAttribute("error", "This email is already associated with an account. Please log in to donate.");
-                return "redirect:/auth/login";
-            }
-
-            // Create a new guest user
-            user = new User();
-            user.setFullName(fullName != null && !fullName.isBlank() ? fullName : "Nhà hảo tâm ẩn danh");
-            user.setEmail(email);
-            
-            // Generate a dummy phone number if not provided to avoid unique constraint violation
-            if (phone == null || phone.isBlank()) {
-                user.setPhoneNumber("GUEST_" + UUID.randomUUID().toString().substring(0, 8));
+                User found = existingUser.get();
+                // Check if the email belongs to a registered User (not a Guest)
+                if (found.getRole() != null && !"GUEST".equalsIgnoreCase(found.getRole().getRoleName())) {
+                    redirectAttributes.addFlashAttribute("error", "Email này đã được đăng ký tài khoản. Vui lòng đăng nhập để quyên góp.");
+                    return "redirect:/auth/login";
+                }
+                // If it is a GUEST, reuse it
+                user = found;
             } else {
-                user.setPhoneNumber(phone);
+                // Create a new guest user
+                user = new User();
+                user.setFullName(fullName != null && !fullName.isBlank() ? fullName : "Nhà hảo tâm ẩn danh");
+                user.setEmail(email);
+                
+                // Generate a dummy phone number if not provided to avoid unique constraint violation
+                if (phone == null || phone.isBlank()) {
+                    user.setPhoneNumber("GUEST_" + UUID.randomUUID().toString().substring(0, 8));
+                } else {
+                    user.setPhoneNumber(phone);
+                }
+                
+                user.setAddress(address);
+                user.setRole(roleRepository.findByRoleName("GUEST").orElse(null)); // Assign GUEST role
+                user.setStatus(1);
+                user = userService.saveUser(user); // Save the new user and get persisted entity
             }
-            
-            user.setAddress(address);
-            user.setRole(roleRepository.findByRoleName("GUEST").orElse(null)); // Assign GUEST role
-            user.setStatus(1);
-            user = userService.saveUser(user); // Save the new user and get persisted entity
         } else {
             // Handle logged-in user
             user = userService.getUserById(userId).orElse(null);

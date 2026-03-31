@@ -104,6 +104,22 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
     @Override
+    public void subtractCurrentMoney(Integer campaignId, BigDecimal amount) {
+        Optional<Campaign> campaignOpt = campaignRepository.findById(campaignId);
+        if (campaignOpt.isPresent()) {
+            Campaign campaign = campaignOpt.get();
+            BigDecimal current = campaign.getCurrentMoney() != null ? campaign.getCurrentMoney() : BigDecimal.ZERO;
+            campaign.setCurrentMoney(current.subtract(amount));
+            
+            // Nếu hụt tiền xuống dưới mục tiêu và đang ở trạng thái Kết thúc (2), đưa về Đang quyên góp (1)
+            if (campaign.getStatus() == 2 && campaign.getCurrentMoney().compareTo(campaign.getTargetMoney()) < 0) {
+                campaign.setStatus(1);
+            }
+            campaignRepository.save(campaign);
+        }
+    }
+
+    @Override
     public void extendCampaign(Integer campaignId, java.time.LocalDate newEndDate) {
         campaignRepository.findById(campaignId).ifPresent(campaign -> {
             campaign.setEndDate(newEndDate);

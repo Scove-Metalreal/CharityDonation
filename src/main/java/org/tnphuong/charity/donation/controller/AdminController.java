@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -172,6 +173,12 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
+    @PostMapping("/users/delete")
+    public String deleteUser(@RequestParam Integer userId) {
+        userService.deleteUser(userId);
+        return "redirect:/admin/users";
+    }
+
     @PostMapping("/users/update-role")
     @ResponseBody
     public ResponseEntity<?> updateRole(@RequestParam Integer userId, @RequestParam Integer roleId) {
@@ -329,7 +336,8 @@ public class AdminController {
         model.addAttribute("activePage", "admin-donations");
         addCommonData(model, session);
         
-        Pageable pageable = PageRequest.of(page - 1, 20); 
+        // Sắp xếp theo ngày tạo giảm dần (mới nhất lên đầu)
+        Pageable pageable = PageRequest.of(page - 1, 20, Sort.by("createdAt").descending()); 
         String trimmedKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
         Page<Donation> donationPage = donationRepository.searchDonations(trimmedKeyword, status, pageable);
         
