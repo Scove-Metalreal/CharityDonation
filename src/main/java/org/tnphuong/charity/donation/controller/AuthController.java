@@ -24,14 +24,14 @@ public class AuthController {
     private RoleRepository roleRepository;
 
     @GetMapping("/register")
-    public String showRegisterForm(Model model, HttpSession session) {
+    public String showRegisterForm(@RequestParam(value = "google", required = false) String googleParam, Model model, HttpSession session) {
         User user = new User();
         
         // Auto-fill from Google if available
         String googleEmail = (String) session.getAttribute("google_email");
         String googleName = (String) session.getAttribute("google_name");
         
-        if (googleEmail != null) {
+        if (googleEmail != null || "new".equals(googleParam)) {
             user.setEmail(googleEmail);
             user.setFullName(googleName);
             user.setAuthProvider("GOOGLE");

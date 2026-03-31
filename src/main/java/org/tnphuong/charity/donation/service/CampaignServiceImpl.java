@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.tnphuong.charity.donation.dao.CampaignRepository;
 import org.tnphuong.charity.donation.entity.Campaign;
 
@@ -83,6 +84,7 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
     @Override
+    @Transactional
     public void addCurrentMoney(Integer campaignId, BigDecimal amount) {
         Optional<Campaign> campaignOpt = campaignRepository.findById(campaignId);
         if (campaignOpt.isPresent()) {
@@ -104,6 +106,7 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
     @Override
+    @Transactional
     public void subtractCurrentMoney(Integer campaignId, BigDecimal amount) {
         Optional<Campaign> campaignOpt = campaignRepository.findById(campaignId);
         if (campaignOpt.isPresent()) {
@@ -120,6 +123,7 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
     @Override
+    @Transactional
     public void extendCampaign(Integer campaignId, java.time.LocalDate newEndDate) {
         campaignRepository.findById(campaignId).ifPresent(campaign -> {
             campaign.setEndDate(newEndDate);
@@ -129,5 +133,15 @@ public class CampaignServiceImpl implements CampaignService {
             }
             campaignRepository.save(campaign);
         });
+    }
+
+    @Override
+    public long countCampaignsByStatus(Integer status) {
+        return campaignRepository.countByStatus(status);
+    }
+
+    @Override
+    public boolean existsByCode(String code) {
+        return campaignRepository.existsByCode(code);
     }
 }

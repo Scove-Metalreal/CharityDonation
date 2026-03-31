@@ -10,14 +10,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.tnphuong.charity.donation.dao.RoleRepository;
 import org.tnphuong.charity.donation.entity.Campaign;
 import org.tnphuong.charity.donation.entity.Donation;
 import org.tnphuong.charity.donation.entity.User;
-import org.tnphuong.charity.donation.service.CampaignService;
-import org.tnphuong.charity.donation.service.DonationService;
-import org.tnphuong.charity.donation.service.UserService;
-import org.tnphuong.charity.donation.dao.CompanionRepository;
+import org.tnphuong.charity.donation.service.*;
 
 import java.nio.file.*;
 import java.util.*;
@@ -30,7 +26,7 @@ public class AdminController {
     private UserService userService;
 
     @Autowired
-    private RoleRepository roleRepository;
+    private RoleService roleService;
 
     @Autowired
     private CampaignService campaignService;
@@ -39,21 +35,12 @@ public class AdminController {
     private DonationService donationService;
 
     @Autowired
-    private org.tnphuong.charity.donation.dao.UserRepository userRepository;
-
-    @Autowired
-    private org.tnphuong.charity.donation.dao.CampaignRepository campaignRepository;
-
-    @Autowired
-    private org.tnphuong.charity.donation.dao.DonationRepository donationRepository;
-
-    @Autowired
-    private CompanionRepository companionRepository;
+    private CompanionService companionService;
 
     private void addCommonData(Model model, jakarta.servlet.http.HttpSession session) {
-        model.addAttribute("recentDonations", donationRepository.findTop5ByOrderByCreatedAtDesc());
+        model.addAttribute("recentDonations", donationService.getRecentDonations(5));
         
-        long pendingCount = donationRepository.countByStatus(0);
+        long pendingCount = donationService.countDonationsByStatus(0);
         Boolean notificationsRead = (Boolean) session.getAttribute("notificationsRead");
         
         if (notificationsRead != null && notificationsRead) {
@@ -75,14 +62,14 @@ public class AdminController {
         model.addAttribute("activePage", "admin-dashboard");
         addCommonData(model, session);
         
-        model.addAttribute("totalUsers", userRepository.count());
-        model.addAttribute("activeCampaigns", campaignRepository.countByStatus(1));
-        model.addAttribute("pendingDonations", donationRepository.countByStatus(0));
+        model.addAttribute("totalUsers", userService.countUsers());
+        model.addAttribute("activeCampaigns", campaignService.countCampaignsByStatus(1));
+        model.addAttribute("pendingDonations", donationService.countDonationsByStatus(0));
         
         // Fetch 10 for dashboard table
-        model.addAttribute("dashboardDonations", donationRepository.findTop10ByOrderByCreatedAtDesc());
+        model.addAttribute("dashboardDonations", donationService.getDashboardDonations(10));
         
-        java.math.BigDecimal totalAmount = donationRepository.sumTotalDonations();
+        java.math.BigDecimal totalAmount = donationService.getTotalDonatedAmount();
         model.addAttribute("totalAmount", totalAmount != null ? totalAmount : java.math.BigDecimal.ZERO);
         
         return "admin/dashboard";
@@ -122,7 +109,7 @@ public class AdminController {
         model.addAttribute("inactive", inactive);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", userPage.getTotalPages());
-        model.addAttribute("roles", roleRepository.findAll());
+        model.addAttribute("roles", roleService.getAllRoles());
         
         return "admin/user-list";
     }
@@ -131,7 +118,7 @@ public class AdminController {
     public String userDetail(@PathVariable Integer id, Model model, jakarta.servlet.http.HttpSession session) {
         model.addAttribute("activePage", "admin-users");
         addCommonData(model, session);
-        userRepository.findById(id).ifPresent(user -> model.addAttribute("user", user));
+        userService.getUserById(id).ifPresent(user -> model.addAttribute("user", user));
         return "admin/user-detail";
     }
 
@@ -140,7 +127,7 @@ public class AdminController {
         model.addAttribute("activePage", "admin-users");
         addCommonData(model, session);
         model.addAttribute("user", new User());
-        model.addAttribute("roles", roleRepository.findAll());
+        model.addAttribute("roles", roleService.getAllRoles());
         return "admin/user-form";
     }
 
@@ -183,7 +170,7 @@ public class AdminController {
     @ResponseBody
     public ResponseEntity<?> updateRole(@RequestParam Integer userId, @RequestParam Integer roleId) {
         Optional<User> userOpt = userService.getUserById(userId);
-        Optional<org.tnphuong.charity.donation.entity.Role> roleOpt = roleRepository.findById(roleId);
+        Optional<org.tnphuong.charity.donation.entity.Role> roleOpt = roleService.getRoleById(roleId);
         
         if (userOpt.isPresent() && roleOpt.isPresent()) {
             User user = userOpt.get();
@@ -212,7 +199,7 @@ public class AdminController {
         model.addAttribute("status", status);
         model.addAttribute("phone", phone);
         model.addAttribute("code", code);
-        model.addAttribute("allCompanions", companionRepository.findAll());
+        model.addAttribute("allCompanions", companionService.getAllCompanions());
         
         return "admin/campaign-list";
     }
@@ -241,7 +228,7 @@ public class AdminController {
         Map<String, String> errors = new HashMap<>();
         
         // 1. Uniqueness check
-        if (campaign.getId() == null && campaignRepository.existsByCode(campaign.getCode())) {
+        if (campaign.getId() == null && campaignService.existsByCode(campaign.getCode())) {
             errors.put("code", "Mã chiến dịch đã tồn tại!");
         }
 
@@ -293,7 +280,7 @@ public class AdminController {
 
         // 5. Handle Companions
         if (companionIds != null && !companionIds.isEmpty()) {
-            List<org.tnphuong.charity.donation.entity.Companion> companions = companionRepository.findAllById(companionIds);
+            List<org.tnphuong.charity.donation.entity.Companion> companions = companionService.getAllCompanionsByIds(companionIds);
             campaign.setCompanions(companions);
         }
 
@@ -304,7 +291,7 @@ public class AdminController {
     @PostMapping("/campaigns/update-status")
     @ResponseBody
     public ResponseEntity<?> updateCampaignStatus(@RequestParam Integer id, @RequestParam Integer status) {
-        Optional<Campaign> campaignOpt = campaignRepository.findById(id);
+        Optional<Campaign> campaignOpt = campaignService.getCampaignById(id);
         if (campaignOpt.isPresent()) {
             Campaign current = campaignOpt.get();
             
@@ -313,8 +300,10 @@ public class AdminController {
                 return ResponseEntity.badRequest().body(Map.of("error", "Chiến dịch đã đóng, không thể thay đổi trạng thái!"));
             }
             
-            // Cập nhật trực tiếp
-            campaignRepository.updateStatus(id, status);
+            // Note: Since we are replacing repository call, we might need updateStatus in Service
+            // For now, using saveCampaign after setting status
+            current.setStatus(status);
+            campaignService.saveCampaign(current);
             return ResponseEntity.ok().body(Map.of("message", "Cập nhật trạng thái thành công!"));
         }
         return ResponseEntity.badRequest().body(Map.of("error", "Không tìm thấy chiến dịch!"));
@@ -336,10 +325,10 @@ public class AdminController {
         model.addAttribute("activePage", "admin-donations");
         addCommonData(model, session);
         
-        // Sắp xếp theo ngày tạo giảm dần (mới nhất lên đầu)
         Pageable pageable = PageRequest.of(page - 1, 20, Sort.by("createdAt").descending()); 
         String trimmedKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
-        Page<Donation> donationPage = donationRepository.searchDonations(trimmedKeyword, status, pageable);
+        
+        Page<Donation> donationPage = donationService.searchDonations(trimmedKeyword, status, pageable);
         
         model.addAttribute("donations", donationPage.getContent());
         model.addAttribute("keyword", keyword);

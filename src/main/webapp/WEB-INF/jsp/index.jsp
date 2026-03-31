@@ -136,6 +136,13 @@
                                 </div>
                             </c:if>
 
+                            <c:if test="${not empty sessionScope.loggedInUser}">
+                                <div class="mb-4">
+                                    <label class="form-label small fw-bold text-muted text-uppercase">Lời nhắn gửi đến chiến dịch</label>
+                                    <textarea name="message" class="form-control rounded-4 px-4 py-3" rows="2" placeholder="Nhập lời nhắn của bạn (Tùy chọn)..."></textarea>
+                                </div>
+                            </c:if>
+
                             <div class="mb-4">
                                 <label class="form-label small fw-bold text-muted text-uppercase d-flex justify-content-between">
                                     <span>Phương thức thanh toán</span>

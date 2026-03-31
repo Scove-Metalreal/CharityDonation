@@ -23,4 +23,7 @@ public interface CampaignService {
     void subtractCurrentMoney(Integer campaignId, BigDecimal amount);
     
     void extendCampaign(Integer campaignId, java.time.LocalDate newEndDate);
+
+    long countCampaignsByStatus(Integer status);
+    boolean existsByCode(String code);
 }

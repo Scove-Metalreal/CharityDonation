@@ -16,4 +16,5 @@ public interface UserService {
     Optional<User> getUserByPhoneNumber(String phoneNumber);
     List<User> searchUsers(String keyword);
     Page<User> searchUsers(String keyword, Integer roleId, Integer status, java.time.LocalDateTime inactiveSince, Pageable pageable);
+    long countUsers();
 }

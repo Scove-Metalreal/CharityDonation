@@ -100,4 +100,9 @@ public class UserServiceImpl implements UserService {
     public Page<User> searchUsers(String keyword, Integer roleId, Integer status, java.time.LocalDateTime inactiveSince, Pageable pageable) {
         return userRepository.searchUsers(keyword, roleId, status, inactiveSince, pageable);
     }
+
+    @Override
+    public long countUsers() {
+        return userRepository.count();
+    }
 }

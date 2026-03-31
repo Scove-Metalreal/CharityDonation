@@ -1,11 +1,16 @@
 package org.tnphuong.charity.donation.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.tnphuong.charity.donation.dao.DonationRepository;
 import org.tnphuong.charity.donation.entity.Donation;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,11 +52,12 @@ public class DonationServiceImpl implements DonationService {
     }
 
     @Override
-    public List<Donation> getDonationsByUserId(Integer userId, Integer donationStatus, Integer campaignStatus, org.springframework.data.domain.Sort sort) {
+    public List<Donation> getDonationsByUserId(Integer userId, Integer donationStatus, Integer campaignStatus, Sort sort) {
         return donationRepository.findByUserAndFilters(userId, donationStatus, campaignStatus, sort);
     }
 
     @Override
+    @Transactional
     public void confirmDonation(Integer donationId) {
         donationRepository.findById(donationId).ifPresent(donation -> {
             donation.setStatus(1); // 1 = STATUS_CONFIRMED
@@ -75,6 +81,7 @@ public class DonationServiceImpl implements DonationService {
     }
 
     @Override
+    @Transactional
     public void rejectDonation(Integer donationId, String reason) {
         donationRepository.findById(donationId).ifPresent(donation -> {
             donation.setStatus(2); // 2 = STATUS_REJECTED
@@ -113,5 +120,31 @@ public class DonationServiceImpl implements DonationService {
     @Override
     public List<Donation> getRecentDonorsByCampaignId(Integer campaignId, int limit) {
         return donationRepository.findRecentDonors(campaignId, PageRequest.of(0, limit));
+    }
+
+    @Override
+    public long countDonationsByStatus(Integer status) {
+        return donationRepository.countByStatus(status);
+    }
+
+    @Override
+    public List<Donation> getRecentDonations(int limit) {
+        return donationRepository.findTop5ByOrderByCreatedAtDesc();
+    }
+
+    @Override
+    public List<Donation> getDashboardDonations(int limit) {
+        return donationRepository.findTop10ByOrderByCreatedAtDesc();
+    }
+
+    @Override
+    public BigDecimal getTotalDonatedAmount() {
+        BigDecimal total = donationRepository.sumTotalDonations();
+        return total != null ? total : BigDecimal.ZERO;
+    }
+
+    @Override
+    public Page<Donation> searchDonations(String keyword, Integer status, Pageable pageable) {
+        return donationRepository.searchDonations(keyword, status, pageable);
     }
 }
