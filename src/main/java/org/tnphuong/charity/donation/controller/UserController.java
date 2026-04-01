@@ -67,9 +67,6 @@ public class UserController {
         model.addAttribute("user", userService.convertToDTO(user));
         model.addAttribute("donations", donations.stream().map(donationService::convertToDTO).toList());
         model.addAttribute("followingList", followingList);
-        model.addAttribute("totalDonated", donations.stream()
-                .filter(d -> d.getStatus() == DonationStatus.CONFIRMED.getValue())
-                .mapToDouble(d -> d.getAmount().doubleValue()).sum());
         
         model.addAttribute("donationStatus", donationStatus);
         model.addAttribute("campaignStatus", campaignStatus);

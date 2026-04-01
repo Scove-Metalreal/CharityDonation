@@ -45,7 +45,7 @@
                                 <div class="col-md-4 bg-light p-5 text-center border-end">
                                     <img src="${not empty user.avatarUrl ? user.avatarUrl : 'https://ui-avatars.com/api/?name='.concat(user.fullName).concat('&background=10B981&color=fff&size=200')}" class="rounded-circle shadow mb-4" width="150">
                                     <h4 class="fw-bold mb-1">${user.fullName}</h4>
-                                    <span class="badge bg-brand-primary rounded-pill px-3">${user.role.roleName}</span>
+                                    <span class="badge bg-brand-primary rounded-pill px-3">${user.roleName}</span>
                                     
                                     <div class="mt-4 pt-4 border-top text-start">
                                         <div class="mb-3">
@@ -90,19 +90,19 @@
                                             <div class="col-md-4">
                                                 <div class="p-3 bg-light rounded-3 text-center">
                                                     <div class="text-muted smallest fw-bold">TỔNG QUYÊN GÓP</div>
-                                                    <div class="fs-4 fw-bold brand-primary mt-1">15.000.000đ</div>
+                                                    <div class="fs-4 fw-bold brand-primary mt-1"><fmt:formatNumber value="${user.totalDonatedAmount}" type="number"/>đ</div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="p-3 bg-light rounded-3 text-center">
                                                     <div class="text-muted smallest fw-bold">CHIẾN DỊCH THAM GIA</div>
-                                                    <div class="fs-4 fw-bold text-dark mt-1">8</div>
+                                                    <div class="fs-4 fw-bold text-dark mt-1">${user.campaignCount}</div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="p-3 bg-light rounded-3 text-center">
                                                     <div class="text-muted smallest fw-bold">THEO DÕI</div>
-                                                    <div class="fs-4 fw-bold text-dark mt-1">12</div>
+                                                    <div class="fs-4 fw-bold text-dark mt-1">${user.followingCount}</div>
                                                 </div>
                                             </div>
                                         </div>

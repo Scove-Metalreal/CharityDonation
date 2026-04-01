@@ -63,7 +63,7 @@
                                         <label class="form-label small fw-bold text-muted">Vai trò</label>
                                         <select name="role.id" class="form-select rounded-pill px-3" required>
                                             <c:forEach var="role" items="${roles}">
-                                                <option value="${role.id}" ${user.role.id == role.id ? 'selected' : ''}>${role.roleName}</option>
+                                                <option value="${role.id}" ${user.role != null and user.role.id == role.id ? 'selected' : ''}>${role.roleName}</option>
                                             </c:forEach>
                                         </select>
                                     </div>

@@ -41,6 +41,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private org.tnphuong.charity.donation.dao.UserFollowingRepository userFollowingRepository;
+
     @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -144,6 +147,16 @@ public class UserServiceImpl implements UserService {
         dto.setAuthProvider(user.getAuthProvider());
         dto.setRoleName(user.getRole() != null ? user.getRole().getRoleName() : null);
         dto.setStatus(user.getStatus());
+        
+        java.math.BigDecimal totalAmount = donationRepository.sumDonationsByUserId(user.getId(), DonationStatus.CONFIRMED.getValue());
+        dto.setTotalDonatedAmount(totalAmount != null ? totalAmount : java.math.BigDecimal.ZERO);
+        dto.setCampaignCount(donationRepository.countCampaignsByUserId(user.getId(), DonationStatus.CONFIRMED.getValue()));
+        dto.setFollowingCount(userFollowingRepository.countByUserId(user.getId()));
+        
+        if (dto.getTotalDonatedAmount().compareTo(java.math.BigDecimal.ZERO) == 0) {
+            logger.debug("Stats for user {} (ID: {}) are zero. Role: {}", user.getEmail(), user.getId(), dto.getRoleName());
+        }
+        
         dto.setCreatedAt(user.getCreatedAt());
         dto.setLastLogin(user.getLastLogin());
         return dto;

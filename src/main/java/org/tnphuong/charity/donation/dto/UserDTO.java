@@ -14,6 +14,9 @@ public class UserDTO {
     private String authProvider;
     private String roleName;
     private Integer status;
-    private LocalDateTime createdAt;
-    private LocalDateTime lastLogin;
+    private java.math.BigDecimal totalDonatedAmount;
+    private Long campaignCount;
+    private Long followingCount;
+    private java.time.LocalDateTime createdAt;
+    private java.time.LocalDateTime lastLogin;
 }

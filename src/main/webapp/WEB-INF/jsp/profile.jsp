@@ -122,19 +122,19 @@
                     <div class="col-md-3">
                         <div class="card p-3 text-center border border-warning shadow-none h-100 bg-warning bg-opacity-10">
                             <small class="text-warning uppercase fw-bold" style="font-size: 0.7rem;">TỔNG QUYÊN GÓP</small>
-                            <h4 class="mt-2 mb-0 fw-bold text-warning"><fmt:formatNumber value="${totalDonated}" type="number"/> đ</h4>
+                            <h4 class="mt-2 mb-0 fw-bold text-warning"><fmt:formatNumber value="${user.totalDonatedAmount}" type="number"/> đ</h4>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card p-3 text-center border shadow-none h-100">
                             <small class="brand-primary uppercase fw-bold" style="font-size: 0.7rem;">QUYÊN GÓP</small>
-                            <h5 class="mt-2 mb-0 fw-bold brand-primary">${donations.size()}</h5>
+                            <h5 class="mt-2 mb-0 fw-bold brand-primary">${user.campaignCount}</h5>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card p-3 text-center border shadow-none h-100 hover-bg-light transition">
                             <small class="brand-primary uppercase fw-bold" style="font-size: 0.7rem;">ĐANG THEO DÕI</small>
-                            <h5 class="mt-2 mb-0 fw-bold brand-primary">${followingList.size()}</h5>
+                            <h5 class="mt-2 mb-0 fw-bold brand-primary">${user.followingCount}</h5>
                         </div>
                     </div>
                 </div>

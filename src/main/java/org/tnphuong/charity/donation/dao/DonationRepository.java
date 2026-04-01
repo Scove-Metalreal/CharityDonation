@@ -42,4 +42,10 @@ public interface DonationRepository extends JpaRepository<Donation, Integer> {
     Page<Donation> searchDonations(@Param("keyword") String keyword, 
                                   @Param("status") Integer status, 
                                   Pageable pageable);
+
+    @Query("SELECT SUM(d.amount) FROM Donation d WHERE d.user.id = :userId AND d.status = :status")
+    java.math.BigDecimal sumDonationsByUserId(@Param("userId") Integer userId, @Param("status") Integer status);
+
+    @Query("SELECT COUNT(DISTINCT d.campaign.id) FROM Donation d WHERE d.user.id = :userId AND d.status = :status")
+    long countCampaignsByUserId(@Param("userId") Integer userId, @Param("status") Integer status);
 }
