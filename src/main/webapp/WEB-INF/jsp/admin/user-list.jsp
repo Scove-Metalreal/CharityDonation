@@ -78,8 +78,23 @@
                                     <option value="1q" ${inactive == '1q' ? 'selected' : ''}>Hơn 1 quý</option>
                                 </select>
                             </div>
+                            <div class="col-md-2">
+                                <label class="form-label smallest fw-bold text-muted text-uppercase">Sắp xếp</label>
+                                <select name="sortBy" class="form-select form-select-sm rounded-pill px-3">
+                                    <option value="createdAt" ${sortBy == 'createdAt' ? 'selected' : ''}>Ngày tạo</option>
+                                    <option value="fullName" ${sortBy == 'fullName' ? 'selected' : ''}>Tên người dùng</option>
+                                    <option value="email" ${sortBy == 'email' ? 'selected' : ''}>Email</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label smallest fw-bold text-muted text-uppercase">Thứ tự</label>
+                                <select name="direction" class="form-select form-select-sm rounded-pill px-3">
+                                    <option value="desc" ${direction == 'desc' ? 'selected' : ''}>Giảm dần</option>
+                                    <option value="asc" ${direction == 'asc' ? 'selected' : ''}>Tăng dần</option>
+                                </select>
+                            </div>
                             <div class="col-md-2 d-flex align-items-end">
-                                <button type="submit" class="btn btn-brand-primary btn-sm w-100 rounded-pill fw-bold">Lọc dữ liệu</button>
+                                <button type="submit" class="btn btn-brand-primary btn-sm w-100 rounded-pill fw-bold">Lọc & Xếp</button>
                             </div>
                         </form>
                     </div>
@@ -202,7 +217,8 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold text-muted">Địa chỉ Email</label>
-                                <input type="email" name="email" class="form-control rounded-pill px-3 bg-light border-0 shadow-sm" placeholder="email@example.com" required>
+                                <input type="email" name="email" id="adminEmailInput" class="form-control rounded-pill px-3 bg-light border-0 shadow-sm" placeholder="email@example.com" required>
+                                <div class="invalid-feedback ps-3">Vui lòng nhập địa chỉ email hợp lệ (VD: abc@mail.com)</div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold text-muted">Số điện thoại</label>
@@ -322,12 +338,16 @@
                 if (response.ok) {
                     await Swal.fire({ icon: 'success', title: 'Thành công', text: result.message, timer: 1500, showConfirmButton: false }).then(() => location.reload());
                 } else {
-                    let errorMsg = "";
-                    for (const key in result) { errorMsg += `${result[key]}<br>`; }
-                    Swal.fire({ icon: 'error', title: 'Lỗi dữ liệu', html: `<div class="text-start text-danger">${errorMsg}</div>` });
+                    const errorMsg = result.error || (typeof result === 'object' ? Object.values(result)[0] : "Vui lòng kiểm tra lại thông tin.");
+                    Swal.fire({ 
+                        icon: 'error', 
+                        title: 'Không thể lưu người dùng', 
+                        text: errorMsg,
+                        confirmButtonColor: '#10B981'
+                    });
                 }
             } catch (error) {
-                Swal.fire('Lỗi', 'Kết nối server thất bại!', 'error');
+                Swal.fire('Lỗi hệ thống', 'Không thể kết nối tới máy chủ. Vui lòng thử lại sau!', 'error');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerText = 'LƯU NGƯỜI DÙNG';

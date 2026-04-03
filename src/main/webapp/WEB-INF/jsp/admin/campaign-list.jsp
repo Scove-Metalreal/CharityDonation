@@ -95,8 +95,24 @@
                                 <label class="form-label smallest fw-bold text-muted text-uppercase">SĐT nhận</label>
                                 <input type="text" name="phone" class="form-control form-control-sm rounded-pill px-3" value="${phone}" placeholder="Số điện thoại...">
                             </div>
-                            <div class="col-md-3 d-flex align-items-end">
-                                <button type="submit" class="btn btn-brand-primary btn-sm w-100 rounded-pill fw-bold">Tìm kiếm</button>
+                            <div class="col-md-2">
+                                <label class="form-label smallest fw-bold text-muted text-uppercase">Sắp xếp</label>
+                                <select name="sortBy" class="form-select form-select-sm rounded-pill px-3">
+                                    <option value="createdAt" ${sortBy == 'createdAt' ? 'selected' : ''}>Ngày tạo</option>
+                                    <option value="name" ${sortBy == 'name' ? 'selected' : ''}>Tên chiến dịch</option>
+                                    <option value="targetMoney" ${sortBy == 'targetMoney' ? 'selected' : ''}>Mục tiêu</option>
+                                    <option value="currentMoney" ${sortBy == 'currentMoney' ? 'selected' : ''}>Đã đạt được</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label smallest fw-bold text-muted text-uppercase">Thứ tự</label>
+                                <select name="direction" class="form-select form-select-sm rounded-pill px-3">
+                                    <option value="desc" ${direction == 'desc' ? 'selected' : ''}>Giảm dần</option>
+                                    <option value="asc" ${direction == 'asc' ? 'selected' : ''}>Tăng dần</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-brand-primary btn-sm w-100 rounded-pill fw-bold">Lọc & Xếp</button>
                             </div>
                         </form>
                     </div>

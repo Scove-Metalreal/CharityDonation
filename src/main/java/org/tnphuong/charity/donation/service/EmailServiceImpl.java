@@ -60,4 +60,18 @@ public class EmailServiceImpl implements EmailService {
                 "Đội ngũ CharityDonation");
         mailSender.send(message);
     }
+
+    @Override
+    public void sendOTPEmail(String toEmail, String fullName, String otp) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject("Mã xác thực khôi phục mật khẩu - CharityDonation");
+        message.setText("Xin chào " + fullName + ",\n\n" +
+                "Bạn đã yêu cầu khôi phục mật khẩu. Mã xác thực (OTP) của bạn là: " + otp + "\n" +
+                "Mã này có hiệu lực trong vòng 5 phút. Vui lòng không chia sẻ mã này với bất kỳ ai.\n\n" +
+                "Nếu bạn không yêu cầu thay đổi này, hãy bỏ qua email này.\n\n" +
+                "Trân trọng,\n" +
+                "Đội ngũ CharityDonation");
+        mailSender.send(message);
+    }
 }

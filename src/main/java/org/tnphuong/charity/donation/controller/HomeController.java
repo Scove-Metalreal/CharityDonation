@@ -74,8 +74,12 @@ public class HomeController {
             model.addAttribute("campaign", campaignService.convertToDTO(campaign));
             model.addAttribute("donationCount", donationService.countConfirmedDonationsByCampaignId(id));
             
-            long daysRemaining = java.time.temporal.ChronoUnit.DAYS.between(java.time.LocalDate.now(), campaign.getEndDate());
-            model.addAttribute("daysRemaining", daysRemaining > 0 ? daysRemaining : 0);
+            if (campaign.getEndDate() != null) {
+                long daysRemaining = java.time.temporal.ChronoUnit.DAYS.between(java.time.LocalDate.now(), campaign.getEndDate());
+                model.addAttribute("daysRemaining", daysRemaining > 0 ? daysRemaining : 0);
+            } else {
+                model.addAttribute("daysRemaining", 0);
+            }
 
             model.addAttribute("topDonors10", donationService.getTopDonorsByCampaignId(id, 10).stream().map(donationService::convertToDTO).toList());
             model.addAttribute("topDonors20", donationService.getTopDonorsByCampaignId(id, 20).stream().map(donationService::convertToDTO).toList());
@@ -97,6 +101,24 @@ public class HomeController {
             return "campaign-detail";
         }
         return "redirect:/";
+    }
+
+    @GetMapping("/companions")
+    public String listCompanions(@RequestParam(required = false) Integer id, Model model) {
+        try {
+            List<Companion> companions = companionService.getAllCompanions();
+            model.addAttribute("companions", companions);
+            
+            if (id != null) {
+                companionService.getCompanionById(id).ifPresent(c -> model.addAttribute("selectedCompanion", c));
+            } else if (companions != null && !companions.isEmpty()) {
+                model.addAttribute("selectedCompanion", companions.get(0));
+            }
+            return "companion-list";
+        } catch (Exception e) {
+            logger.error("Error in companions page: {}", e.getMessage());
+            return "redirect:/";
+        }
     }
 
     @PostMapping("/campaign/follow")

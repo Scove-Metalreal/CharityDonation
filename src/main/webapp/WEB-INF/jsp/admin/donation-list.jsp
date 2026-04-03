@@ -44,8 +44,22 @@
                                     <option value="2" ${status == 2 ? 'selected' : ''}>Đã từ chối</option>
                                 </select>
                             </div>
+                            <div class="col-md-2">
+                                <label class="form-label smallest fw-bold text-muted text-uppercase">Sắp xếp</label>
+                                <select name="sortBy" class="form-select form-select-sm rounded-pill px-3">
+                                    <option value="createdAt" ${sortBy == 'createdAt' ? 'selected' : ''}>Ngày quyên góp</option>
+                                    <option value="amount" ${sortBy == 'amount' ? 'selected' : ''}>Số tiền</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label smallest fw-bold text-muted text-uppercase">Thứ tự</label>
+                                <select name="direction" class="form-select form-select-sm rounded-pill px-3">
+                                    <option value="desc" ${direction == 'desc' ? 'selected' : ''}>Giảm dần</option>
+                                    <option value="asc" ${direction == 'asc' ? 'selected' : ''}>Tăng dần</option>
+                                </select>
+                            </div>
                             <div class="col-md-2 d-flex align-items-end">
-                                <button type="submit" class="btn btn-brand-primary btn-sm w-100 rounded-pill fw-bold">Lọc</button>
+                                <button type="submit" class="btn btn-brand-primary btn-sm w-100 rounded-pill fw-bold">Lọc & Xếp</button>
                             </div>
                         </form>
                     </div>

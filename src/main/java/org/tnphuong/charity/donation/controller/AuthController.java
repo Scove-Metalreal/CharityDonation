@@ -9,14 +9,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.tnphuong.charity.donation.dao.RoleRepository;
-import org.tnphuong.charity.donation.entity.Role;
 import org.tnphuong.charity.donation.entity.User;
 import org.tnphuong.charity.donation.entity.UserStatus;
 import org.tnphuong.charity.donation.service.UserService;
+import org.tnphuong.charity.donation.service.EmailService;
 import org.tnphuong.charity.donation.utils.PasswordUtils;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Random;
 
 @Controller
 @RequestMapping("/auth")
@@ -29,6 +32,9 @@ public class AuthController {
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping("/register")
     public String showRegisterForm(@RequestParam(value = "google", required = false) String googleParam, Model model, HttpSession session) {
@@ -69,10 +75,6 @@ public class AuthController {
 
         roleRepository.findByRoleName("USER").ifPresent(user::setRole);
         
-        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-            user.setPassword(PasswordUtils.hashPassword(user.getPassword()));
-        }
-
         if ("GOOGLE".equals(user.getAuthProvider())) {
             session.removeAttribute("google_email");
             session.removeAttribute("google_name");
@@ -88,13 +90,133 @@ public class AuthController {
     }
 
     @GetMapping("/login")
-    public String showLoginForm() {
+    public String showLoginForm(HttpSession session) {
+        clearResetSession(session);
         return "login";
     }
 
     @GetMapping("/forgot-password")
-    public String showForgotPasswordForm() {
+    public String showForgotPasswordForm(@RequestParam(required = false) String restart, HttpSession session) {
+        if ("true".equals(restart)) {
+            clearResetSession(session);
+        }
         return "forgot-password";
+    }
+
+    @PostMapping("/forgot-password")
+    public String handleForgotPassword(@RequestParam String email, RedirectAttributes redirectAttributes, HttpSession session) {
+        Optional<User> userOpt = userService.getUserByEmail(email.trim());
+        
+        if (userOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Email không tồn tại trong hệ thống!");
+            return "redirect:/auth/forgot-password";
+        }
+
+        User user = userOpt.get();
+        session.setAttribute("resetEmail", user.getEmail());
+        
+        // Tạo mã OTP 6 số
+        String otp = String.format("%06d", new Random().nextInt(999999));
+        user.setResetToken(otp);
+        user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(5));
+        userService.saveUser(user);
+
+        if ("LOCAL".equals(user.getAuthProvider())) {
+            // GIẢ LẬP SMS CHO TÀI KHOẢN LOCAL
+            String phone = user.getPhoneNumber();
+            String maskedPhone = (phone != null && phone.length() > 4) 
+                ? phone.substring(0, 3) + "..." + phone.substring(phone.length() - 3) 
+                : "Số điện thoại liên kết";
+            
+            session.setAttribute("maskedPhone", maskedPhone);
+            session.setAttribute("isSMS", true);
+            
+            // QUAN TRỌNG: In mã OTP ra Console để bạn copy
+            System.out.println("==========================================");
+            System.out.println("SMS SIMULATION: Gửi OTP tới " + phone);
+            System.out.println("MÃ OTP CỦA BẠN LÀ: " + otp);
+            System.out.println("==========================================");
+            
+            redirectAttributes.addFlashAttribute("message", "Mã xác thực đã được gửi tới số điện thoại " + maskedPhone);
+        } else {
+            // GỬI QUA EMAIL CHO TÀI KHOẢN GOOGLE
+            try {
+                emailService.sendOTPEmail(user.getEmail(), user.getFullName(), otp);
+                redirectAttributes.addFlashAttribute("message", "Mã xác thực đã được gửi tới email " + user.getEmail());
+            } catch (Exception e) {
+                logger.error("Failed to send OTP email: {}", e.getMessage());
+                redirectAttributes.addFlashAttribute("error", "Không thể gửi email. Vui lòng thử lại sau.");
+                return "redirect:/auth/forgot-password";
+            }
+        }
+
+        return "redirect:/auth/verify-otp";
+    }
+
+    @GetMapping("/verify-otp")
+    public String showVerifyOTPForm(HttpSession session) {
+        if (session.getAttribute("resetEmail") == null) return "redirect:/auth/forgot-password";
+        return "forgot-password";
+    }
+
+    @PostMapping("/verify-otp")
+    public String handleVerifyOTP(@RequestParam String otp, HttpSession session, RedirectAttributes redirectAttributes) {
+        String email = (String) session.getAttribute("resetEmail");
+        if (email == null) return "redirect:/auth/forgot-password";
+
+        Optional<User> userOpt = userService.getUserByEmail(email);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            if (user.getResetToken() != null && user.getResetToken().equals(otp) 
+                && user.getResetTokenExpiry().isAfter(LocalDateTime.now())) {
+                session.setAttribute("otpVerified", true);
+                return "redirect:/auth/reset-password";
+            }
+        }
+
+        redirectAttributes.addFlashAttribute("error", "Mã OTP không chính xác hoặc đã hết hạn!");
+        return "redirect:/auth/verify-otp";
+    }
+
+    @GetMapping("/reset-password")
+    public String showResetPasswordForm(HttpSession session) {
+        if (session.getAttribute("otpVerified") == null) return "redirect:/auth/forgot-password";
+        return "forgot-password";
+    }
+
+    @PostMapping("/reset-password")
+    public String handleResetPassword(@RequestParam String password, @RequestParam String confirmPassword, 
+                                     HttpSession session, RedirectAttributes redirectAttributes) {
+        if (session.getAttribute("otpVerified") == null) return "redirect:/auth/forgot-password";
+        String email = (String) session.getAttribute("resetEmail");
+
+        if (!password.equals(confirmPassword)) {
+            redirectAttributes.addFlashAttribute("error", "Mật khẩu xác nhận không khớp!");
+            return "redirect:/auth/reset-password";
+        }
+
+        Optional<User> userOpt = userService.getUserByEmail(email);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            user.setPassword(password);
+            user.setResetToken(null);
+            user.setResetTokenExpiry(null);
+            userService.saveUser(user);
+            
+            clearResetSession(session);
+            
+            redirectAttributes.addFlashAttribute("message", "Đổi mật khẩu thành công! Vui lòng đăng nhập.");
+            return "redirect:/auth/login?email=" + email;
+        }
+
+        return "redirect:/auth/forgot-password";
+    }
+
+    private void clearResetSession(HttpSession session) {
+        session.removeAttribute("resetEmail");
+        session.removeAttribute("otpVerified");
+        session.removeAttribute("maskedPhone");
+        session.removeAttribute("isSMS");
     }
 
     @PostMapping("/login")
@@ -111,7 +233,7 @@ public class AuthController {
                     return "login";
                 }
 
-                user.setLastLogin(java.time.LocalDateTime.now());
+                user.setLastLogin(LocalDateTime.now());
                 userService.saveUser(user);
                 
                 session.setAttribute("userId", user.getId());

@@ -21,7 +21,7 @@ public class User {
     private String fullName;
 
     @NotBlank(message = "Email không được để trống")
-    @Email(message = "Địa chỉ email không hợp lệ")
+    @Pattern(regexp = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$", message = "Địa chỉ email không đúng định dạng (VD: example@mail.com)")
     @Size(max = 100, message = "Email không được vượt quá 100 ký tự")
     @Column(name = "email", length = 100, nullable = false, unique = true)
     private String email;
@@ -66,4 +66,10 @@ public class User {
 
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
+
+    @Column(name = "reset_token", length = 10)
+    private String resetToken;
+
+    @Column(name = "reset_token_expiry")
+    private LocalDateTime resetTokenExpiry;
 }

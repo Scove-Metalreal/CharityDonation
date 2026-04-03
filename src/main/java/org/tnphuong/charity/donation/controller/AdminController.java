@@ -84,13 +84,18 @@ public class AdminController {
                            @RequestParam(required = false) Integer roleId,
                            @RequestParam(required = false) Integer status,
                            @RequestParam(required = false) String inactive,
+                           @RequestParam(defaultValue = "createdAt") String sortBy,
+                           @RequestParam(defaultValue = "desc") String direction,
                            @RequestParam(defaultValue = "1") int page, 
                            Model model, jakarta.servlet.http.HttpSession session) {
         model.addAttribute("activePage", "admin-users");
         addCommonData(model, session);
         
         int pageSize = 20; 
-        Pageable pageable = PageRequest.of(page - 1, pageSize);
+        org.springframework.data.domain.Sort sort = direction.equalsIgnoreCase("asc") 
+                ? org.springframework.data.domain.Sort.by(sortBy).ascending() 
+                : org.springframework.data.domain.Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page - 1, pageSize, sort);
         
         java.time.LocalDateTime inactiveSince = null;
         if (inactive != null && !inactive.isEmpty()) {
@@ -111,6 +116,8 @@ public class AdminController {
         model.addAttribute("roleId", roleId);
         model.addAttribute("status", status);
         model.addAttribute("inactive", inactive);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("direction", direction);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", userPage.getTotalPages());
         model.addAttribute("roles", roleService.getAllRoles());
@@ -139,43 +146,61 @@ public class AdminController {
     @ResponseBody
     public ResponseEntity<?> saveUser(@Valid @ModelAttribute("user") User user, BindingResult result) {
         if (result.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            result.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
-            return ResponseEntity.badRequest().body(errors);
+            // Lấy lỗi đầu tiên để hiển thị cho gọn
+            String firstError = result.getFieldErrors().get(0).getDefaultMessage();
+            return ResponseEntity.badRequest().body(Map.of("error", firstError));
         }
 
         if (user.getId() == null) {
             if (userService.getUserByEmail(user.getEmail()).isPresent()) {
-                return ResponseEntity.badRequest().body(Map.of("email", "Email đã tồn tại!"));
+                return ResponseEntity.badRequest().body(Map.of("error", "Email đã tồn tại!"));
             }
             if (user.getPhoneNumber() != null && !user.getPhoneNumber().isEmpty() 
                 && userService.getUserByPhoneNumber(user.getPhoneNumber()).isPresent()) {
-                return ResponseEntity.badRequest().body(Map.of("phone", "Số điện thoại đã tồn tại!"));
+                return ResponseEntity.badRequest().body(Map.of("error", "Số điện thoại đã tồn tại!"));
             }
         }
-        userService.saveUser(user);
-        return ResponseEntity.ok().body(Map.of("message", "Lưu người dùng thành công!"));
+        
+        try {
+            userService.saveUser(user);
+            return ResponseEntity.ok().body(Map.of("message", "Lưu người dùng thành công!"));
+        } catch (Exception e) {
+            logger.error("Error saving user: {}", e.getMessage());
+            String msg = e.getMessage();
+            if (msg != null && msg.contains("Duplicate entry")) {
+                if (msg.contains("email")) msg = "Email này đã được sử dụng!";
+                else if (msg.contains("phone_number")) msg = "Số điện thoại này đã được sử dụng!";
+            }
+            return ResponseEntity.badRequest().body(Map.of("error", msg != null ? msg : "Có lỗi xảy ra khi lưu dữ liệu"));
+        }
     }
 
     @PostMapping("/users/toggle-status")
-    public String toggleStatus(@RequestParam Integer userId) {
-        userService.getUserById(userId).ifPresent(user -> {
+    @ResponseBody
+    public ResponseEntity<?> toggleStatus(@RequestParam Integer userId) {
+        try {
+            User user = userService.getUserById(userId).orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng!"));
             user.setStatus(user.getStatus() == UserStatus.ACTIVE.getValue() ? UserStatus.LOCKED.getValue() : UserStatus.ACTIVE.getValue());
             userService.saveUser(user);
+            String statusName = user.getStatus() == UserStatus.ACTIVE.getValue() ? "Mở khóa" : "Khóa";
             logger.info("Admin toggled status for user ID {}: now {}", userId, user.getStatus());
-        });
-        return "redirect:/admin/users";
+            return ResponseEntity.ok().body(Map.of("message", statusName + " người dùng thành công!"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     @PostMapping("/users/delete")
-    public String deleteUser(@RequestParam Integer userId) {
+    @ResponseBody
+    public ResponseEntity<?> deleteUser(@RequestParam Integer userId) {
         try {
             userService.deleteUser(userId);
             logger.info("Admin deleted user ID: {}", userId);
+            return ResponseEntity.ok().body(Map.of("message", "Xóa người dùng thành công!"));
         } catch (Exception e) {
             logger.error("Failed to delete user ID {}: {}", userId, e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", "Lỗi: " + e.getMessage()));
         }
-        return "redirect:/admin/users";
     }
 
     @PostMapping("/users/update-role")
@@ -198,12 +223,17 @@ public class AdminController {
     public String listCampaigns(@RequestParam(required = false) Integer status,
                                 @RequestParam(required = false) String phone,
                                 @RequestParam(required = false) String code,
+                                @RequestParam(defaultValue = "createdAt") String sortBy,
+                                @RequestParam(defaultValue = "desc") String direction,
                                 @RequestParam(defaultValue = "1") int page,
                                 Model model, jakarta.servlet.http.HttpSession session) {
         model.addAttribute("activePage", "admin-campaigns");
         addCommonData(model, session);
         
-        Pageable pageable = PageRequest.of(page - 1, 20); 
+        org.springframework.data.domain.Sort sort = direction.equalsIgnoreCase("asc") 
+                ? org.springframework.data.domain.Sort.by(sortBy).ascending() 
+                : org.springframework.data.domain.Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page - 1, 20, sort); 
         Page<Campaign> campaignPage = campaignService.searchCampaigns(status, phone, code, pageable);
         
         model.addAttribute("campaigns", campaignPage.getContent().stream().map(campaignService::convertToDTO).toList());
@@ -212,6 +242,8 @@ public class AdminController {
         model.addAttribute("status", status);
         model.addAttribute("phone", phone);
         model.addAttribute("code", code);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("direction", direction);
         model.addAttribute("allCompanions", companionService.getAllCompanions());
         
         return "admin/campaign-list";
@@ -328,25 +360,31 @@ public class AdminController {
     @GetMapping("/donations")
     public String listDonations(@RequestParam(required = false) String keyword,
                                @RequestParam(required = false) Integer status,
+                               @RequestParam(defaultValue = "createdAt") String sortBy,
+                               @RequestParam(defaultValue = "desc") String direction,
                                @RequestParam(defaultValue = "1") int page,
                                Model model, jakarta.servlet.http.HttpSession session) {
         model.addAttribute("activePage", "admin-donations");
         addCommonData(model, session);
-        
-        Pageable pageable = PageRequest.of(page - 1, 20, Sort.by("createdAt").descending()); 
+
+        org.springframework.data.domain.Sort sort = direction.equalsIgnoreCase("asc") 
+                ? org.springframework.data.domain.Sort.by(sortBy).ascending() 
+                : org.springframework.data.domain.Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page - 1, 20, sort);
         String trimmedKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
-        
+
         Page<Donation> donationPage = donationService.searchDonations(trimmedKeyword, status, pageable);
-        
+
         model.addAttribute("donations", donationPage.getContent().stream().map(donationService::convertToDTO).toList());
         model.addAttribute("keyword", keyword);
         model.addAttribute("status", status);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("direction", direction);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", donationPage.getTotalPages());
-        
+
         return "admin/donation-list";
     }
-
     @PostMapping("/donations/confirm")
     public String confirmDonation(@RequestParam Integer donationId) {
         donationService.confirmDonation(donationId);

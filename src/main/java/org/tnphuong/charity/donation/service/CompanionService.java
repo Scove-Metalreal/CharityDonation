@@ -6,4 +6,5 @@ import java.util.List;
 public interface CompanionService {
     List<Companion> getAllCompanions();
     List<Companion> getAllCompanionsByIds(List<Integer> ids);
+    java.util.Optional<Companion> getCompanionById(Integer id);
 }

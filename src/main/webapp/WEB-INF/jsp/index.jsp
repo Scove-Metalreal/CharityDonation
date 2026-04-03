@@ -81,6 +81,20 @@
         .bg-soft-red { background: #fef2f2; color: #ef4444; }
         .btn-view-more { border: 2px solid var(--color-primary); color: var(--color-primary); font-weight: 700; border-radius: 50rem; padding: 12px 40px; transition: 0.3s; background: transparent; }
         .btn-view-more:hover { background: var(--color-primary); color: white; }
+
+        /* Updated Expand Animation */
+        .expandable-list {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.5s linear;
+            overflow: hidden;
+        }
+        .expandable-list.expanded {
+            grid-template-rows: 1fr;
+        }
+        .expandable-content {
+            min-height: 0;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -295,31 +309,80 @@
                 <!-- 3. Campaigns Section -->
                 <section id="campaigns" class="py-5 bg-light px-5">
                     <div class="text-center mb-5"><h2 class="fw-bold section-title">Chiến dịch quyên góp</h2></div>
-                    <div id="campaignList" class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                    
+                    <!-- Initial 9 Campaigns -->
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
                         <c:forEach var="campaign" items="${campaigns}" varStatus="loop">
-                            <div class="col campaign-item ${loop.index >= 9 ? 'd-none' : ''}">
-                                <c:set var="campaign" value="${campaign}" scope="request"/><c:set var="isCompact" value="false" scope="request"/>
-                                <jsp:include page="fragments/donation-card.jsp"/>
-                            </div>
+                            <c:if test="${loop.index < 9}">
+                                <div class="col">
+                                    <c:set var="campaign" value="${campaign}" scope="request"/><c:set var="isCompact" value="false" scope="request"/>
+                                    <jsp:include page="fragments/donation-card.jsp"/>
+                                </div>
+                            </c:if>
                         </c:forEach>
                     </div>
+
+                    <!-- Hidden Campaigns with Animation -->
                     <c:if test="${campaigns.size() > 9}">
-                        <div class="text-center mt-5"><button id="btnMoreCampaigns" class="btn btn-view-more" onclick="toggleMore('campaign')">XEM THÊM CHIẾN DỊCH</button></div>
+                        <div id="campaignExpand" class="expandable-list mt-4">
+                            <div class="expandable-content">
+                                <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                                    <c:forEach var="campaign" items="${campaigns}" varStatus="loop">
+                                        <c:if test="${loop.index >= 9}">
+                                            <div class="col">
+                                                <c:set var="campaign" value="${campaign}" scope="request"/><c:set var="isCompact" value="false" scope="request"/>
+                                                <jsp:include page="fragments/donation-card.jsp"/>
+                                            </div>
+                                        </c:if>
+                                    </c:forEach>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-5"><button id="btnMoreCampaigns" class="btn btn-view-more" onclick="toggleAnimate('campaign')">XEM THÊM CHIẾN DỊCH</button></div>
                     </c:if>
                 </section>
 
                 <!-- 4. Partners Section -->
                 <section id="partners" class="py-5 px-5">
                     <div class="text-center mb-5"><h2 class="fw-bold section-title brand-primary">Đối tác đồng hành</h2></div>
-                    <div id="partnerList" class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
+                    
+                    <!-- Initial 4 Partners -->
+                    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
                         <c:forEach var="comp" items="${companions}" varStatus="loop">
-                            <div class="col partner-item ${loop.index >= 4 ? 'd-none' : ''}">
-                                <div class="partner-card"><img src="${comp.logoUrl}" class="partner-logo" alt="${comp.name}"><div class="partner-name fw-bold small text-muted">${comp.name}</div></div>
-                            </div>
+                            <c:if test="${loop.index < 4}">
+                                <div class="col">
+                                    <a href="${pageContext.request.contextPath}/companions?id=${comp.id}" class="text-decoration-none">
+                                        <div class="partner-card">
+                                            <img src="${comp.logoUrl}" class="partner-logo" alt="${comp.name}">
+                                            <div class="partner-name fw-bold small text-muted">${comp.name}</div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </c:if>
                         </c:forEach>
                     </div>
+
+                    <!-- Hidden Partners with Animation -->
                     <c:if test="${companions.size() > 4}">
-                        <div class="text-center mt-5"><button id="btnMorePartners" class="btn btn-view-more" onclick="toggleMore('partner')">XEM THÊM ĐỐI TÁC</button></div>
+                        <div id="partnerExpand" class="expandable-list mt-4">
+                            <div class="expandable-content">
+                                <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
+                                    <c:forEach var="comp" items="${companions}" varStatus="loop">
+                                        <c:if test="${loop.index >= 4}">
+                                            <div class="col">
+                                                <a href="${pageContext.request.contextPath}/companions?id=${comp.id}" class="text-decoration-none">
+                                                    <div class="partner-card">
+                                                        <img src="${comp.logoUrl}" class="partner-logo" alt="${comp.name}">
+                                                        <div class="partner-name fw-bold small text-muted">${comp.name}</div>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        </c:if>
+                                    </c:forEach>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-5"><button id="btnMorePartners" class="btn btn-view-more" onclick="toggleAnimate('partner')">XEM THÊM ĐỐI TÁC</button></div>
                     </c:if>
                 </section>
 
@@ -470,39 +533,22 @@
             }
         }
 
-        function toggleMore(type) {
-            const listId = type === 'campaign' ? 'campaignList' : 'partnerList';
-            const itemClass = type === 'campaign' ? 'campaign-item' : 'partner-item';
-            const btnId = type === 'campaign' ? 'btnMoreCampaigns' : 'btnMorePartners';
-            const initialCount = type === 'campaign' ? 9 : 4;
-            const increment = type === 'campaign' ? 6 : 4;
-            const list = document.getElementById(listId);
-            const items = list ? list.getElementsByClassName(itemClass) : [];
-            const btn = document.getElementById(btnId);
-
-            if (btn && items.length > 0) {
-                if (btn.innerText.includes('XEM THÊM')) {
-                    let shownCount = 0;
-                    for (let i = 0; i < items.length; i++) {
-                        if (items[i].classList.contains('d-none')) {
-                            items[i].classList.remove('d-none');
-                            shownCount++;
-                            if (shownCount >= increment) break;
-                        }
-                    }
-                    let remainsHidden = false;
-                    for (let i = 0; i < items.length; i++) {
-                        if (items[i].classList.contains('d-none')) { remainsHidden = true; break; }
-                    }
-                    if (!remainsHidden) btn.innerText = 'THU GỌN BỚT';
-                } else {
-                    for (let i = 0; i < items.length; i++) {
-                        if (i >= initialCount) items[i].classList.add('d-none');
-                    }
-                    btn.innerText = type === 'campaign' ? 'XEM THÊM CHIẾN DỊCH' : 'XEM THÊM ĐỐI TÁC';
-                    document.getElementById(type === 'campaign' ? 'campaigns' : 'partners').scrollIntoView({ behavior: 'smooth' });
-                }
+        function toggleAnimate(type) {
+            const container = document.getElementById(type === 'campaign' ? 'campaignExpand' : 'partnerExpand');
+            const btn = document.getElementById(type === 'campaign' ? 'btnMoreCampaigns' : 'btnMorePartners');
+            
+            if (container.classList.contains('expanded')) {
+                container.classList.remove('expanded');
+                btn.innerText = type === 'campaign' ? 'XEM THÊM CHIẾN DỊCH' : 'XEM THÊM ĐỐI TÁC';
+                document.getElementById(type === 'campaign' ? 'campaigns' : 'partners').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                container.classList.add('expanded');
+                btn.innerText = 'THU GỌN BỚT';
             }
+        }
+
+        function toggleMore(type) {
+            toggleAnimate(type);
         }
     </script>
 </body>

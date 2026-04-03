@@ -442,6 +442,7 @@
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Email</label>
                             <input type="email" name="email" class="form-control" value="${user.email}" required>
+                            <div class="invalid-feedback">Vui lòng nhập địa chỉ email hợp lệ.</div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Số điện thoại</label>

@@ -13,7 +13,7 @@ public class PasswordUtils {
 
     public static boolean checkPassword(String password, String hashedPassword) {
         try {
-            if (hashedPassword == null || !hashedPassword.startsWith("$2a$") || hashedPassword.length() < 30) {
+            if (hashedPassword == null || !hashedPassword.startsWith("$2") || hashedPassword.length() < 30) {
                 return false;
             }
             return BCrypt.checkpw(password, hashedPassword);

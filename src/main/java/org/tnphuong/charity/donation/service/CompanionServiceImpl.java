@@ -21,4 +21,9 @@ public class CompanionServiceImpl implements CompanionService {
     public List<Companion> getAllCompanionsByIds(List<Integer> ids) {
         return companionRepository.findAllById(ids);
     }
+
+    @Override
+    public java.util.Optional<Companion> getCompanionById(Integer id) {
+        return companionRepository.findByIdWithCampaigns(id);
+    }
 }
