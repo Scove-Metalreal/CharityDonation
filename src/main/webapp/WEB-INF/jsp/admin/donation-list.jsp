@@ -64,40 +64,56 @@
                         </form>
                     </div>
 
-                    <div class="card border-0 shadow-sm p-4">
+                    <!-- Donation Table -->
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead class="bg-light text-uppercase smallest fw-bold text-muted">
-                                    <tr>
-                                        <th class="border-0">Nhà hảo tâm</th>
-                                        <th class="border-0">Chiến dịch</th>
-                                        <th class="border-0 text-center">Trạng thái</th>
-                                        <th class="border-0 text-end">Hành động</th>
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="bg-light bg-opacity-50">
+                                    <tr class="smallest text-muted text-uppercase">
+                                        <th class="border-0 px-4 py-3">Nhà hảo tâm</th>
+                                        <th class="border-0 py-3">Chiến dịch</th>
+                                        <th class="border-0 py-3 text-end">Số tiền</th>
+                                        <th class="border-0 text-center py-3">Trạng thái</th>
+                                        <th class="border-0 text-end px-4 py-3">Hành động</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <c:forEach var="d" items="${donations}">
                                         <tr>
-                                            <td>
-                                                <div class="fw-bold text-dark">${d.donorName}</div>
-                                                <small class="text-muted smallest">Quyên góp: <fmt:formatNumber value="${d.amount}" type="number"/>đ</small>
+                                            <td class="px-4 py-3">
+                                                <div class="d-flex align-items-center">
+                                                    <img src="https://ui-avatars.com/api/?name=${d.donorName}&background=random&color=fff&size=36" class="rounded-circle me-3">
+                                                    <div>
+                                                        <div class="fw-bold text-dark small">${d.donorName}</div>
+                                                        <div class="smallest text-muted">
+                                                            <fmt:parseDate value="${d.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" type="both" />
+                                                            <fmt:formatDate value="${parsedDate}" pattern="dd/MM/yyyy HH:mm" />
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </td>
-                                            <td><div class="small text-dark text-truncate" style="max-width: 200px;">${d.campaignName}</div></td>
-                                            <td class="text-center">
+                                            <td class="py-3">
+                                                <div class="small text-dark text-truncate" style="max-width: 250px;" title="${d.campaignName}">${d.campaignName}</div>
+                                                <div class="smallest text-muted fw-medium">${d.paymentMethodName}</div>
+                                            </td>
+                                            <td class="py-3 text-end">
+                                                <div class="fw-bold text-primary small"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
+                                            </td>
+                                            <td class="text-center py-3">
                                                 <span class="badge ${d.status == STATUS.DONATION_PENDING ? 'bg-warning' : (d.status == STATUS.DONATION_CONFIRMED ? 'bg-success' : 'bg-danger')} bg-opacity-10 ${d.status == STATUS.DONATION_PENDING ? 'text-warning' : (d.status == STATUS.DONATION_CONFIRMED ? 'text-success' : 'text-danger')} rounded-pill px-3">
-                                                    ${d.status == STATUS.DONATION_PENDING ? 'Chờ duyệt' : (d.status == STATUS.DONATION_CONFIRMED ? 'Đã nhận' : 'Từ chối')}
+                                                    ${d.status == STATUS.DONATION_PENDING ? 'Chờ duyệt' : (d.status == STATUS.DONATION_CONFIRMED ? 'Thành công' : 'Từ chối')}
                                                 </span>
                                             </td>
-                                            <td class="text-end">
+                                            <td class="text-end px-4 py-3">
                                                 <c:if test="${d.status == STATUS.DONATION_PENDING}">
-                                                    <div class="d-flex gap-1 justify-content-end">
+                                                    <div class="d-flex gap-2 justify-content-end">
                                                         <form action="${pageContext.request.contextPath}/admin/donations/confirm" method="post" class="m-0">
                                                             <input type="hidden" name="donationId" value="${d.id}">
-                                                            <button type="submit" class="action-btn bg-success bg-opacity-10 text-success" title="Xác nhận">
+                                                            <button type="submit" class="action-btn bg-success bg-opacity-10 text-success" title="Xác nhận duyệt">
                                                                 <i class="fas fa-check"></i>
                                                             </button>
                                                         </form>
-                                                        <button type="button" class="action-btn bg-danger bg-opacity-10 text-danger" title="Từ chối" 
+                                                        <button type="button" class="action-btn bg-danger bg-opacity-10 text-danger" title="Từ chối duyệt" 
                                                                 onclick="confirmRejectDonation(${d.id})">
                                                             <i class="fas fa-times"></i>
                                                         </button>

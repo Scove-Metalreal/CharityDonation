@@ -1,6 +1,14 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<div class="sidebar-x shadow-sm border-end d-flex flex-column" id="adminSidebar" style="background: #fff; z-index: 1100;">
+<!-- Mobile Toggle Button (Floating) - Only visible on Admin pages on mobile -->
+<button class="btn btn-dark rounded-circle shadow-lg d-lg-none mobile-drawer-btn" onclick="openAdminSidebar()" style="z-index: 1040;">
+    <i class="fas fa-bars"></i>
+</button>
+
+<!-- Overlay for mobile -->
+<div class="sidebar-overlay" id="adminSidebarOverlay" onclick="closeAdminSidebar()"></div>
+
+<div class="sidebar-x shadow-sm border-end d-flex flex-column" id="adminSidebar" style="background: #fff; z-index: 1035;">
     <!-- Resizer handle -->
     <div class="sidebar-resizer" id="adminSidebarResizer"></div>
 
@@ -12,7 +20,10 @@
                 <div class="text-muted smallest fw-bold">ADMIN PANEL</div>
             </div>
         </a>
-        <button class="btn btn-sm btn-light rounded-circle me-2 sidebar-toggle-btn" onclick="toggleAdminSidebar()" style="z-index: 1200;">
+        <button class="btn btn-sm btn-light rounded-circle d-lg-none me-2" onclick="closeAdminSidebar()">
+            <i class="fas fa-times"></i>
+        </button>
+        <button class="btn btn-sm btn-light rounded-circle me-2 sidebar-toggle-btn d-none d-lg-block" onclick="toggleAdminSidebar()" style="z-index: 1036;">
             <i class="fas fa-chevron-left" id="adminToggleIcon"></i>
         </button>
     </div>
@@ -61,13 +72,14 @@
 <script>
     const adminSidebar = document.getElementById('adminSidebar');
     const adminResizer = document.getElementById('adminSidebarResizer');
+    const adminOverlay = document.getElementById('adminSidebarOverlay');
     const MIN_WIDTH_ADMIN = 80;
     const MAX_WIDTH_ADMIN = 400;
     const SNAP_MIN_ADMIN = 120;
 
     // Load saved width
     const savedAdminWidth = localStorage.getItem('admin-sidebar-width');
-    if (savedAdminWidth) {
+    if (savedAdminWidth && window.innerWidth >= 992) {
         applyAdminWidth(parseInt(savedAdminWidth));
     }
 
@@ -93,6 +105,19 @@
             applyAdminWidth(80);
             localStorage.setItem('admin-sidebar-width', '80');
         }
+    }
+
+    // Mobile Drawer logic
+    function openAdminSidebar() {
+        adminSidebar.classList.add('mobile-open');
+        adminOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeAdminSidebar() {
+        adminSidebar.classList.remove('mobile-open');
+        adminOverlay.classList.remove('active');
+        document.body.style.overflow = 'auto';
     }
 
     // Resizing logic
@@ -126,7 +151,7 @@
     .brand-primary { color: var(--color-primary) !important; }
     .sidebar-x { 
         width: 280px; 
-        transition: width 0.1s ease; 
+        transition: width 0.1s ease, transform 0.3s ease; 
         height: 100vh; 
         position: sticky; 
         top: 0; 
@@ -157,4 +182,42 @@
     .sidebar-x.collapsed .sidebar-header { justify-content: center; padding-left: 0 !important; }
     .sidebar-x.collapsed .sidebar-nav-link { justify-content: center; padding: 12px 0; }
     .sidebar-x.collapsed .sidebar-nav-link i { margin: 0 !important; }
+
+    /* Mobile Drawer Handling for Admin */
+    .mobile-drawer-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1040;
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+
+    .sidebar-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.5);
+        opacity: 0;
+        visibility: hidden;
+        transition: 0.3s;
+        z-index: 1030;
+    }
+    .sidebar-overlay.active { opacity: 1; visibility: visible; }
+
+    @media (max-width: 991.98px) {
+        .sidebar-x {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 280px !important;
+            transform: translateX(-100%);
+            box-shadow: none;
+        }
+        .sidebar-x.mobile-open { transform: translateX(0); box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
+        .sidebar-resizer { display: none; }
+        .sidebar-x.collapsed { width: 280px !important; }
+        .sidebar-x.collapsed .sidebar-text { display: inline; }
+    }
 </style>

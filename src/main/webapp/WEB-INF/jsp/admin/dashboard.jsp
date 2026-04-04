@@ -36,81 +36,103 @@
                 <jsp:include page="../fragments/admin-header.jsp"/>
 
                 <div class="px-4">
-                    <!-- Stats Cards -->
-                    <div class="row g-4 mb-4">
+                    <!-- Compact Stats Group -->
+                    <div class="row g-3 mb-4">
                         <div class="col-md-3">
-                            <div class="card stat-card p-4 shadow-sm border-0 h-100">
-                                <small class="text-muted fw-bold text-uppercase">Tổng người dùng</small>
-                                <h2 class="mt-2 mb-0 fw-bold text-dark">${totalUsers}</h2>
-                                <small class="text-muted"><i class="fas fa-users"></i> Thành viên</small>
+                            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-3 text-primary"><i class="fas fa-users fs-4"></i></div>
+                                    <div>
+                                        <div class="smallest text-muted text-uppercase fw-bold">Người dùng</div>
+                                        <h4 class="mb-0 fw-bold">${totalUsers}</h4>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="card stat-card p-4 shadow-sm border-0 h-100" style="border-left-color: var(--color-accent);">
-                                <small class="text-muted fw-bold text-uppercase">Chiến dịch</small>
-                                <h2 class="mt-2 mb-0 fw-bold text-dark">${activeCampaigns}</h2>
-                                <small class="text-success"><i class="fas fa-play-circle"></i> Đang chạy</small>
+                            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success bg-opacity-10 p-3 rounded-3 me-3 text-success"><i class="fas fa-bullhorn fs-4"></i></div>
+                                    <div>
+                                        <div class="smallest text-muted text-uppercase fw-bold">Đang chạy</div>
+                                        <h4 class="mb-0 fw-bold">${activeCampaigns}</h4>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="card stat-card p-4 shadow-sm border-0 h-100" style="border-left-color: #3b82f6;">
-                                <small class="text-muted fw-bold text-uppercase">Tổng quyên góp</small>
-                                <h2 class="mt-2 mb-0 fw-bold text-dark"><fmt:formatNumber value="${totalAmount}" type="number"/>đ</h2>
-                                <small class="brand-primary"><i class="fas fa-hand-holding-usd"></i> Đã nhận</small>
-                            </div> 
+                            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-info bg-opacity-10 p-3 rounded-3 me-3 text-info"><i class="fas fa-hand-holding-heart fs-4"></i></div>
+                                    <div>
+                                        <div class="smallest text-muted text-uppercase fw-bold">Tổng quỹ</div>
+                                        <h4 class="mb-0 fw-bold"><fmt:formatNumber value="${totalAmount / 1000000}" maxFractionDigits="1"/>M</h4>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="card stat-card p-4 shadow-sm border-0 h-100" style="border-left-color: #ef4444;">
-                                <small class="text-muted fw-bold text-uppercase">Chờ duyệt</small>
-                                <h2 class="mt-2 mb-0 fw-bold text-dark">${pendingDonations}</h2>
-                                <small class="text-danger fw-bold"><i class="fas fa-exclamation-circle"></i> Cần xử lý</small>
+                            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-warning bg-opacity-10 p-3 rounded-3 me-3 text-warning"><i class="fas fa-clock fs-4"></i></div>
+                                    <div>
+                                        <div class="smallest text-muted text-uppercase fw-bold">Chờ duyệt</div>
+                                        <h4 class="mb-0 fw-bold">${pendingDonations}</h4>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="row g-4 pb-5">
-                        <!-- Transactions Table -->
+                        <!-- Refined Transactions List -->
                         <div class="col-lg-7">
-                            <div class="card p-4 shadow-sm border-0 rounded-4 h-100">
-                                <h5 class="fw-bold mb-4">Giao dịch gần đây</h5>
-                                <div class="table-responsive">
-                                    <table class="table table-hover align-middle">
-                                        <thead class="bg-light">
-                                            <tr class="smallest text-muted text-uppercase">
-                                                <th class="border-0">Nhà hảo tâm</th>
-                                                <th class="border-0">Chiến dịch</th>
-                                                <th class="border-0 text-end">Số tiền</th>
-                                                <th class="border-0 text-center">Trạng thái</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <c:forEach var="d" items="${dashboardDonations}">
-                                                <tr>
-                                                    <td>
-                                                        <div class="fw-bold small">${d.donorName}</div>
-                                                        <small class="text-muted smallest">
-                                                            <fmt:parseDate value="${d.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedCreatedAt" type="both" />
-                                                            <fmt:formatDate value="${parsedCreatedAt}" pattern="dd/MM/yyyy" />
-                                                        </small>
-                                                    </td>
-                                                    <td class="small text-truncate" style="max-width: 180px;">${d.campaignName}</td>
-                                                    <td class="text-end fw-bold brand-primary"><fmt:formatNumber value="${d.amount}" type="number"/>đ</td>
-                                                    <td class="text-center">
-                                                        <c:choose>
-                                                            <c:when test="${d.status == STATUS.DONATION_CONFIRMED}"><span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Thành công</span></c:when>
-                                                            <c:when test="${d.status == STATUS.DONATION_PENDING}"><span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3">Chờ duyệt</span></c:when>
-                                                            <c:otherwise><span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3">Từ chối</span></c:otherwise>
-                                                        </c:choose>
-                                                    </td>
-                                                </tr>
-                                            </c:forEach>
-                                        </tbody>
-                                    </table>
+                            <div class="card border-0 shadow-sm rounded-4 h-100 bg-white overflow-hidden">
+                                <div class="card-header bg-white border-0 py-4 px-4 d-flex justify-content-between align-items-center">
+                                    <h5 class="fw-bold mb-0">Hoạt động mới nhất</h5>
+                                    <a href="${pageContext.request.contextPath}/admin/donations" class="btn btn-light btn-sm rounded-pill px-3 fw-bold small text-muted">Tất cả</a>
                                 </div>
-                                <div class="text-center mt-auto pt-3">
-                                    <a href="${pageContext.request.contextPath}/admin/donations" class="btn btn-light btn-sm rounded-pill px-4 fw-bold brand-primary border-0 shadow-sm">
-                                        Xem thêm <i class="fas fa-chevron-right ms-1 smallest"></i>
-                                    </a>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle mb-0">
+                                            <thead class="bg-light bg-opacity-50">
+                                                <tr class="smallest text-muted text-uppercase">
+                                                    <th class="border-0 px-4">Nhà hảo tâm</th>
+                                                    <th class="border-0">Số tiền</th>
+                                                    <th class="border-0 text-center">Trạng thái</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <c:forEach var="d" items="${dashboardDonations}">
+                                                    <tr>
+                                                        <td class="px-4 py-3">
+                                                            <div class="d-flex align-items-center">
+                                                                <img src="https://ui-avatars.com/api/?name=${d.donorName}&background=random&color=fff&size=32" class="rounded-circle me-3">
+                                                                <div>
+                                                                    <div class="fw-bold small text-dark">${d.donorName}</div>
+                                                                    <div class="smallest text-muted text-truncate" style="max-width: 150px;">${d.campaignName}</div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td class="py-3">
+                                                            <div class="fw-bold text-dark small"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
+                                                            <div class="smallest text-muted">
+                                                                <fmt:parseDate value="${d.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" type="both" />
+                                                                <fmt:formatDate value="${parsedDate}" pattern="dd/MM HH:mm" />
+                                                            </div>
+                                                        </td>
+                                                        <td class="text-center py-3">
+                                                            <c:choose>
+                                                                <c:when test="${d.status == STATUS.DONATION_CONFIRMED}"><span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Thành công</span></c:when>
+                                                                <c:when test="${d.status == STATUS.DONATION_PENDING}"><span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3">Chờ duyệt</span></c:when>
+                                                                <c:otherwise><span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3">Từ chối</span></c:otherwise>
+                                                            </c:choose>
+                                                        </td>
+                                                    </tr>
+                                                </c:forEach>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -103,69 +103,72 @@
                         <input type="hidden" name="userId" id="deleteUserId">
                     </form>
 
-                    <div class="card border-0 shadow-sm p-4" style="border-radius: 1rem;">
+                    <!-- User Table -->
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead class="bg-light text-uppercase smallest fw-bold text-muted">
-                                    <tr>
-                                        <th class="border-0">Người dùng</th>
-                                        <th class="border-0">Vai trò</th>
-                                        <th class="border-0">Đăng nhập cuối</th>
-                                        <th class="border-0 text-center">Trạng thái</th>
-                                        <th class="border-0 text-end">Hành động</th>
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="bg-light bg-opacity-50">
+                                    <tr class="smallest text-muted text-uppercase">
+                                        <th class="border-0 px-4 py-3">Thông tin người dùng</th>
+                                        <th class="border-0 py-3">Vai trò</th>
+                                        <th class="border-0 py-3">Đăng nhập cuối</th>
+                                        <th class="border-0 text-center py-3">Trạng thái</th>
+                                        <th class="border-0 text-end px-4 py-3">Hành động</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <c:forEach var="u" items="${users}">
                                         <tr>
-                                            <td>
+                                            <td class="px-4 py-3">
                                                 <div class="d-flex align-items-center">
-                                                    <img src="${not empty u.avatarUrl ? u.avatarUrl : 'https://ui-avatars.com/api/?name='.concat(u.fullName).concat('&background=10B981&color=fff')}" 
-                                                         class="rounded-circle me-3 shadow-sm" width="36" height="36">
-                                                    <div>
-                                                        <div class="fw-bold text-dark">${u.fullName}</div>
-                                                        <small class="text-muted smallest">${u.email}</small>
+                                                    <div class="position-relative">
+                                                        <img src="${not empty u.avatarUrl ? u.avatarUrl : 'https://ui-avatars.com/api/?name='.concat(u.fullName).concat('&background=10B981&color=fff&size=40')}" 
+                                                             class="rounded-circle shadow-sm" width="40" height="40">
+                                                        <c:if test="${u.authProvider == 'GOOGLE'}">
+                                                            <span class="position-absolute bottom-0 end-0 bg-white rounded-circle p-1 shadow-sm" style="width: 16px; height: 16px; display: flex; align-items: center; justify-content: center;">
+                                                                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="10">
+                                                            </span>
+                                                        </c:if>
+                                                    </div>
+                                                    <div class="ms-3">
+                                                        <div class="fw-bold text-dark small">${u.fullName}</div>
+                                                        <div class="smallest text-muted">${u.email}</div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td>
-                                                <select class="form-select form-select-sm border-0 bg-light rounded-pill px-3 fw-bold" 
-                                                        onchange="confirmRoleChange(${u.id}, this, '${u.roleName}')" style="max-width: 150px;">
-                                                    <c:forEach var="r" items="${roles}">
-                                                        <option value="${r.id}" ${u.roleName == r.roleName ? 'selected' : ''}>${r.roleName}</option>
-                                                    </c:forEach>
-                                                </select>
+                                            <td class="py-3">
+                                                <span class="badge ${u.roleName == 'ADMIN' ? 'bg-danger' : (u.roleName == 'GUEST' ? 'bg-secondary' : 'bg-primary')} bg-opacity-10 ${u.roleName == 'ADMIN' ? 'text-danger' : (u.roleName == 'GUEST' ? 'text-secondary' : 'text-primary')} rounded-pill px-3">
+                                                    ${u.roleName}
+                                                </span>
                                             </td>
-                                            <td class="smallest">
+                                            <td class="py-3 smallest text-muted">
                                                 <c:choose>
                                                     <c:when test="${not empty u.lastLogin}">
                                                         <fmt:parseDate value="${u.lastLogin}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDateTime" type="both" />
                                                         <fmt:formatDate value="${parsedDateTime}" pattern="dd/MM/yyyy HH:mm" />
                                                     </c:when>
-                                                    <c:otherwise><span class="text-muted">Chưa đăng nhập</span></c:otherwise>
+                                                    <c:otherwise>Chưa đăng nhập</c:otherwise>
                                                 </c:choose>
                                             </td>
-                                            <td class="text-center">
+                                            <td class="text-center py-3">
                                                 <span class="badge ${u.status == STATUS.USER_ACTIVE ? 'bg-success' : 'bg-danger'} bg-opacity-10 ${u.status == STATUS.USER_ACTIVE ? 'text-success' : 'text-danger'} rounded-pill px-3">
                                                     ${u.status == STATUS.USER_ACTIVE ? 'Hoạt động' : 'Bị khóa'}
                                                 </span>
                                             </td>
-                                            <td class="text-end">
-                                                <div class="d-flex justify-content-end gap-1">
-                                                    <a href="${pageContext.request.contextPath}/admin/users/detail/${u.id}" class="action-btn bg-info bg-opacity-10 text-info"><i class="far fa-eye"></i></a>
+                                            <td class="text-end px-4 py-3">
+                                                <div class="d-flex justify-content-end gap-2">
+                                                    <a href="${pageContext.request.contextPath}/admin/users/detail/${u.id}" class="action-btn bg-info bg-opacity-10 text-info" title="Chi tiết"><i class="far fa-eye"></i></a>
                                                     <form action="${pageContext.request.contextPath}/admin/users/toggle-status" method="post" class="m-0 d-inline status-form">
                                                         <input type="hidden" name="userId" value="${u.id}">
-                                                        <button type="button" class="action-btn ${u.status == STATUS.USER_ACTIVE ? 'bg-danger bg-opacity-10 text-danger' : 'bg-success bg-opacity-10 text-success'}" 
-                                                                onclick="confirmToggleStatus(this.form, ${u.status})">
-                                                            <i class="fas ${u.status == STATUS.USER_ACTIVE ? 'fa-user-slash' : 'fa-user-check'}"></i>
+                                                        <button type="button" class="action-btn ${u.status == STATUS.USER_ACTIVE ? 'bg-warning bg-opacity-10 text-warning' : 'bg-success bg-opacity-10 text-success'}" 
+                                                                onclick="confirmToggleStatus(this.form, ${u.status})" title="${u.status == STATUS.USER_ACTIVE ? 'Khóa' : 'Mở khóa'}">
+                                                            <i class="fas ${u.status == STATUS.USER_ACTIVE ? 'fa-user-lock' : 'fa-user-check'}"></i>
                                                         </button>
                                                     </form>
-                                                    <!-- Delete Button -->
-                                                    <a href="javascript:void(0);" 
-                                                       class="action-btn bg-danger bg-opacity-10 text-danger" 
-                                                       onclick="confirmDeleteUser(${u.id}, '${u.fullName}')">
+                                                    <button type="button" class="action-btn bg-danger bg-opacity-10 text-danger" 
+                                                            onclick="confirmDeleteUser(${u.id}, '${u.fullName}')" title="Xóa">
                                                         <i class="fas fa-trash-alt"></i>
-                                                    </a>
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>

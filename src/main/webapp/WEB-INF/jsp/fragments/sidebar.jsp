@@ -167,7 +167,7 @@
         background: white;
         transition: width 0.1s ease, transform 0.3s ease; 
         position: relative;
-        z-index: 1100;
+        z-index: 1035;
     }
     
     .sidebar-resizer {
@@ -216,7 +216,7 @@
         opacity: 0;
         visibility: hidden;
         transition: 0.3s;
-        z-index: 1040;
+        z-index: 1030;
     }
     .sidebar-overlay.active { opacity: 1; visibility: visible; }
 

@@ -290,26 +290,48 @@
                     </div>
                 </section>
 
-                <!-- 2. Intro & Stats Section (RESTORED LAYOUT) -->
-                <section id="intro" class="py-5 px-5 mt-4">
-                    <div class="row align-items-center g-5">
+                <!-- 2. Intro & Stats Section (Redesigned for Mobile) -->
+                <section id="intro" class="py-5 px-4 px-md-5 mt-lg-4">
+                    <div class="row align-items-center g-4 g-xl-5">
                         <div class="col-lg-7">
-                            <h2 class="fw-bold mb-4 text-dark display-6">Nền tảng kết nối nhân ái</h2>
-                            <p class="text-muted mb-5 fs-5">Chúng tôi mang sứ mệnh cầu nối, giúp các nhà hảo tâm dễ dàng tiếp cận và hỗ trợ các hoàn cảnh khó khăn một cách minh bạch, an toàn và nhanh chóng nhất.</p>
-                            <div class="row g-4 mb-5">
-                                <div class="col-6 col-md-3"><div class="stat-item text-center"><span class="stat-value">1.2K+</span><div class="text-muted smallest fw-bold">DỰ ÁN</div></div></div>
-                                <div class="col-6 col-md-3"><div class="stat-item text-center"><span class="stat-value">106B+</span><div class="text-muted smallest fw-bold">VNĐ</div></div></div>
-                                <div class="col-6 col-md-3"><div class="stat-item text-center"><span class="stat-value">1.5M+</span><div class="text-muted smallest fw-bold">NHÀ HẢO TÂM</div></div></div>
-                                <div class="col-6 col-md-3"><div class="stat-item text-center"><span class="stat-value">63</span><div class="text-muted smallest fw-bold">TỈNH THÀNH</div></div></div>
+                            <h2 class="fw-bold mb-3 mb-md-4 text-dark display-6 section-title text-start">Nền tảng kết nối nhân ái</h2>
+                            <p class="text-muted mb-4 mb-md-5 fs-5">Chúng tôi mang sứ mệnh cầu nối, giúp các nhà hảo tâm dễ dàng tiếp cận và hỗ trợ các hoàn cảnh khó khăn một cách minh bạch, an toàn và nhanh chóng nhất.</p>
+                            
+                            <!-- Refined Stats Grid -->
+                            <div class="row g-2 g-md-3 mb-5">
+                                <div class="col-6 col-sm-3">
+                                    <div class="stat-item text-center p-3 h-100 border-0 bg-light rounded-4">
+                                        <div class="stat-value brand-primary fs-4">1.2K+</div>
+                                        <div class="smallest text-muted text-uppercase fw-bold" style="letter-spacing: 0.5px;">Dự án</div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-sm-3">
+                                    <div class="stat-item text-center p-3 h-100 border-0 bg-light rounded-4">
+                                        <div class="stat-value brand-primary fs-4">106B+</div>
+                                        <div class="smallest text-muted text-uppercase fw-bold" style="letter-spacing: 0.5px;">VNĐ</div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-sm-3">
+                                    <div class="stat-item text-center p-3 h-100 border-0 bg-light rounded-4">
+                                        <div class="stat-value brand-primary fs-4">1.5M+</div>
+                                        <div class="smallest text-muted text-uppercase fw-bold" style="letter-spacing: 0.5px;">Hảo tâm</div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-sm-3">
+                                    <div class="stat-item text-center p-3 h-100 border-0 bg-light rounded-4">
+                                        <div class="stat-value brand-primary fs-4">63</div>
+                                        <div class="smallest text-muted text-uppercase fw-bold" style="letter-spacing: 0.5px;">Tỉnh thành</div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="d-flex gap-3">
+
+                            <div class="d-flex flex-column flex-sm-row gap-3">
                                 <a href="#campaigns" class="btn btn-brand-primary rounded-pill px-4 py-2 fw-bold shadow-sm">Khám phá chiến dịch</a>
                                 <a href="#philosophy" class="btn btn-brand-secondary rounded-pill px-4 py-2 fw-bold">Sứ mệnh của chúng tôi</a>
                             </div>
                         </div>
-                        <div class="col-lg-5 text-center">
+                        <div class="col-lg-5 text-center d-none d-lg-block">
                             <div class="position-relative p-3">
-                                <!-- Decorative element behind image -->
                                 <div class="position-absolute top-0 start-0 w-100 h-100 bg-brand-primary opacity-10 rounded-4" style="transform: rotate(-3deg); z-index: 0;"></div>
                                 <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" 
                                      class="img-fluid rounded-4 shadow-lg position-relative" 

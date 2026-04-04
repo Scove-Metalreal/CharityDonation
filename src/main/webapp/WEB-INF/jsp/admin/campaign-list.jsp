@@ -125,33 +125,40 @@
                     </div>
 
                     <!-- Campaign Table -->
-                    <div class="card border-0 shadow-sm p-4" style="border-radius: 1rem;">
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead class="bg-light text-uppercase smallest fw-bold text-muted">
-                                    <tr>
-                                        <th class="border-0">Chiến dịch</th>
-                                        <th class="border-0">Tiến độ quỹ</th>
-                                        <th class="border-0 text-center">Trạng thái</th>
-                                        <th class="border-0 text-end">Hành động</th>
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="bg-light bg-opacity-50">
+                                    <tr class="smallest text-muted text-uppercase">
+                                        <th class="border-0 px-4 py-3">Chiến dịch</th>
+                                        <th class="border-0 py-3" style="width: 250px;">Tiến độ quỹ</th>
+                                        <th class="border-0 text-center py-3">Trạng thái</th>
+                                        <th class="border-0 text-end px-4 py-3">Hành động</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <c:forEach var="c" items="${campaigns}">
                                         <tr>
-                                            <td>
-                                                <div class="fw-bold text-dark text-truncate" style="max-width: 250px;">${c.name}</div>
-                                                <small class="text-muted smallest">Code: ${c.code}</small>
+                                            <td class="px-4 py-3">
+                                                <div class="d-flex align-items-center">
+                                                    <img src="${not empty c.imageUrl ? c.imageUrl : 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80'}" 
+                                                         class="rounded-3 shadow-sm me-3 object-fit-cover" width="50" height="50">
+                                                    <div class="overflow-hidden">
+                                                        <div class="fw-bold text-dark text-truncate small" style="max-width: 250px;">${c.name}</div>
+                                                        <div class="smallest text-muted">Mã: <span class="fw-bold text-primary">${c.code}</span></div>
+                                                    </div>
+                                                </div>
                                             </td>
-                                            <td>
+                                            <td class="py-3">
                                                 <div class="d-flex justify-content-between smallest mb-1">
                                                     <span class="fw-bold brand-primary"><fmt:formatNumber value="${c.currentMoney}" type="number"/>đ</span>
-                                                    <span class="text-muted">/ <fmt:formatNumber value="${c.targetMoney}" type="number"/>đ</span>
-                                                </div>
-                                                <div class="progress" style="height: 6px; border-radius: 10px;">
                                                     <c:set var="percent" value="${(c.currentMoney / c.targetMoney) * 100}"/>
-                                                    <div class="progress-bar bg-brand-primary" style="width: ${percent > 100 ? 100 : percent}%"></div>
+                                                    <span class="text-muted fw-medium"><fmt:formatNumber value="${percent}" maxFractionDigits="0"/>%</span>
                                                 </div>
+                                                <div class="progress" style="height: 6px; border-radius: 10px; background-color: #f1f5f9;">
+                                                    <div class="progress-bar bg-brand-primary rounded-pill shadow-sm" style="width: ${percent > 100 ? 100 : percent}%"></div>
+                                                </div>
+                                                <div class="smallest text-muted mt-1 fw-medium text-end">Mục tiêu: <fmt:formatNumber value="${c.targetMoney}" type="number"/>đ</div>
                                             </td>
                                             <td class="text-center">
                                                 <select class="form-select form-select-sm border-0 fw-bold rounded-pill px-3 
@@ -165,17 +172,17 @@
                                                     <option value="${STATUS.CAMPAIGN_CLOSED}" ${c.status == STATUS.CAMPAIGN_CLOSED ? 'selected' : ''}>Đóng quyên góp</option>
                                                 </select>
                                             </td>
-                                            <td class="text-end">
-                                                <div class="d-flex justify-content-end gap-1">
-                                                    <a href="${pageContext.request.contextPath}/campaign/${c.id}" class="action-btn bg-info bg-opacity-10 text-info" target="_blank"><i class="far fa-eye"></i></a>
-                                                    <a href="${pageContext.request.contextPath}/admin/campaigns/edit?id=${c.id}" class="action-btn bg-brand-primary bg-opacity-10 brand-primary ${c.status == STATUS.CAMPAIGN_CLOSED ? 'disabled' : ''}"><i class="far fa-edit"></i></a>
+                                            <td class="text-end px-4">
+                                                <div class="d-flex justify-content-end gap-2">
+                                                    <a href="${pageContext.request.contextPath}/campaign/${c.id}" class="action-btn bg-info bg-opacity-10 text-info" target="_blank" title="Xem chi tiết"><i class="far fa-eye"></i></a>
+                                                    <a href="${pageContext.request.contextPath}/admin/campaigns/edit?id=${c.id}" class="action-btn bg-brand-primary bg-opacity-10 brand-primary ${c.status == STATUS.CAMPAIGN_CLOSED ? 'disabled' : ''}" title="Sửa"><i class="far fa-edit"></i></a>
                                                     <c:if test="${c.status == STATUS.CAMPAIGN_COMPLETED}">
-                                                        <button class="action-btn bg-warning bg-opacity-10 text-warning" onclick="openExtendModal(${c.id}, '${c.endDate}')"><i class="fas fa-calendar-plus"></i></button>
+                                                        <button class="action-btn bg-warning bg-opacity-10 text-warning" onclick="openExtendModal(${c.id}, '${c.endDate}')" title="Gia hạn"><i class="fas fa-calendar-plus"></i></button>
                                                     </c:if>
                                                     <c:if test="${c.status == STATUS.CAMPAIGN_NEW}">
                                                         <form action="${pageContext.request.contextPath}/admin/campaigns/delete" method="post" class="d-inline delete-form">
                                                             <input type="hidden" name="id" value="${c.id}">
-                                                            <button type="button" class="action-btn bg-danger bg-opacity-10 text-danger" onclick="confirmDelete(this.form)"><i class="far fa-trash-alt"></i></button>
+                                                            <button type="button" class="action-btn bg-danger bg-opacity-10 text-danger" onclick="confirmDelete(this.form)" title="Xóa"><i class="far fa-trash-alt"></i></button>
                                                         </form>
                                                     </c:if>
                                                 </div>
