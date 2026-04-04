@@ -26,4 +26,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
                           @Param("status") Integer status, 
                           @Param("inactiveSince") java.time.LocalDateTime inactiveSince,
                           Pageable pageable);
+    @Query("SELECT r.roleName, COUNT(u) FROM User u JOIN u.role r GROUP BY r.roleName")
+    List<Object[]> countUsersByRole();
 }

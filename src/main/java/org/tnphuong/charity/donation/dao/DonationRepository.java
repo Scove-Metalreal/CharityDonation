@@ -48,4 +48,9 @@ public interface DonationRepository extends JpaRepository<Donation, Integer> {
 
     @Query("SELECT COUNT(DISTINCT d.campaign.id) FROM Donation d WHERE d.user.id = :userId AND d.status = :status")
     long countCampaignsByUserId(@Param("userId") Integer userId, @Param("status") Integer status);
+
+    @Query("SELECT d.status, COUNT(d) FROM Donation d GROUP BY d.status")
+    List<Object[]> countDonationsByStatus();
+    @Query("SELECT pm.methodName, COUNT(d) FROM Donation d JOIN d.paymentMethod pm WHERE d.status = 1 GROUP BY pm.methodName")
+    List<Object[]> countDonationsByPaymentMethod();
 }

@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -11,15 +11,14 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .brand-primary { color: var(--color-primary) !important; }
         .scrollable-main { height: 100vh; overflow-y: auto; scrollbar-width: none; }
         .scrollable-main::-webkit-scrollbar { display: none; }
         .stat-card { border-left: 4px solid var(--color-primary); transition: transform 0.2s; }
         .stat-card:hover { transform: scale(1.02); }
-        .notification-dropdown { width: 320px; max-height: 400px; overflow-y: auto; }
-        .notification-item { padding: 12px 20px; border-bottom: 1px solid #eee; font-size: 0.85rem; }
-        .notification-item:hover { background-color: #f8f9fa; }
+        .chart-container { position: relative; height: 300px; width: 100%; }
     </style>
 </head>
 <body class="bg-light">
@@ -37,41 +36,43 @@
                 <jsp:include page="../fragments/admin-header.jsp"/>
 
                 <div class="px-4">
+                    <!-- Stats Cards -->
                     <div class="row g-4 mb-4">
                         <div class="col-md-3">
                             <div class="card stat-card p-4 shadow-sm border-0 h-100">
                                 <small class="text-muted fw-bold text-uppercase">Tổng người dùng</small>
                                 <h2 class="mt-2 mb-0 fw-bold text-dark">${totalUsers}</h2>
-                                <small class="text-muted"><i class="fas fa-users"></i> Thành viên hệ thống</small>
+                                <small class="text-muted"><i class="fas fa-users"></i> Thành viên</small>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="card stat-card p-4 shadow-sm border-0 h-100" style="border-left-color: var(--color-accent);">
-                                <small class="text-muted fw-bold text-uppercase">Chiến dịch đang chạy</small>
+                                <small class="text-muted fw-bold text-uppercase">Chiến dịch</small>
                                 <h2 class="mt-2 mb-0 fw-bold text-dark">${activeCampaigns}</h2>
-                                <small class="text-success"><i class="fas fa-play-circle"></i> Đang nhận quyên góp</small>
+                                <small class="text-success"><i class="fas fa-play-circle"></i> Đang chạy</small>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="card stat-card p-4 shadow-sm border-0 h-100" style="border-left-color: #3b82f6;">
-                                <small class="text-muted fw-bold text-uppercase">Tổng tiền quyên góp</small>
+                                <small class="text-muted fw-bold text-uppercase">Tổng quyên góp</small>
                                 <h2 class="mt-2 mb-0 fw-bold text-dark"><fmt:formatNumber value="${totalAmount}" type="number"/>đ</h2>
-                                <small class="brand-primary"><i class="fas fa-hand-holding-usd"></i> Đã được xác nhận</small>
+                                <small class="brand-primary"><i class="fas fa-hand-holding-usd"></i> Đã nhận</small>
                             </div> 
                         </div>
                         <div class="col-md-3">
                             <div class="card stat-card p-4 shadow-sm border-0 h-100" style="border-left-color: #ef4444;">
-                                <small class="text-muted fw-bold text-uppercase">Quyên góp chờ duyệt</small>
+                                <small class="text-muted fw-bold text-uppercase">Chờ duyệt</small>
                                 <h2 class="mt-2 mb-0 fw-bold text-dark">${pendingDonations}</h2>
-                                <small class="text-danger fw-bold"><i class="fas fa-exclamation-circle"></i> Cần xử lý ngay</small>
+                                <small class="text-danger fw-bold"><i class="fas fa-exclamation-circle"></i> Cần xử lý</small>
                             </div>
                         </div>
                     </div>
 
                     <div class="row g-4 pb-5">
-                        <div class="col-lg-8">
-                            <div class="card p-4 shadow-sm border-0 rounded-4">
-                                <h5 class="fw-bold mb-4">Các giao dịch gần đây</h5>
+                        <!-- Transactions Table -->
+                        <div class="col-lg-7">
+                            <div class="card p-4 shadow-sm border-0 rounded-4 h-100">
+                                <h5 class="fw-bold mb-4">Giao dịch gần đây</h5>
                                 <div class="table-responsive">
                                     <table class="table table-hover align-middle">
                                         <thead class="bg-light">
@@ -92,7 +93,7 @@
                                                             <fmt:formatDate value="${parsedCreatedAt}" pattern="dd/MM/yyyy" />
                                                         </small>
                                                     </td>
-                                                    <td class="small text-truncate" style="max-width: 200px;">${d.campaignName}</td>
+                                                    <td class="small text-truncate" style="max-width: 180px;">${d.campaignName}</td>
                                                     <td class="text-end fw-bold brand-primary"><fmt:formatNumber value="${d.amount}" type="number"/>đ</td>
                                                     <td class="text-center">
                                                         <c:choose>
@@ -106,19 +107,29 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="text-center mt-3">
+                                <div class="text-center mt-auto pt-3">
                                     <a href="${pageContext.request.contextPath}/admin/donations" class="btn btn-light btn-sm rounded-pill px-4 fw-bold brand-primary border-0 shadow-sm">
                                         Xem thêm <i class="fas fa-chevron-right ms-1 smallest"></i>
                                     </a>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-4">
+
+                        <!-- Analytics Section -->
+                        <div class="col-lg-5">
                             <div class="card p-4 shadow-sm border-0 rounded-4 h-100">
-                                <h5 class="fw-bold mb-4">Phân tích hệ thống</h5>
-                                <div class="text-center py-5">
-                                    <i class="fas fa-chart-pie fa-5x text-light mb-3"></i>
-                                    <p class="text-muted small">Biểu đồ đang được xử lý...</p>
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h5 class="fw-bold mb-0">Phân tích hệ thống</h5>
+                                    <select id="chartSelector" class="form-select form-select-sm rounded-pill w-auto border-0 bg-light px-3 fw-bold">
+                                        <option value="donations">Quyên góp</option>
+                                        <option value="users">Người dùng</option>
+                                        <option value="campaigns">Top Chiến dịch</option>
+                                        <option value="payments">Thanh toán</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="chart-container">
+                                    <canvas id="systemChart"></canvas>
                                 </div>
                             </div>
                         </div>
@@ -128,6 +139,119 @@
             </div>
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('systemChart').getContext('2d');
+            let currentChart = null;
+
+            // Prepare Data from Model
+            const chartDataConfig = {
+                donations: {
+                    type: 'doughnut',
+                    labels: ['Chờ duyệt', 'Thành công', 'Từ chối'],
+                    values: [${donationStats['0']}, ${donationStats['1']}, ${donationStats['2']}],
+                    colors: ['#fbbf24', '#10b981', '#ef4444'],
+                    title: 'Trạng thái quyên góp'
+                },
+                users: {
+                    type: 'pie',
+                    labels: [<c:forEach var="entry" items="${roleDistribution}">"${entry.key}",</c:forEach>],
+                    values: [<c:forEach var="entry" items="${roleDistribution}">${entry.value},</c:forEach>],
+                    colors: ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b'],
+                    title: 'Cơ cấu người dùng'
+                },
+                campaigns: {
+                    type: 'bar',
+                    labels: [<c:forEach var="c" items="${topCampaigns}">"${c.name}",</c:forEach>],
+                    values: [<c:forEach var="c" items="${topCampaigns}">${c.currentMoney},</c:forEach>],
+                    colors: ['#10b981', '#10b981', '#10b981', '#10b981', '#10b981'],
+                    title: 'Top 5 chiến dịch (VNĐ)'
+                },
+                payments: {
+                    type: 'polarArea',
+                    labels: [<c:forEach var="entry" items="${paymentStats}">"${entry.key}",</c:forEach>],
+                    values: [<c:forEach var="entry" items="${paymentStats}">${entry.value},</c:forEach>],
+                    colors: ['#3b82f6', '#f59e0b', '#ef4444', '#10b981'],
+                    title: 'Theo phương thức thanh toán'
+                }
+            };
+
+            function renderChart(chartKey) {
+                if (currentChart) {
+                    currentChart.destroy();
+                }
+
+                const config = chartDataConfig[chartKey];
+                const data = {
+                    labels: config.labels,
+                    datasets: [{
+                        data: config.values,
+                        backgroundColor: config.colors,
+                        borderWidth: 0,
+                        hoverOffset: 15
+                    }]
+                };
+
+                const options = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart'
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: { size: 11, weight: '600' }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: config.title,
+                            font: { size: 14, weight: '700' },
+                            padding: { bottom: 10 }
+                        }
+                    }
+                };
+
+                if (config.type === 'doughnut') {
+                    options.cutout = '65%';
+                }
+
+                if (config.type === 'bar') {
+                    options.plugins.legend.display = false;
+                    options.scales = {
+                        y: { 
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return (value / 1000000).toFixed(1) + 'M';
+                                }
+                            }
+                        }
+                    };
+                }
+
+                currentChart = new Chart(ctx, {
+                    type: config.type,
+                    data: data,
+                    options: options
+                });
+            }
+
+            // Initial render
+            renderChart('donations');
+
+            // Handle selector change
+            document.getElementById('chartSelector').addEventListener('change', function(e) {
+                renderChart(e.target.value);
+            });
+        });
+    </script>
 </body>
 </html>

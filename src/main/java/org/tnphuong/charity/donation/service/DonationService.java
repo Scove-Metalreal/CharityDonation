@@ -32,4 +32,6 @@ public interface DonationService {
     Page<Donation> searchDonations(String keyword, Integer status, Pageable pageable);
 
     DonationDTO convertToDTO(Donation donation);
+    java.util.Map<String, Long> getDonationStatsByStatus();
+    java.util.Map<String, Long> getDonationStatsByPaymentMethod();
 }

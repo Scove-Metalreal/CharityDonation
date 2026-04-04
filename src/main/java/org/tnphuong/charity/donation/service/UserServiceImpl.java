@@ -179,4 +179,14 @@ public class UserServiceImpl implements UserService {
         dto.setLastLogin(user.getLastLogin());
         return dto;
     }
+
+    @Override
+    public java.util.Map<String, Long> getRoleDistribution() {
+        List<Object[]> results = userRepository.countUsersByRole();
+        java.util.Map<String, Long> distribution = new java.util.HashMap<>();
+        for (Object[] result : results) {
+            distribution.put((String) result[0], (Long) result[1]);
+        }
+        return distribution;
+    }
 }

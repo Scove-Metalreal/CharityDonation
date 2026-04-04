@@ -173,4 +173,30 @@ public class DonationServiceImpl implements DonationService {
         dto.setCreatedAt(donation.getCreatedAt());
         return dto;
     }
+
+    @Override
+    public java.util.Map<String, Long> getDonationStatsByStatus() {
+        List<Object[]> results = donationRepository.countDonationsByStatus();
+        java.util.Map<String, Long> stats = new java.util.HashMap<>();
+        // Sử dụng String key để JSP EL truy cập dễ dàng hơn
+        stats.put("0", 0L);
+        stats.put("1", 0L);
+        stats.put("2", 0L);
+        for (Object[] result : results) {
+            if (result[0] != null) {
+                stats.put(String.valueOf(result[0]), (Long) result[1]);
+            }
+        }
+        return stats;
+    }
+
+    @Override
+    public java.util.Map<String, Long> getDonationStatsByPaymentMethod() {
+        List<Object[]> results = donationRepository.countDonationsByPaymentMethod();
+        java.util.Map<String, Long> stats = new java.util.HashMap<>();
+        for (Object[] result : results) {
+            stats.put((String) result[0], (Long) result[1]);
+        }
+        return stats;
+    }
 }

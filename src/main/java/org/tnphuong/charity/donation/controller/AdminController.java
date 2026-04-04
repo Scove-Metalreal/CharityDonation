@@ -76,6 +76,14 @@ public class AdminController {
         java.math.BigDecimal totalAmount = donationService.getTotalDonatedAmount();
         model.addAttribute("totalAmount", totalAmount != null ? totalAmount : java.math.BigDecimal.ZERO);
         
+        // Advanced Analytics Data
+        model.addAttribute("donationStats", donationService.getDonationStatsByStatus());
+        model.addAttribute("roleDistribution", userService.getRoleDistribution());
+        model.addAttribute("paymentStats", donationService.getDonationStatsByPaymentMethod());
+        model.addAttribute("topCampaigns", campaignService.getAllCampaigns(
+                PageRequest.of(0, 5, org.springframework.data.domain.Sort.by("currentMoney").descending()))
+                .getContent().stream().map(campaignService::convertToDTO).toList());
+        
         return "admin/dashboard";
     }
 

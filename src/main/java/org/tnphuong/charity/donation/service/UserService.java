@@ -20,4 +20,5 @@ public interface UserService {
     long countUsers();
 
     UserDTO convertToDTO(User user);
+    java.util.Map<String, Long> getRoleDistribution();
 }
