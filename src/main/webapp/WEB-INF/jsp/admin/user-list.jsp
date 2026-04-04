@@ -65,8 +65,8 @@
                                 <label class="form-label smallest fw-bold text-muted text-uppercase">Trạng thái</label>
                                 <select name="status" class="form-select form-select-sm rounded-pill px-3">
                                     <option value="">Tất cả</option>
-                                    <option value="1" ${status == 1 ? 'selected' : ''}>Hoạt động</option>
-                                    <option value="0" ${status == 0 ? 'selected' : ''}>Đã khóa</option>
+                                    <option value="${STATUS.USER_ACTIVE}" ${status == STATUS.USER_ACTIVE ? 'selected' : ''}>Hoạt động</option>
+                                    <option value="${STATUS.USER_LOCKED}" ${status == STATUS.USER_LOCKED ? 'selected' : ''}>Đã khóa</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
@@ -146,8 +146,8 @@
                                                 </c:choose>
                                             </td>
                                             <td class="text-center">
-                                                <span class="badge ${u.status == 1 ? 'bg-success' : 'bg-danger'} bg-opacity-10 ${u.status == 1 ? 'text-success' : 'text-danger'} rounded-pill px-3">
-                                                    ${u.status == 1 ? 'Hoạt động' : 'Bị khóa'}
+                                                <span class="badge ${u.status == STATUS.USER_ACTIVE ? 'bg-success' : 'bg-danger'} bg-opacity-10 ${u.status == STATUS.USER_ACTIVE ? 'text-success' : 'text-danger'} rounded-pill px-3">
+                                                    ${u.status == STATUS.USER_ACTIVE ? 'Hoạt động' : 'Bị khóa'}
                                                 </span>
                                             </td>
                                             <td class="text-end">
@@ -155,9 +155,9 @@
                                                     <a href="${pageContext.request.contextPath}/admin/users/detail/${u.id}" class="action-btn bg-info bg-opacity-10 text-info"><i class="far fa-eye"></i></a>
                                                     <form action="${pageContext.request.contextPath}/admin/users/toggle-status" method="post" class="m-0 d-inline status-form">
                                                         <input type="hidden" name="userId" value="${u.id}">
-                                                        <button type="button" class="action-btn ${u.status == 1 ? 'bg-danger bg-opacity-10 text-danger' : 'bg-success bg-opacity-10 text-success'}" 
+                                                        <button type="button" class="action-btn ${u.status == STATUS.USER_ACTIVE ? 'bg-danger bg-opacity-10 text-danger' : 'bg-success bg-opacity-10 text-success'}" 
                                                                 onclick="confirmToggleStatus(this.form, ${u.status})">
-                                                            <i class="fas ${u.status == 1 ? 'fa-user-slash' : 'fa-user-check'}"></i>
+                                                            <i class="fas ${u.status == STATUS.USER_ACTIVE ? 'fa-user-slash' : 'fa-user-check'}"></i>
                                                         </button>
                                                     </form>
                                                     <!-- Delete Button -->

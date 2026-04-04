@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -76,7 +75,6 @@ public class AdminController {
         java.math.BigDecimal totalAmount = donationService.getTotalDonatedAmount();
         model.addAttribute("totalAmount", totalAmount != null ? totalAmount : java.math.BigDecimal.ZERO);
         
-        // Advanced Analytics Data
         model.addAttribute("donationStats", donationService.getDonationStatsByStatus());
         model.addAttribute("roleDistribution", userService.getRoleDistribution());
         model.addAttribute("paymentStats", donationService.getDonationStatsByPaymentMethod());
@@ -99,11 +97,10 @@ public class AdminController {
         model.addAttribute("activePage", "admin-users");
         addCommonData(model, session);
         
-        int pageSize = 20; 
         org.springframework.data.domain.Sort sort = direction.equalsIgnoreCase("asc") 
                 ? org.springframework.data.domain.Sort.by(sortBy).ascending() 
                 : org.springframework.data.domain.Sort.by(sortBy).descending();
-        Pageable pageable = PageRequest.of(page - 1, pageSize, sort);
+        Pageable pageable = PageRequest.of(page - 1, 20, sort);
         
         java.time.LocalDateTime inactiveSince = null;
         if (inactive != null && !inactive.isEmpty()) {
@@ -154,19 +151,7 @@ public class AdminController {
     @ResponseBody
     public ResponseEntity<?> saveUser(@Valid @ModelAttribute("user") User user, BindingResult result) {
         if (result.hasErrors()) {
-            // Lấy lỗi đầu tiên để hiển thị cho gọn
-            String firstError = result.getFieldErrors().get(0).getDefaultMessage();
-            return ResponseEntity.badRequest().body(Map.of("error", firstError));
-        }
-
-        if (user.getId() == null) {
-            if (userService.getUserByEmail(user.getEmail()).isPresent()) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Email đã tồn tại!"));
-            }
-            if (user.getPhoneNumber() != null && !user.getPhoneNumber().isEmpty() 
-                && userService.getUserByPhoneNumber(user.getPhoneNumber()).isPresent()) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Số điện thoại đã tồn tại!"));
-            }
+            return ResponseEntity.badRequest().body(Map.of("error", result.getFieldErrors().get(0).getDefaultMessage()));
         }
         
         try {
@@ -174,12 +159,7 @@ public class AdminController {
             return ResponseEntity.ok().body(Map.of("message", "Lưu người dùng thành công!"));
         } catch (Exception e) {
             logger.error("Error saving user: {}", e.getMessage());
-            String msg = e.getMessage();
-            if (msg != null && msg.contains("Duplicate entry")) {
-                if (msg.contains("email")) msg = "Email này đã được sử dụng!";
-                else if (msg.contains("phone_number")) msg = "Số điện thoại này đã được sử dụng!";
-            }
-            return ResponseEntity.badRequest().body(Map.of("error", msg != null ? msg : "Có lỗi xảy ra khi lưu dữ liệu"));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -191,7 +171,6 @@ public class AdminController {
             user.setStatus(user.getStatus() == UserStatus.ACTIVE.getValue() ? UserStatus.LOCKED.getValue() : UserStatus.ACTIVE.getValue());
             userService.saveUser(user);
             String statusName = user.getStatus() == UserStatus.ACTIVE.getValue() ? "Mở khóa" : "Khóa";
-            logger.info("Admin toggled status for user ID {}: now {}", userId, user.getStatus());
             return ResponseEntity.ok().body(Map.of("message", statusName + " người dùng thành công!"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
@@ -203,10 +182,8 @@ public class AdminController {
     public ResponseEntity<?> deleteUser(@RequestParam Integer userId) {
         try {
             userService.deleteUser(userId);
-            logger.info("Admin deleted user ID: {}", userId);
             return ResponseEntity.ok().body(Map.of("message", "Xóa người dùng thành công!"));
         } catch (Exception e) {
-            logger.error("Failed to delete user ID {}: {}", userId, e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", "Lỗi: " + e.getMessage()));
         }
     }
@@ -215,13 +192,12 @@ public class AdminController {
     @ResponseBody
     public ResponseEntity<?> updateRole(@RequestParam Integer userId, @RequestParam Integer roleId) {
         Optional<User> userOpt = userService.getUserById(userId);
-        Optional<org.tnphuong.charity.donation.entity.Role> roleOpt = roleService.getRoleById(roleId);
+        Optional<Role> roleOpt = roleService.getRoleById(roleId);
         
         if (userOpt.isPresent() && roleOpt.isPresent()) {
             User user = userOpt.get();
             user.setRole(roleOpt.get());
             userService.saveUser(user);
-            logger.info("Admin updated role for user ID {} to role ID {}", userId, roleId);
             return ResponseEntity.ok().body(Map.of("message", "Cập nhật vai trò thành công!"));
         }
         return ResponseEntity.badRequest().body(Map.of("error", "Không tìm thấy người dùng hoặc vai trò!"));
@@ -237,13 +213,17 @@ public class AdminController {
                                 Model model, jakarta.servlet.http.HttpSession session) {
         model.addAttribute("activePage", "admin-campaigns");
         addCommonData(model, session);
-        
-        org.springframework.data.domain.Sort sort = direction.equalsIgnoreCase("asc") 
-                ? org.springframework.data.domain.Sort.by(sortBy).ascending() 
+
+        String searchPhone = (phone != null && !phone.trim().isEmpty()) ? phone.trim() : null;
+        String searchCode = (code != null && !code.trim().isEmpty()) ? code.trim() : null;
+
+        org.springframework.data.domain.Sort sort = direction.equalsIgnoreCase("asc")
+                ? org.springframework.data.domain.Sort.by(sortBy).ascending()
                 : org.springframework.data.domain.Sort.by(sortBy).descending();
-        Pageable pageable = PageRequest.of(page - 1, 20, sort); 
-        Page<Campaign> campaignPage = campaignService.searchCampaigns(status, phone, code, pageable);
         
+        Pageable pageable = PageRequest.of(page - 1, 20, sort);
+        Page<Campaign> campaignPage = campaignService.searchCampaigns(status, searchPhone, searchCode, pageable);
+
         model.addAttribute("campaigns", campaignPage.getContent().stream().map(campaignService::convertToDTO).toList());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", campaignPage.getTotalPages());
@@ -253,7 +233,7 @@ public class AdminController {
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("direction", direction);
         model.addAttribute("allCompanions", companionService.getAllCompanions());
-        
+
         return "admin/campaign-list";
     }
 
@@ -286,16 +266,6 @@ public class AdminController {
             return ResponseEntity.badRequest().body(errors);
         }
 
-        if (campaign.getId() == null && campaignService.existsByCode(campaign.getCode())) {
-            return ResponseEntity.badRequest().body(Map.of("code", "Mã chiến dịch đã tồn tại!"));
-        }
-
-        if (campaign.getStartDate() != null && campaign.getEndDate() != null) {
-            if (!campaign.getStartDate().isBefore(campaign.getEndDate())) {
-                return ResponseEntity.badRequest().body(Map.of("date", "Ngày bắt đầu phải TRƯỚC ngày kết thúc!"));
-            }
-        }
-
         if (files != null && files.length > 0 && !files[0].isEmpty()) {
             try {
                 StringBuilder galleryStr = new StringBuilder();
@@ -313,55 +283,46 @@ public class AdminController {
                     
                     String url = "/uploads/" + fileName;
                     if (count == 0) campaign.setImageUrl(url); 
-                    
                     if (galleryStr.length() > 0) galleryStr.append(",");
                     galleryStr.append(url);
                     count++;
                 }
                 if (galleryStr.length() > 0) campaign.setGalleryUrls(galleryStr.toString());
             } catch (Exception e) {
-                logger.error("Image upload failed for campaign {}: {}", campaign.getCode(), e.getMessage());
-                return ResponseEntity.internalServerError().body(Map.of("error", "Lỗi upload ảnh: " + e.getMessage()));
+                logger.error("Image upload failed: {}", e.getMessage());
+                return ResponseEntity.internalServerError().body(Map.of("error", "Lỗi upload ảnh"));
             }
         }
 
         if (companionIds != null && !companionIds.isEmpty()) {
-            List<Companion> companions = companionService.getAllCompanionsByIds(companionIds);
-            campaign.setCompanions(companions);
+            campaign.setCompanions(companionService.getAllCompanionsByIds(companionIds));
         }
 
-        campaignService.saveCampaign(campaign);
-        logger.info("Admin saved campaign: {}", campaign.getCode());
-        return ResponseEntity.ok().body(Map.of("message", "Lưu chiến dịch thành công!"));
+        try {
+            campaignService.saveCampaign(campaign);
+            return ResponseEntity.ok().body(Map.of("message", "Lưu chiến dịch thành công!"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     @PostMapping("/campaigns/update-status")
     @ResponseBody
     public ResponseEntity<?> updateCampaignStatus(@RequestParam Integer id, @RequestParam Integer status) {
         try {
-            Optional<Campaign> campaignOpt = campaignService.getCampaignById(id);
-            if (campaignOpt.isPresent()) {
-                Campaign current = campaignOpt.get();
-                // We logic: allow status change, but saveCampaign will handle the rules
-                current.setStatus(status);
-                campaignService.saveCampaign(current);
-                logger.info("Admin updated status for campaign ID {} to {}", id, status);
-                return ResponseEntity.ok().body(Map.of("message", "Cập nhật trạng thái thành công!"));
-            }
-            return ResponseEntity.badRequest().body(Map.of("error", "Không tìm thấy chiến dịch!"));
-        } catch (RuntimeException e) {
+            campaignService.getCampaignById(id).ifPresent(c -> {
+                c.setStatus(status);
+                campaignService.saveCampaign(c);
+            });
+            return ResponseEntity.ok().body(Map.of("message", "Cập nhật trạng thái thành công!"));
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     @PostMapping("/campaigns/delete")
     public String deleteCampaign(@RequestParam Integer id) {
-        try {
-            campaignService.deleteCampaign(id);
-            logger.info("Admin deleted campaign ID: {}", id);
-        } catch (Exception e) {
-            logger.error("Failed to delete campaign ID {}: {}", id, e.getMessage());
-        }
+        campaignService.deleteCampaign(id);
         return "redirect:/admin/campaigns";
     }
 
@@ -379,9 +340,8 @@ public class AdminController {
                 ? org.springframework.data.domain.Sort.by(sortBy).ascending() 
                 : org.springframework.data.domain.Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page - 1, 20, sort);
-        String trimmedKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
-
-        Page<Donation> donationPage = donationService.searchDonations(trimmedKeyword, status, pageable);
+        
+        Page<Donation> donationPage = donationService.searchDonations(keyword, status, pageable);
 
         model.addAttribute("donations", donationPage.getContent().stream().map(donationService::convertToDTO).toList());
         model.addAttribute("keyword", keyword);
@@ -393,24 +353,22 @@ public class AdminController {
 
         return "admin/donation-list";
     }
+
     @PostMapping("/donations/confirm")
     public String confirmDonation(@RequestParam Integer donationId) {
         donationService.confirmDonation(donationId);
-        logger.info("Admin confirmed donation ID: {}", donationId);
         return "redirect:/admin/donations";
     }
     
     @PostMapping("/donations/reject")
     public String rejectDonation(@RequestParam Integer donationId, @RequestParam(required = false, defaultValue = "Thông tin không hợp lệ") String reason) {
         donationService.rejectDonation(donationId, reason);
-        logger.info("Admin rejected donation ID: {} for reason: {}", donationId, reason);
         return "redirect:/admin/donations";
     }
 
     @PostMapping("/campaigns/extend")
     public String extendCampaign(@RequestParam Integer id, @RequestParam String newEndDate) {
         campaignService.extendCampaign(id, java.time.LocalDate.parse(newEndDate));
-        logger.info("Admin extended campaign ID: {} to {}", id, newEndDate);
         return "redirect:/admin/campaigns";
     }
 

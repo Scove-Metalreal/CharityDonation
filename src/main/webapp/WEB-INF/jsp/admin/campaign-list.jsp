@@ -81,10 +81,10 @@
                                 <label class="form-label smallest fw-bold text-muted text-uppercase">Trạng thái</label>
                                 <select name="status" class="form-select form-select-sm rounded-pill px-3">
                                     <option value="">Tất cả</option>
-                                    <option value="0" ${status == 0 ? 'selected' : ''}>Mới tạo</option>
-                                    <option value="1" ${status == 1 ? 'selected' : ''}>Đang quyên góp</option>
-                                    <option value="2" ${status == 2 ? 'selected' : ''}>Kết thúc quyên góp</option>
-                                    <option value="3" ${status == 3 ? 'selected' : ''}>Đóng quyên góp</option>
+                                    <option value="${STATUS.CAMPAIGN_NEW}" ${status == STATUS.CAMPAIGN_NEW ? 'selected' : ''}>Mới tạo</option>
+                                    <option value="${STATUS.CAMPAIGN_ONGOING}" ${status == STATUS.CAMPAIGN_ONGOING ? 'selected' : ''}>Đang quyên góp</option>
+                                    <option value="${STATUS.CAMPAIGN_COMPLETED}" ${status == STATUS.CAMPAIGN_COMPLETED ? 'selected' : ''}>Kết thúc quyên góp</option>
+                                    <option value="${STATUS.CAMPAIGN_CLOSED}" ${status == STATUS.CAMPAIGN_CLOSED ? 'selected' : ''}>Đóng quyên góp</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
@@ -148,24 +148,24 @@
                                             </td>
                                             <td class="text-center">
                                                 <select class="form-select form-select-sm border-0 fw-bold rounded-pill px-3 
-                                                        ${c.status == 0 ? 'bg-info bg-opacity-10 text-info' : 
-                                                          (c.status == 1 ? 'bg-success bg-opacity-10 text-success' : 
-                                                          (c.status == 2 ? 'bg-warning bg-opacity-10 text-warning' : 'bg-secondary bg-opacity-10 text-secondary'))}"
-                                                        onchange="confirmCampaignStatus(${c.id}, this, ${c.status})" ${c.status == 3 ? 'disabled' : ''}>
-                                                    <option value="0" ${c.status == 0 ? 'selected' : ''} ${c.status > 0 ? 'disabled' : ''}>Mới tạo</option>
-                                                    <option value="1" ${c.status == 1 ? 'selected' : ''}>Đang quyên góp</option>
-                                                    <option value="2" ${c.status == 2 ? 'selected' : ''}>Kết thúc quyên góp</option>
-                                                    <option value="3" ${c.status == 3 ? 'selected' : ''}>Đóng quyên góp</option>
+                                                        ${c.status == STATUS.CAMPAIGN_NEW ? 'bg-info bg-opacity-10 text-info' : 
+                                                          (c.status == STATUS.CAMPAIGN_ONGOING ? 'bg-success bg-opacity-10 text-success' : 
+                                                          (c.status == STATUS.CAMPAIGN_COMPLETED ? 'bg-warning bg-opacity-10 text-warning' : 'bg-secondary bg-opacity-10 text-secondary'))}"
+                                                        onchange="confirmCampaignStatus(${c.id}, this, ${c.status})" ${c.status == STATUS.CAMPAIGN_CLOSED ? 'disabled' : ''}>
+                                                    <option value="${STATUS.CAMPAIGN_NEW}" ${c.status == STATUS.CAMPAIGN_NEW ? 'selected' : ''} ${c.status > STATUS.CAMPAIGN_NEW ? 'disabled' : ''}>Mới tạo</option>
+                                                    <option value="${STATUS.CAMPAIGN_ONGOING}" ${c.status == STATUS.CAMPAIGN_ONGOING ? 'selected' : ''}>Đang quyên góp</option>
+                                                    <option value="${STATUS.CAMPAIGN_COMPLETED}" ${c.status == STATUS.CAMPAIGN_COMPLETED ? 'selected' : ''}>Kết thúc quyên góp</option>
+                                                    <option value="${STATUS.CAMPAIGN_CLOSED}" ${c.status == STATUS.CAMPAIGN_CLOSED ? 'selected' : ''}>Đóng quyên góp</option>
                                                 </select>
                                             </td>
                                             <td class="text-end">
                                                 <div class="d-flex justify-content-end gap-1">
                                                     <a href="${pageContext.request.contextPath}/campaign/${c.id}" class="action-btn bg-info bg-opacity-10 text-info" target="_blank"><i class="far fa-eye"></i></a>
-                                                    <a href="${pageContext.request.contextPath}/admin/campaigns/edit?id=${c.id}" class="action-btn bg-brand-primary bg-opacity-10 brand-primary ${c.status == 3 ? 'disabled' : ''}"><i class="far fa-edit"></i></a>
-                                                    <c:if test="${c.status == 2}">
+                                                    <a href="${pageContext.request.contextPath}/admin/campaigns/edit?id=${c.id}" class="action-btn bg-brand-primary bg-opacity-10 brand-primary ${c.status == STATUS.CAMPAIGN_CLOSED ? 'disabled' : ''}"><i class="far fa-edit"></i></a>
+                                                    <c:if test="${c.status == STATUS.CAMPAIGN_COMPLETED}">
                                                         <button class="action-btn bg-warning bg-opacity-10 text-warning" onclick="openExtendModal(${c.id}, '${c.endDate}')"><i class="fas fa-calendar-plus"></i></button>
                                                     </c:if>
-                                                    <c:if test="${c.status == 0}">
+                                                    <c:if test="${c.status == STATUS.CAMPAIGN_NEW}">
                                                         <form action="${pageContext.request.contextPath}/admin/campaigns/delete" method="post" class="d-inline delete-form">
                                                             <input type="hidden" name="id" value="${c.id}">
                                                             <button type="button" class="action-btn bg-danger bg-opacity-10 text-danger" onclick="confirmDelete(this.form)"><i class="far fa-trash-alt"></i></button>

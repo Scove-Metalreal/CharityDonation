@@ -97,8 +97,8 @@
                                                     <td class="text-end fw-bold brand-primary"><fmt:formatNumber value="${d.amount}" type="number"/>đ</td>
                                                     <td class="text-center">
                                                         <c:choose>
-                                                            <c:when test="${d.status == 1}"><span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Thành công</span></c:when>
-                                                            <c:when test="${d.status == 0}"><span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3">Chờ duyệt</span></c:when>
+                                                            <c:when test="${d.status == STATUS.DONATION_CONFIRMED}"><span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Thành công</span></c:when>
+                                                            <c:when test="${d.status == STATUS.DONATION_PENDING}"><span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3">Chờ duyệt</span></c:when>
                                                             <c:otherwise><span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3">Từ chối</span></c:otherwise>
                                                         </c:choose>
                                                     </td>

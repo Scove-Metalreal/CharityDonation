@@ -16,10 +16,10 @@
         <img src="${not empty campaign.imageUrl ? campaign.imageUrl : 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}" 
              class="card-img-top campaign-card-img" alt="${campaign.name}">
         <c:choose>
-            <c:when test="${campaign.status == 0}"><span class="badge bg-info status-badge shadow-sm">Mới tạo</span></c:when>
-            <c:when test="${campaign.status == 1}"><span class="badge bg-success status-badge shadow-sm">Đang diễn ra</span></c:when>
-            <c:when test="${campaign.status == 2}"><span class="badge bg-warning status-badge shadow-sm">Đã kết thúc</span></c:when>
-            <c:when test="${campaign.status == 3}"><span class="badge bg-secondary status-badge shadow-sm">Đóng quỹ</span></c:when>
+            <c:when test="${campaign.status == STATUS.CAMPAIGN_NEW}"><span class="badge bg-info status-badge shadow-sm">Mới tạo</span></c:when>
+            <c:when test="${campaign.status == STATUS.CAMPAIGN_ONGOING}"><span class="badge bg-success status-badge shadow-sm">Đang diễn ra</span></c:when>
+            <c:when test="${campaign.status == STATUS.CAMPAIGN_COMPLETED}"><span class="badge bg-warning status-badge shadow-sm">Đã kết thúc</span></c:when>
+            <c:when test="${campaign.status == STATUS.CAMPAIGN_CLOSED}"><span class="badge bg-secondary status-badge shadow-sm">Đóng quỹ</span></c:when>
         </c:choose>
     </div>
 
@@ -71,19 +71,42 @@
             </div>
         </div>
         
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="smallest text-muted">
-                <i class="far fa-clock me-1"></i> Còn ${campaign.endDate}
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="smallest text-muted">
+                    <i class="far fa-clock me-1"></i> Còn ${campaign.endDate}
+                </div>
+                <!-- Sub-action: Higher z-index to stay clickable over stretched-link -->
+                <c:if test="${empty sessionScope.loggedInUser or sessionScope.loggedInUser.role.roleName != 'ADMIN'}">
+                    <c:choose>
+                        <c:when test="${campaign.status == STATUS.CAMPAIGN_ONGOING}">
+                            <button type="button" class="btn btn-brand-secondary btn-sm rounded-pill px-3 py-1 fw-bold donate-btn-indicator" 
+                                    style="position: relative; z-index: 2;"
+                                    onclick="event.preventDefault(); event.stopPropagation(); if(typeof openQuickDonate === 'function') openQuickDonate('${campaign.id}', '${campaign.name}')">
+                                Quyên góp
+                            </button>
+                        </c:when>
+                        <c:when test="${campaign.status == STATUS.CAMPAIGN_COMPLETED}">
+                            <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 fw-bold text-muted disabled" 
+                                    style="position: relative; z-index: 2; cursor: not-allowed;">
+                                Đã kết thúc
+                            </button>
+                        </c:when>
+                        <c:when test="${campaign.status == STATUS.CAMPAIGN_CLOSED}">
+                            <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 fw-bold text-muted disabled" 
+                                    style="position: relative; z-index: 2; cursor: not-allowed;">
+                                Đã đóng
+                            </button>
+                        </c:when>
+                        <c:otherwise>
+                            <!-- Status NEW: Mới tạo -->
+                            <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 fw-bold text-muted disabled" 
+                                    style="position: relative; z-index: 2; cursor: not-allowed;">
+                                Sắp diễn ra
+                            </button>
+                        </c:otherwise>
+                    </c:choose>
+                </c:if>
             </div>
-            <!-- Sub-action: Higher z-index to stay clickable over stretched-link -->
-            <c:if test="${empty sessionScope.loggedInUser or sessionScope.loggedInUser.role.roleName != 'ADMIN'}">
-                <button type="button" class="btn btn-brand-secondary btn-sm rounded-pill px-3 py-1 fw-bold donate-btn-indicator" 
-                        style="position: relative; z-index: 2;"
-                        onclick="event.preventDefault(); event.stopPropagation(); if(typeof openQuickDonate === 'function') openQuickDonate('${campaign.id}', '${campaign.name}')">
-                    Quyên góp
-                </button>
-            </c:if>
-        </div>
     </div>
 </div>
 

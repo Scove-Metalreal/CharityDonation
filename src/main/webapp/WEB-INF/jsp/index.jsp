@@ -95,6 +95,16 @@
         .expandable-content {
             min-height: 0;
         }
+
+        /* Dropdown Hover Style */
+        .dropdown-item:hover {
+            background-color: var(--color-primary) !important;
+            color: white !important;
+        }
+        .dropdown-item.active {
+            background-color: var(--color-primary) !important;
+            color: white !important;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -312,7 +322,27 @@
 
                 <!-- 3. Campaigns Section -->
                 <section id="campaigns" class="py-5 bg-light px-5">
-                    <div class="text-center mb-5"><h2 class="fw-bold section-title">Chiến dịch quyên góp</h2></div>
+                    <div class="d-flex justify-content-between align-items-center mb-5">
+                        <h2 class="fw-bold section-title mb-0">Chiến dịch quyên góp</h2>
+                        <div class="dropdown">
+                            <button class="btn btn-white border rounded-pill px-4 dropdown-toggle fw-bold shadow-sm" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-filter me-2 brand-primary"></i>
+                                <c:choose>
+                                    <c:when test="${currentStatus == STATUS.CAMPAIGN_NEW}">Mới tạo</c:when>
+                                    <c:when test="${currentStatus == STATUS.CAMPAIGN_ONGOING}">Đang diễn ra</c:when>
+                                    <c:when test="${currentStatus == STATUS.CAMPAIGN_COMPLETED}">Đã kết thúc</c:when>
+                                    <c:when test="${currentStatus == STATUS.CAMPAIGN_CLOSED}">Đã đóng</c:when>
+                                    <c:otherwise>Tất cả trạng thái</c:otherwise>
+                                </c:choose>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-4 mt-2">
+                                <li><a class="dropdown-item py-2 px-4 small fw-bold ${currentStatus == STATUS.CAMPAIGN_ONGOING ? 'active' : ''}" href="${pageContext.request.contextPath}/?status=${STATUS.CAMPAIGN_ONGOING}#campaigns">Đang diễn ra</a></li>
+                                <li><a class="dropdown-item py-2 px-4 small fw-bold ${currentStatus == STATUS.CAMPAIGN_NEW ? 'active' : ''}" href="${pageContext.request.contextPath}/?status=${STATUS.CAMPAIGN_NEW}#campaigns">Mới tạo</a></li>
+                                <li><a class="dropdown-item py-2 px-4 small fw-bold ${currentStatus == STATUS.CAMPAIGN_COMPLETED ? 'active' : ''}" href="${pageContext.request.contextPath}/?status=${STATUS.CAMPAIGN_COMPLETED}#campaigns">Đã kết thúc</a></li>
+                                <li><a class="dropdown-item py-2 px-4 small fw-bold ${currentStatus == STATUS.CAMPAIGN_CLOSED ? 'active' : ''}" href="${pageContext.request.contextPath}/?status=${STATUS.CAMPAIGN_CLOSED}#campaigns">Đã đóng</a></li>
+                            </ul>
+                        </div>
+                    </div>
                     
                     <!-- Initial 9 Campaigns -->
                     <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">

@@ -39,9 +39,9 @@
                                 <label class="form-label smallest fw-bold text-muted text-uppercase">Trạng thái</label>
                                 <select name="status" class="form-select form-select-sm rounded-pill px-3">
                                     <option value="">Tất cả</option>
-                                    <option value="0" ${status == 0 ? 'selected' : ''}>Chờ xác nhận</option>
-                                    <option value="1" ${status == 1 ? 'selected' : ''}>Đã xác nhận</option>
-                                    <option value="2" ${status == 2 ? 'selected' : ''}>Đã từ chối</option>
+                                    <option value="${STATUS.DONATION_PENDING}" ${status == STATUS.DONATION_PENDING ? 'selected' : ''}>Chờ xác nhận</option>
+                                    <option value="${STATUS.DONATION_CONFIRMED}" ${status == STATUS.DONATION_CONFIRMED ? 'selected' : ''}>Đã xác nhận</option>
+                                    <option value="${STATUS.DONATION_REJECTED}" ${status == STATUS.DONATION_REJECTED ? 'selected' : ''}>Đã từ chối</option>
                                 </select>
                             </div>
                             <div class="col-md-2">
@@ -84,12 +84,12 @@
                                             </td>
                                             <td><div class="small text-dark text-truncate" style="max-width: 200px;">${d.campaignName}</div></td>
                                             <td class="text-center">
-                                                <span class="badge ${d.status == 0 ? 'bg-warning' : (d.status == 1 ? 'bg-success' : 'bg-danger')} bg-opacity-10 ${d.status == 0 ? 'text-warning' : (d.status == 1 ? 'text-success' : 'text-danger')} rounded-pill px-3">
-                                                    ${d.status == 0 ? 'Chờ duyệt' : (d.status == 1 ? 'Đã nhận' : 'Từ chối')}
+                                                <span class="badge ${d.status == STATUS.DONATION_PENDING ? 'bg-warning' : (d.status == STATUS.DONATION_CONFIRMED ? 'bg-success' : 'bg-danger')} bg-opacity-10 ${d.status == STATUS.DONATION_PENDING ? 'text-warning' : (d.status == STATUS.DONATION_CONFIRMED ? 'text-success' : 'text-danger')} rounded-pill px-3">
+                                                    ${d.status == STATUS.DONATION_PENDING ? 'Chờ duyệt' : (d.status == STATUS.DONATION_CONFIRMED ? 'Đã nhận' : 'Từ chối')}
                                                 </span>
                                             </td>
                                             <td class="text-end">
-                                                <c:if test="${d.status == 0}">
+                                                <c:if test="${d.status == STATUS.DONATION_PENDING}">
                                                     <div class="d-flex gap-1 justify-content-end">
                                                         <form action="${pageContext.request.contextPath}/admin/donations/confirm" method="post" class="m-0">
                                                             <input type="hidden" name="donationId" value="${d.id}">

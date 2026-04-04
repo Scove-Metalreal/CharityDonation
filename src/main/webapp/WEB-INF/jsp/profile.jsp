@@ -175,30 +175,29 @@
                                             <i class="fas fa-filter me-1"></i> Lọc
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end p-3 border-0 shadow-lg rounded-4 mt-2" style="min-width: 250px;">
-                                            <form action="" method="get">
-                                                <input type="hidden" name="sort" value="${sort}">
-                                                
-                                                <div class="mb-3">
-                                                    <label class="form-label smallest fw-bold text-muted text-uppercase">Tình trạng donate</label>
-                                                    <select name="donationStatus" class="form-select form-select-sm rounded-pill px-3">
-                                                        <option value="">Tất cả</option>
-                                                        <option value="0" ${donationStatus == 0 ? 'selected' : ''}>Chờ xác nhận</option>
-                                                        <option value="1" ${donationStatus == 1 ? 'selected' : ''}>Đã xác nhận</option>
-                                                        <option value="2" ${donationStatus == 2 ? 'selected' : ''}>Đã từ chối</option>
-                                                    </select>
-                                                </div>
+                                        <form action="" method="get">
+                                        <input type="hidden" name="sort" value="${sort}">
 
-                                                <div class="mb-3">
-                                                    <label class="form-label smallest fw-bold text-muted text-uppercase">Tình trạng chiến dịch</label>
-                                                    <select name="campaignStatus" class="form-select form-select-sm rounded-pill px-3">
-                                                        <option value="">Tất cả</option>
-                                                        <option value="0" ${campaignStatus == 0 ? 'selected' : ''}>Mới tạo</option>
-                                                        <option value="1" ${campaignStatus == 1 ? 'selected' : ''}>Đang chạy</option>
-                                                        <option value="2" ${campaignStatus == 2 ? 'selected' : ''}>Đã kết thúc</option>
-                                                        <option value="3" ${campaignStatus == 3 ? 'selected' : ''}>Đã đóng</option>
-                                                    </select>
-                                                </div>
+                                        <div class="mb-3">
+                                            <label class="form-label smallest fw-bold text-muted text-uppercase">Tình trạng donate</label>
+                                            <select name="donationStatus" class="form-select form-select-sm rounded-pill px-3">
+                                                <option value="">Tất cả</option>
+                                                <option value="${STATUS.DONATION_PENDING}" ${donationStatus == STATUS.DONATION_PENDING ? 'selected' : ''}>Chờ xác nhận</option>
+                                                <option value="${STATUS.DONATION_CONFIRMED}" ${donationStatus == STATUS.DONATION_CONFIRMED ? 'selected' : ''}>Đã xác nhận</option>
+                                                <option value="${STATUS.DONATION_REJECTED}" ${donationStatus == STATUS.DONATION_REJECTED ? 'selected' : ''}>Đã từ chối</option>
+                                            </select>
+                                        </div>
 
+                                        <div class="mb-3">
+                                            <label class="form-label smallest fw-bold text-muted text-uppercase">Tình trạng chiến dịch</label>
+                                            <select name="campaignStatus" class="form-select form-select-sm rounded-pill px-3">
+                                                <option value="">Tất cả</option>
+                                                <option value="${STATUS.CAMPAIGN_NEW}" ${campaignStatus == STATUS.CAMPAIGN_NEW ? 'selected' : ''}>Mới tạo</option>
+                                                <option value="${STATUS.CAMPAIGN_ONGOING}" ${campaignStatus == STATUS.CAMPAIGN_ONGOING ? 'selected' : ''}>Đang chạy</option>
+                                                <option value="${STATUS.CAMPAIGN_COMPLETED}" ${campaignStatus == STATUS.CAMPAIGN_COMPLETED ? 'selected' : ''}>Đã kết thúc</option>
+                                                <option value="${STATUS.CAMPAIGN_CLOSED}" ${campaignStatus == STATUS.CAMPAIGN_CLOSED ? 'selected' : ''}>Đã đóng</option>
+                                            </select>
+                                        </div>
                                                 <div class="d-flex gap-2 mt-4">
                                                     <a href="?" class="btn btn-light btn-sm rounded-pill flex-grow-1 fw-bold text-muted">Xóa lọc</a>
                                                     <button type="submit" class="btn btn-brand-primary btn-sm rounded-pill flex-grow-1 fw-bold">Áp dụng</button>

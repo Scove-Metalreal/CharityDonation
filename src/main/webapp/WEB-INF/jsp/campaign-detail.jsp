@@ -350,9 +350,28 @@
                                 </div>
 
                                 <c:if test="${empty sessionScope.loggedInUser or sessionScope.loggedInUser.role.roleName != 'ADMIN'}">
-                                    <button class="btn btn-brand-primary w-100 py-3 rounded-pill fw-bold mt-4 shadow" data-bs-toggle="modal" data-bs-target="#donateModal" ${campaign.status != 1 ? 'disabled' : ''}>
-                                        ${campaign.status == 1 ? 'QUYÊN GÓP NGAY' : 'CHIẾN DỊCH ĐÃ KẾT THÚC'}
-                                    </button>
+                                    <c:choose>
+                                        <c:when test="${campaign.status == STATUS.CAMPAIGN_ONGOING}">
+                                            <button class="btn btn-brand-primary w-100 py-3 rounded-pill fw-bold mt-4 shadow" data-bs-toggle="modal" data-bs-target="#donateModal">
+                                                QUYÊN GÓP NGAY
+                                            </button>
+                                        </c:when>
+                                        <c:when test="${campaign.status == STATUS.CAMPAIGN_COMPLETED}">
+                                            <button class="btn btn-secondary w-100 py-3 rounded-pill fw-bold mt-4 shadow disabled" style="cursor: not-allowed;">
+                                                CHIẾN DỊCH ĐÃ KẾT THÚC
+                                            </button>
+                                        </c:when>
+                                        <c:when test="${campaign.status == STATUS.CAMPAIGN_CLOSED}">
+                                            <button class="btn btn-secondary w-100 py-3 rounded-pill fw-bold mt-4 shadow disabled" style="cursor: not-allowed;">
+                                                CHIẾN DỊCH ĐÃ ĐÓNG
+                                            </button>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <button class="btn btn-secondary w-100 py-3 rounded-pill fw-bold mt-4 shadow disabled" style="cursor: not-allowed;">
+                                                SẮP DIỄN RA
+                                            </button>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </c:if>
                                 
                                 <c:if test="${following}">
@@ -407,20 +426,13 @@
                                             <tr><td class="text-muted">Trạng thái:</td><td><span class="badge ${campaign.status == 1 ? 'bg-success' : 'bg-secondary'} rounded-pill">${campaign.status == 1 ? 'Đang quyên góp' : 'Đã kết thúc'}</span></td></tr>
                                         </table>
                                     </div>
-                                    <div class="rich-text-content">
+                                    <div class="rich-text-content" style="white-space: pre-wrap; line-height: 1.8; color: #374151; font-size: 1.1rem;">
                                         <c:choose>
                                             <c:when test="${not empty campaign.content}">
                                                 ${campaign.content}
                                             </c:when>
                                             <c:otherwise>
-                                                <p>Chiến dịch này tập trung vào việc huy động nguồn lực từ cộng đồng để hiện thực hóa các mục tiêu đã đề ra. Chúng tôi cam kết sử dụng 100% số tiền quyên góp được đúng mục đích và minh bạch hoàn toàn các giao dịch.</p>
-                                                <p>Kế hoạch triển khai bao gồm:</p>
-                                                <ul>
-                                                    <li>Khảo sát thực tế và lập danh sách các đối tượng cần hỗ trợ chính xác nhất.</li>
-                                                    <li>Phối hợp với các cơ quan địa phương và nhà đồng hành để triển khai trao tặng trực tiếp.</li>
-                                                    <li>Cập nhật báo cáo tiến độ và kết quả thực hiện ngay trên trang thông tin của chiến dịch.</li>
-                                                </ul>
-                                                <p>Hãy cùng chúng tôi chung tay thắp sáng những hy vọng mới!</p>
+                                                <p>Nội dung đang được cập nhật...</p>
                                             </c:otherwise>
                                         </c:choose>
                                     </div>

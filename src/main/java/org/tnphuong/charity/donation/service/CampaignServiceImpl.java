@@ -18,7 +18,6 @@ import org.tnphuong.charity.donation.entity.Companion;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class CampaignServiceImpl implements CampaignService {
@@ -50,39 +49,13 @@ public class CampaignServiceImpl implements CampaignService {
     @Override
     @Transactional
     public Campaign saveCampaign(Campaign campaign) {
-        if (campaign.getId() != null) {
-            Campaign currentInDb = campaignRepository.findById(campaign.getId())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy chiến dịch!"));
-            
-            // Allow status update even if it was closed, but prevent data modification if it remains closed
-            if (currentInDb.getStatus() == CampaignStatus.CLOSED.getValue() && campaign.getStatus() == CampaignStatus.CLOSED.getValue()) {
-                // If it was closed and we are not changing the status, prevent other changes
-                // You might want to allow status change FROM closed TO something else by admin
-                logger.warn("Attempt to modify data of closed campaign ID: {}", campaign.getId());
-                throw new RuntimeException("Chiến dịch đã đóng, không thể thay đổi thông tin.");
-            }
-            logger.debug("Updating campaign ID: {}", campaign.getId());
-        } else {
-            if (campaign.getStatus() == null) campaign.setStatus(CampaignStatus.NEW.getValue()); // 0 = NEW
-            if (campaign.getCurrentMoney() == null) campaign.setCurrentMoney(BigDecimal.ZERO);
-            if (campaign.getCreatedAt() == null) campaign.setCreatedAt(java.time.LocalDateTime.now());
-            logger.info("Creating new campaign with code: {}", campaign.getCode());
-        }
         return campaignRepository.save(campaign);
     }
 
     @Override
     @Transactional
     public void deleteCampaign(Integer id) {
-        campaignRepository.findById(id).ifPresent(campaign -> {
-            if (campaign.getStatus() == CampaignStatus.NEW.getValue()) { // 0 = NEW
-                logger.info("Deleting campaign ID: {}, Code: {}", id, campaign.getCode());
-                campaignRepository.deleteById(id);
-            } else {
-                logger.warn("Failed deletion attempt for active campaign ID: {}", id);
-                throw new RuntimeException("Chỉ có thể xóa chiến dịch ở trạng thái Mới tạo.");
-            }
-        });
+        campaignRepository.deleteById(id);
     }
 
     @Override
@@ -92,9 +65,7 @@ public class CampaignServiceImpl implements CampaignService {
 
     @Override
     public Page<Campaign> searchCampaigns(Integer status, String phone, String code, Pageable pageable) {
-        String cleanPhone = (phone != null && !phone.trim().isEmpty()) ? phone.trim() : null;
-        String cleanCode = (code != null && !code.trim().isEmpty()) ? code.trim() : null;
-        return campaignRepository.searchCampaigns(status, cleanPhone, cleanCode, pageable);
+        return campaignRepository.searchCampaigns(status, phone, code, pageable);
     }
 
     @Override
@@ -109,16 +80,14 @@ public class CampaignServiceImpl implements CampaignService {
             BigDecimal current = campaign.getCurrentMoney() != null ? campaign.getCurrentMoney() : BigDecimal.ZERO;
             campaign.setCurrentMoney(current.add(amount));
             
-            if (campaign.getStatus() == CampaignStatus.NEW.getValue()) { // 0 = NEW
-                campaign.setStatus(CampaignStatus.IN_PROGRESS.getValue()); // 1 = IN_PROGRESS
+            if (campaign.getStatus() == CampaignStatus.NEW.getValue()) {
+                campaign.setStatus(CampaignStatus.IN_PROGRESS.getValue());
             }
 
             if (campaign.getStatus() == CampaignStatus.IN_PROGRESS.getValue() && campaign.getCurrentMoney().compareTo(campaign.getTargetMoney()) >= 0) {
-                logger.info("Campaign ID: {} reached target. Setting status to COMPLETED.", campaignId);
-                campaign.setStatus(CampaignStatus.COMPLETED.getValue()); // 2 = COMPLETED
+                campaign.setStatus(CampaignStatus.COMPLETED.getValue());
             }
             campaignRepository.save(campaign);
-            logger.debug("Added {} to campaign ID: {}. New total: {}", amount, campaignId, campaign.getCurrentMoney());
         });
     }
 
@@ -130,11 +99,9 @@ public class CampaignServiceImpl implements CampaignService {
             campaign.setCurrentMoney(current.subtract(amount));
             
             if (campaign.getStatus() == CampaignStatus.COMPLETED.getValue() && campaign.getCurrentMoney().compareTo(campaign.getTargetMoney()) < 0) {
-                logger.info("Campaign ID: {} fell below target. Reverting status to IN_PROGRESS.", campaignId);
-                campaign.setStatus(CampaignStatus.IN_PROGRESS.getValue()); // 1 = IN_PROGRESS
+                campaign.setStatus(CampaignStatus.IN_PROGRESS.getValue());
             }
             campaignRepository.save(campaign);
-            logger.debug("Subtracted {} from campaign ID: {}. New total: {}", amount, campaignId, campaign.getCurrentMoney());
         });
     }
 
@@ -142,10 +109,9 @@ public class CampaignServiceImpl implements CampaignService {
     @Transactional
     public void extendCampaign(Integer campaignId, java.time.LocalDate newEndDate) {
         campaignRepository.findById(campaignId).ifPresent(campaign -> {
-            logger.info("Extending campaign ID: {} to {}", campaignId, newEndDate);
             campaign.setEndDate(newEndDate);
-            if (campaign.getStatus() == CampaignStatus.COMPLETED.getValue()) { // 2 = COMPLETED
-                campaign.setStatus(CampaignStatus.IN_PROGRESS.getValue()); // 1 = IN_PROGRESS
+            if (campaign.getStatus() == CampaignStatus.COMPLETED.getValue()) {
+                campaign.setStatus(CampaignStatus.IN_PROGRESS.getValue());
             }
             campaignRepository.save(campaign);
         });
@@ -169,7 +135,17 @@ public class CampaignServiceImpl implements CampaignService {
         dto.setCode(campaign.getCode());
         dto.setName(campaign.getName());
         dto.setBackground(campaign.getBackground());
-        dto.setContent(campaign.getContent());
+        
+        // Render nội dung thông minh: Tự động biến link ảnh thành thẻ <img>
+        String content = campaign.getContent();
+        if (content != null) {
+            // Regex tìm các đường dẫn bắt đầu bằng /uploads/ hoặc http và kết thúc bằng đuôi ảnh
+            String imageRegex = "(?:https?://[^\\s\"'<>]+|/uploads/[^\\s\"'<>]+)\\.(?:jpg|jpeg|png|gif|webp)";
+            content = content.replaceAll("(?i)(" + imageRegex + ")", 
+                "<div class='my-4 text-center'><img src='$1' class='img-fluid rounded-4 shadow-sm border' style='max-height:600px; object-fit:contain;'></div>");
+        }
+        dto.setContent(content);
+        
         dto.setImageUrl(campaign.getImageUrl());
         dto.setGalleryUrls(campaign.getGalleryUrls());
         dto.setStartDate(campaign.getStartDate());
@@ -180,22 +156,14 @@ public class CampaignServiceImpl implements CampaignService {
         dto.setStatus(campaign.getStatus());
         dto.setCreatedAt(campaign.getCreatedAt());
         
-        dto.setDonationCount((int) donationService.countConfirmedDonationsByCampaignId(campaign.getId()));
-        if (campaign.getEndDate() != null) {
-            long days = java.time.temporal.ChronoUnit.DAYS.between(java.time.LocalDate.now(), campaign.getEndDate());
-            dto.setDaysRemaining(days > 0 ? days : 0);
-        }
-
         if (campaign.getCompanions() != null) {
-            dto.setCompanions(campaign.getCompanions().stream()
-                    .map(this::convertCompanionToDTO)
-                    .collect(Collectors.toList()));
+            dto.setCompanions(campaign.getCompanions().stream().map(this::convertToCompanionDTO).toList());
         }
         
         return dto;
     }
 
-    private CompanionDTO convertCompanionToDTO(Companion companion) {
+    private CompanionDTO convertToCompanionDTO(Companion companion) {
         if (companion == null) return null;
         CompanionDTO dto = new CompanionDTO();
         dto.setId(companion.getId());

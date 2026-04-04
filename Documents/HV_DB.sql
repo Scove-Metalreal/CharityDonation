@@ -174,10 +174,24 @@ INSERT INTO companions (name, description, logo_url) VALUES
 ('Masan', 'Tập đoàn Masan', 'https://cdn.brandfetch.io/idY9yB4mYQ/w/240/h/80/theme/dark/logo.png?c=1bxid64Mup7aczewSAYMX&t=1772602877407');
 
 -- 5. Campaigns (20 campaigns with various statuses)
-INSERT INTO campaigns (code, name, background, start_date, end_date, target_money, current_money, status, beneficiary_phone) VALUES
-('CMP001', 'Áo ấm Sơn La', 'Trẻ em vùng cao cần áo ấm', '2025-10-01', '2025-12-31', 50000000, 15000000, 1, '0901112223'),
-('CMP002', 'Cứu trợ miền Trung', 'Lũ lụt gây thiệt hại nặng', '2025-11-01', '2025-11-30', 100000000, 100000000, 2, '0903334445'),
-('CMP003', 'Mổ tim bé An', 'Bé An cần phẫu thuật gấp', '2025-12-01', '2026-02-28', 80000000, 25000000, 1, '0904445556'),
+INSERT INTO campaigns (code, name, background, content, start_date, end_date, target_money, current_money, status, beneficiary_phone) VALUES
+('CMP001', 'Áo ấm Sơn La', 'Trẻ em vùng cao đang bước vào mùa đông khắc nghiệt với những tấm áo mỏng manh.', 'Chiến dịch nhằm quyên góp 500 bộ quần áo ấm cho các em học sinh tại điểm trường cao nhất tỉnh Sơn La.
+
+Chúng tôi đã thực hiện khảo sát và thấy rằng điều kiện học tập của các em rất khó khăn. 
+
+/uploads/campaigns/sonla_kids.jpg
+
+Mỗi sự đóng góp của bạn, dù ít hay nhiều, đều góp phần sưởi ấm mùa đông này cho các em.', '2025-10-01', '2025-12-31', 50000000, 15000000, 1, '0901112223'),
+('CMP002', 'Cứu trợ miền Trung', 'Lũ lụt gây thiệt hại nặng nề tại các tỉnh Quảng Bình, Quảng Trị.', 'Cung cấp nhu yếu phẩm, thuốc men và hỗ trợ sửa sang nhà cửa sau lũ cho 200 hộ gia đình.
+
+/uploads/campaigns/mientrung_flood.png
+
+Hãy cùng chung tay giúp bà con vượt qua giai đoạn khó khăn này.', '2025-11-01', '2025-11-30', 100000000, 100000000, 2, '0903334445'),
+('CMP003', 'Mổ tim bé An', 'Bé An (3 tuổi) mắc bệnh tim bẩm sinh phức tạp, gia đình không đủ khả năng chi trả viện phí.', 'Bé cần được phẫu thuật ngay để duy trì sự sống. Chi phí dự kiến là 80 triệu đồng.
+
+/uploads/campaigns/be_an.jpg
+
+Hy vọng cộng đồng sẽ cùng chung tay cứu lấy trái tim bé bỏng này.', '2025-12-01', '2026-02-28', 80000000, 25000000, 1, '0904445556'),
 ('CMP004', 'Xây cầu Trà Vinh', 'Bà con đi lại khó khăn', '2026-01-01', '2026-06-30', 200000000, 0, 0, '0905556667'),
 ('CMP005', 'Bữa cơm vùng cao', 'Thêm thịt vào bữa ăn cho bé', '2026-01-15', '2026-12-31', 150000000, 5000000, 1, '0906667778'),
 ('CMP006', 'Tặng xe đạp', 'Học sinh nghèo hiếu học', '2025-08-01', '2025-09-05', 120000000, 120000000, 3, '0907778889'),

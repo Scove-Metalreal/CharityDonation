@@ -62,31 +62,24 @@ public class AuthController {
             return "register";
         }
 
-        if (userService.getUserByEmail(user.getEmail()).isPresent()) {
-            model.addAttribute("error", "Email này đã được sử dụng!");
+        try {
+            roleRepository.findByRoleName("USER").ifPresent(user::setRole);
+            user.setStatus(UserStatus.ACTIVE.getValue());
+            
+            if ("GOOGLE".equals(user.getAuthProvider())) {
+                session.removeAttribute("google_email");
+                session.removeAttribute("google_name");
+                session.removeAttribute("google_id");
+                session.removeAttribute("google_picture");
+            }
+            
+            userService.saveUser(user);
+            logger.info("New user registered: {}", user.getEmail());
+            return "redirect:/auth/login?success=register&email=" + user.getEmail();
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
             return "register";
         }
-
-        if (user.getPhoneNumber() != null && !user.getPhoneNumber().isEmpty() 
-            && userService.getUserByPhoneNumber(user.getPhoneNumber()).isPresent()) {
-            model.addAttribute("error", "Số điện thoại này đã được sử dụng!");
-            return "register";
-        }
-
-        roleRepository.findByRoleName("USER").ifPresent(user::setRole);
-        
-        if ("GOOGLE".equals(user.getAuthProvider())) {
-            session.removeAttribute("google_email");
-            session.removeAttribute("google_name");
-            session.removeAttribute("google_id");
-            session.removeAttribute("google_picture");
-        }
-        
-        user.setStatus(UserStatus.ACTIVE.getValue()); 
-        userService.saveUser(user);
-
-        logger.info("New user registered: {}", user.getEmail());
-        return "redirect:/auth/login?success=register&email=" + user.getEmail();
     }
 
     @GetMapping("/login")
@@ -129,10 +122,10 @@ public class AuthController {
             session.setAttribute("maskedPhone", maskedPhone);
             session.setAttribute("isSMS", true);
             
-            System.out.println("==========================================");
-            System.out.println("SMS SIMULATION: Gửi OTP tới " + phone);
-            System.out.println("MÃ OTP CỦA BẠN LÀ: " + otp);
-            System.out.println("==========================================");
+            logger.info("==========================================");
+            logger.info("SMS SIMULATION: Sending OTP to {}", phone);
+            logger.info("YOUR OTP CODE IS: {}", otp);
+            logger.info("==========================================");
             
             redirectAttributes.addFlashAttribute("message", "Mã xác thực đã được gửi tới số điện thoại " + maskedPhone);
         } else {
@@ -198,10 +191,10 @@ public class AuthController {
             user.setResetToken(null);
             user.setResetTokenExpiry(null);
             
-            // Tự động nâng cấp khi reset pass thành công
+            // Auto-upgrade GUEST to USER
             if (user.getRole() != null && "GUEST".equalsIgnoreCase(user.getRole().getRoleName())) {
                 roleRepository.findByRoleName("USER").ifPresent(user::setRole);
-                logger.info("Upgraded GUEST to USER during password reset: {}", email);
+                logger.info("Auto-upgraded GUEST to USER during password reset: {}", email);
             }
             
             userService.saveUser(user);
@@ -230,15 +223,15 @@ public class AuthController {
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             if (PasswordUtils.checkPassword(password, user.getPassword())) {
-                if (user.getStatus() != null && user.getStatus() == UserStatus.LOCKED.getValue()) {
+                if (user.getStatusEnum() == UserStatus.LOCKED) {
                     model.addAttribute("error", "Tài khoản của bạn đã bị khóa!");
                     return "login";
                 }
 
-                // CHUYỂN ĐỔI ROLE GUEST -> USER KHI ĐĂNG NHẬP THÀNH CÔNG
+                // Auto-upgrade GUEST to USER upon successful login
                 if (user.getRole() != null && "GUEST".equalsIgnoreCase(user.getRole().getRoleName())) {
                     roleRepository.findByRoleName("USER").ifPresent(user::setRole);
-                    logger.info("Auto-upgraded GUEST to legitimate USER upon successful login: {}", cleanEmail);
+                    logger.info("Auto-upgraded GUEST to USER upon successful login: {}", cleanEmail);
                 }
 
                 user.setLastLogin(LocalDateTime.now());

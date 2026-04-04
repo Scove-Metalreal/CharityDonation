@@ -21,4 +21,5 @@ public interface UserService {
 
     UserDTO convertToDTO(User user);
     java.util.Map<String, Long> getRoleDistribution();
+    User getOrCreateGuest(String email, String phone, String fullName, String address);
 }

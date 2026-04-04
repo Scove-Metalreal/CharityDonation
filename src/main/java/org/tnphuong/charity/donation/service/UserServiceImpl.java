@@ -189,4 +189,42 @@ public class UserServiceImpl implements UserService {
         }
         return distribution;
     }
+
+    @Override
+    @Transactional
+    public User getOrCreateGuest(String email, String phone, String fullName, String address) {
+        String cleanEmail = email.trim();
+        String cleanPhone = phone.trim();
+
+        // 1. Kiểm tra SĐT có bị dùng bởi người khác chưa
+        Optional<User> byPhone = userRepository.findByPhoneNumber(cleanPhone);
+        if (byPhone.isPresent() && !byPhone.get().getEmail().equalsIgnoreCase(cleanEmail)) {
+            throw new RuntimeException("Số điện thoại này đã được sử dụng bởi một tài khoản khác.");
+        }
+
+        Optional<User> userOpt = userRepository.findByEmail(cleanEmail);
+        if (userOpt.isPresent()) {
+            User found = userOpt.get();
+            // Nếu email đã có tài khoản thực sự (không phải GUEST), yêu cầu đăng nhập
+            if (found.getRole() != null && !"GUEST".equalsIgnoreCase(found.getRole().getRoleName())) {
+                throw new RuntimeException("Email này đã có tài khoản thành viên. Vui lòng đăng nhập.");
+            }
+            
+            // Cập nhật thông tin Guest cũ
+            found.setFullName(fullName != null && !fullName.isBlank() ? fullName : found.getFullName());
+            found.setPhoneNumber(cleanPhone);
+            if (address != null && !address.isBlank()) found.setAddress(address);
+            return userRepository.saveAndFlush(found);
+        } else {
+            // Tạo Guest mới
+            User guest = new User();
+            guest.setEmail(cleanEmail);
+            guest.setPhoneNumber(cleanPhone);
+            guest.setFullName(fullName != null && !fullName.isBlank() ? fullName : "Nhà hảo tâm ẩn danh");
+            guest.setAddress(address);
+            guest.setStatus(UserStatus.ACTIVE.getValue());
+            roleRepository.findByRoleName("GUEST").ifPresent(guest::setRole);
+            return userRepository.saveAndFlush(guest);
+        }
+    }
 }
