@@ -14,242 +14,79 @@
     <style>
         .scrollable-main { height: 100vh; overflow-y: auto; scrollbar-width: none; scroll-behavior: smooth; }
         .scrollable-main::-webkit-scrollbar { display: none; }
-        .campaign-title { font-size: 2.2rem; line-height: 1.3; }
-        .main-feature-img { width: 100%; height: 500px; object-fit: cover; border-radius: 20px; cursor: pointer; }
-        .thumb-img { width: 100%; height: 80px; object-fit: cover; border-radius: 12px; cursor: pointer; opacity: 0.6; transition: 0.3s; }
-        .thumb-img:hover, .thumb-img.active { opacity: 1; border: 2px solid var(--color-primary); }
-        .donation-action-card-themed { border-radius: 24px; padding: 30px; position: sticky; top: 20px; }
-        .sticky-tab-bar { position: sticky; top: 0; background: white; z-index: 100; border-bottom: 1px solid var(--color-border); margin-top: 40px; }
-        .nav-tabs-custom .nav-link { border: none; color: var(--color-text-muted); font-weight: 600; padding: 15px 25px; position: relative; }
+        .campaign-title { font-size: 2.5rem; line-height: 1.2; letter-spacing: -0.5px; }
+        .main-feature-img { width: 100%; height: 500px; object-fit: cover; border-radius: 24px; cursor: pointer; }
+        .thumb-img { width: 100%; height: 80px; object-fit: cover; border-radius: 12px; cursor: pointer; opacity: 0.6; transition: 0.3s; border: 2px solid transparent; }
+        .thumb-img:hover, .thumb-img.active { opacity: 1; border-color: var(--color-primary); }
+        
+        .donation-sidebar-card { border-radius: 24px; position: sticky; top: 20px; }
+        .sticky-tab-bar { position: sticky; top: 0; background: white; z-index: 100; border-bottom: 1px solid #f1f5f9; margin-top: 40px; }
+        .nav-tabs-custom .nav-link { border: none; color: #64748b; font-weight: 700; padding: 15px 25px; position: relative; font-size: 0.95rem; }
         .nav-tabs-custom .nav-link.active { color: var(--color-primary); background: transparent; }
         .nav-tabs-custom .nav-link.active::after { content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--color-primary); border-radius: 3px; }
-        .donor-container { background: #f9fafb; border: 1px solid var(--color-border); border-radius: 20px; overflow: hidden; }
-        .donor-row { padding: 15px 20px; display: flex; align-items: center; border-bottom: 1px solid var(--color-border); }
-        .donor-row:last-child { border-bottom: none; }
-        .sponsor-list { border: 3px solid rgba(255, 255, 255, 0.2); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
+        
+        .donor-container { background: #fff; border: 1px solid #f1f5f9; border-radius: 20px; overflow: hidden; }
+        .donor-row { padding: 15px 20px; display: flex; align-items: center; border-bottom: 1px solid #f1f5f9; transition: 0.2s; }
+        .donor-row:hover { background: #f8fafc; }
+        .sponsor-list { background: rgba(255,255,255,0.1); border-radius: 16px; padding: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.2); }
         .brand-primary { color: var(--color-primary) !important; }
         .bg-brand-primary { background-color: var(--color-primary) !important; }
+
+        /* Mobile Bottom Donate Bar */
+        .mobile-donate-bar { 
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            background: white; padding: 15px 25px; 
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.08); 
+            z-index: 1030; display: none;
+            border-top-left-radius: 20px; border-top-right-radius: 20px;
+        }
+
+        @media (max-width: 991.98px) {
+            .campaign-title { font-size: 1.75rem; }
+            .main-feature-img { height: 300px; border-radius: 16px; }
+            .donation-sidebar-card { position: static; margin-bottom: 30px; box-shadow: none !important; border: 1px solid #f1f5f9; }
+            .mobile-donate-bar { display: flex; align-items: center; justify-content: space-between; gap: 15px; }
+            .scrollable-main { padding-bottom: 100px; } /* Space for fixed bar */
+        }
     </style>
 </head>
 <body class="bg-light">
     <div class="container-fluid">
-        <!-- Modals -->
-        <!-- Donation Modal -->
-        <div class="modal fade" id="donateModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content border-0 shadow-lg rounded-4">
-                    <div class="modal-header bg-brand-primary border-0 text-white p-4">
-                        <h5 class="modal-title fw-bold">QUYÊN GÓP CHO CHIẾN DỊCH</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body p-4">
-                        <div class="mb-3">
-                            <h6 id="donateCampaignName" class="fw-bold brand-primary">${campaign.name}</h6>
-                        </div>
-                        <form action="${pageContext.request.contextPath}/campaign/donate" method="post" onsubmit="return validateDonateForm(this)">
-                            <input type="hidden" name="campaignId" id="donateCampaignId" value="${campaign.id}">
-                            
-                            <c:if test="${not empty error}">
-                                <div class="alert alert-danger">${error}</div>
-                            </c:if>
-
-                            <div class="mb-4">
-                                <label class="form-label small fw-bold text-muted text-uppercase">Số tiền quyên góp (VNĐ)</label>
-                                <input type="number" name="amount" class="form-control form-control-lg rounded-pill px-4" placeholder="Nhập số tiền..." required min="1000">
-                            </div>
-
-                            <c:if test="${empty sessionScope.loggedInUser}">
-                                <div class="mb-4 bg-light p-3 rounded-4 border">
-                                    <h6 class="fw-bold mb-3 small text-uppercase text-muted">Thông tin người quyên góp</h6>
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <input type="text" name="fullName" class="form-control" placeholder="Họ và tên (Tùy chọn)">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <input type="email" name="email" class="form-control" placeholder="Email (Bắt buộc)" required>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <input type="text" name="phone" class="form-control" placeholder="Số điện thoại (Bắt buộc)" required>
-                                            <div class="invalid-feedback ps-3">Vui lòng nhập số điện thoại để tiếp tục.</div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <input type="text" name="address" class="form-control" placeholder="Địa chỉ (Tùy chọn)">
-                                        </div>
-                                        <div class="col-12">
-                                            <textarea name="message" class="form-control" rows="2" placeholder="Lời nhắn (Tùy chọn)"></textarea>
-                                        </div>
-                                    </div>
-                                    <div class="mt-2 small text-muted">
-                                        <i class="fas fa-info-circle me-1"></i> Nhập email để nhận biên lai xác nhận. Nếu email đã được đăng ký, vui lòng đăng nhập.
-                                    </div>
-                                </div>
-                            </c:if>
-
-                            <c:if test="${not empty sessionScope.loggedInUser}">
-                                <div class="mb-4">
-                                    <label class="form-label small fw-bold text-muted text-uppercase">Lời nhắn gửi đến chiến dịch</label>
-                                    <textarea name="message" class="form-control rounded-4 px-4 py-3" rows="2" placeholder="Nhập lời nhắn của bạn (Tùy chọn)..."></textarea>
-                                </div>
-                            </c:if>
-
-                            <div class="mb-4">
-                                <label class="form-label small fw-bold text-muted text-uppercase d-flex justify-content-between">
-                                    <span>Phương thức thanh toán</span>
-                                    <a href="javascript:void(0)" id="bankInfoLink" class="text-decoration-none" style="font-size: 0.75rem;" onclick="showBankInfo()">
-                                        <i class="fas fa-info-circle me-1"></i>Xem hướng dẫn
-                                    </a>
-                                </label>
-                                <select name="paymentMethodId" id="paymentMethodSelect" class="form-select form-select-lg rounded-pill px-4" required onchange="handlePaymentMethodChange(this)">
-                                    <option value="" selected disabled>Chọn phương thức thanh toán...</option>
-                                    <c:forEach var="pm" items="${paymentMethods}">
-                                        <option value="${pm.id}" data-provider="${pm.provider}">${pm.methodName}</option>
-                                    </c:forEach>
-                                </select>
-                            </div>
-                            <div class="mb-4">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" name="isAnonymous" value="1" id="anonymousCheck">
-                                    <label class="form-check-label small fw-bold" for="anonymousCheck">Quyên góp ẩn danh (Không hiện tên trên danh sách)</label>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-brand-primary w-100 py-3 rounded-pill fw-bold shadow">XÁC NHẬN QUYÊN GÓP</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bank Transfer Instructions Modal -->
-        <div class="modal fade" id="bankInstructionsModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content border-0 shadow-lg rounded-4">
-                    <div class="modal-header border-0 bg-brand-primary text-white p-4">
-                        <h5 class="modal-title fw-bold">HƯỚNG DẪN CHUYỂN KHOẢN</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body p-4 text-center">
-                        <p class="mb-4">Vui lòng thực hiện chuyển khoản theo thông tin dưới đây để hoàn tất quyên góp:</p>
-                        
-                        <div class="p-4 bg-light rounded-4 mb-4 text-start">
-                            <div class="mb-3">
-                                <label class="smallest text-muted text-uppercase fw-bold d-block">Ngân hàng</label>
-                                <div class="fw-bold fs-5" id="instrBankName">MB Bank (Quân Đội)</div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="smallest text-muted text-uppercase fw-bold d-block">Số tài khoản</label>
-                                <div class="fw-bold fs-4 brand-primary" id="instrAccountNum">0987654321</div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="smallest text-muted text-uppercase fw-bold d-block">Chủ tài khoản</label>
-                                <div class="fw-bold" id="instrAccountName">TẠ NGỌC PHƯƠNG</div>
-                            </div>
-                            <div class="mb-0">
-                                <label class="smallest text-muted text-uppercase fw-bold d-block">Nội dung chuyển khoản (BẮT BUỘC)</label>
-                                <div class="p-3 bg-white border border-primary border-dashed rounded-3 mt-1">
-                                    <span class="fw-bold fs-4 text-danger" id="instrCode">QG123456</span>
-                                    <button class="btn btn-sm btn-brand-secondary float-end" onclick="copyToClipboard('instrCode')">Sao chép</button>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="button" class="btn btn-brand-primary w-100 py-3 rounded-pill fw-bold" data-bs-dismiss="modal">ĐÃ HIỂU</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Lightbox Modal -->
-        <div class="modal fade" id="lightboxModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-xl">
-                <div class="modal-content bg-transparent border-0">
-                    <div class="modal-body p-0 text-center">
-                        <img id="lightboxImg" src="" class="img-fluid rounded shadow-lg" style="max-height: 90vh;">
-                        <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Top Donors Modal -->
-        <div class="modal fade" id="topDonorsModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content border-0 shadow-lg rounded-4">
-                    <div class="modal-header bg-brand-primary border-0 text-white p-4">
-                        <h5 class="modal-title fw-bold">NHÀ HẢO TÂM HÀNG ĐẦU</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body p-0" style="max-height: 70vh; overflow-y: auto;">
-                        <div class="donor-container border-0 rounded-0">
-                            <c:forEach var="d" items="${topDonors20}" varStatus="loop">
-                                <div class="donor-row">
-                                    <div class="fw-bold brand-primary me-3" style="width:20px">${loop.index + 1}</div>
-                                    <div class="flex-grow-1 text-truncate">
-                                        <strong>${d.donorName}</strong>
-                                        <div class="smallest text-muted">
-                                            <fmt:parseDate value="${d.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedCreatedAt" type="both" />
-                                            <fmt:formatDate value="${parsedCreatedAt}" pattern="dd/MM/yyyy" />
-                                        </div>
-                                    </div>
-                                    <div class="fw-bold brand-primary"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
-                                </div>
-                            </c:forEach>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recent Donors Modal -->
-        <div class="modal fade" id="recentDonorsModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content border-0 shadow-lg rounded-4">
-                    <div class="modal-header bg-brand-primary border-0 text-white p-4">
-                        <h5 class="modal-title fw-bold">NHÀ HẢO TÂM MỚI NHẤT</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body p-0" style="max-height: 70vh; overflow-y: auto;">
-                        <div class="donor-container border-0 rounded-0">
-                            <c:forEach var="d" items="${recentDonors20}" varStatus="loop">
-                                <div class="donor-row">
-                                    <div class="fw-bold brand-primary me-3" style="width:20px">${loop.index + 1}</div>
-                                    <div class="flex-grow-1 text-truncate">
-                                        <strong>${d.donorName}</strong>
-                                        <div class="smallest text-muted">
-                                            <fmt:parseDate value="${d.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedCreatedAt" type="both" />
-                                            <fmt:formatDate value="${parsedCreatedAt}" pattern="dd/MM/yyyy" />
-                                        </div>
-                                    </div>
-                                    <div class="fw-bold brand-primary"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
-                                </div>
-                            </c:forEach>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Modals (Donation, Bank, Lightbox, etc.) -->
+        <jsp:include page="fragments/donation-modals.jsp" />
 
         <div class="row flex-nowrap">
-            <div class="col-auto p-0 border-end" style="z-index: 1000;">
+            <!-- Sidebar -->
+            <div class="col-auto p-0 border-end" style="z-index: 1035;">
                 <jsp:include page="fragments/sidebar.jsp"/>
             </div>
 
+            <!-- Main Content -->
             <div class="col scrollable-main p-0 bg-white" style="min-width: 0;">
-                <div class="p-4 p-xl-5">
+                <div class="p-3 p-md-4 p-xl-5">
+                    
+                    <!-- Header Info -->
                     <div class="mb-4">
-                        <h1 class="campaign-title fw-bold mb-3">${campaign.name}</h1>
-                        <div class="d-flex align-items-center text-muted small">
-                            <i class="fas fa-heart text-danger me-2"></i> 
-                            <span>Chiến dịch quyên góp vì cộng đồng</span>
-                            <span class="mx-3">|</span>
-                            <i class="far fa-calendar-alt me-2"></i>
-                            <span>Ngày đăng: ${campaign.startDate}</span>
+                        <nav aria-label="breadcrumb" class="mb-3">
+                            <ol class="breadcrumb smallest fw-bold text-uppercase">
+                                <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/" class="text-decoration-none text-muted">Trang chủ</a></li>
+                                <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/#campaigns" class="text-decoration-none text-muted">Chiến dịch</a></li>
+                                <li class="breadcrumb-item active brand-primary" aria-current="page">${campaign.code}</li>
+                            </ol>
+                        </nav>
+                        <h1 class="campaign-title fw-bold mb-3 text-dark">${campaign.name}</h1>
+                        <div class="d-flex align-items-center flex-wrap gap-3 text-muted small">
+                            <span class="d-flex align-items-center"><i class="fas fa-heart text-danger me-2"></i> Quyên góp cộng đồng</span>
+                            <span class="d-none d-sm-inline">|</span>
+                            <span class="d-flex align-items-center"><i class="far fa-calendar-alt me-2"></i> Ngày đăng: ${campaign.startDate}</span>
                         </div>
                     </div>
 
-                    <div class="d-flex gap-4 mb-5">
+                    <div class="row g-4 g-xl-5 mb-5">
+                        <!-- Left: Visual Content -->
                         <div class="col-lg-8">
-                            <!-- Image Carousel -->
                             <div id="campaignCarousel" class="carousel slide" data-bs-ride="carousel">
-                                <div class="carousel-inner rounded-4 shadow-sm">
+                                <div class="carousel-inner rounded-4 shadow-sm bg-light">
                                     <c:set var="mainImg" value="${not empty campaign.imageUrl ? campaign.imageUrl : 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'}"/>
                                     <div class="carousel-item active">
                                         <img src="${mainImg}" class="main-feature-img" onclick="openLightbox('${mainImg}')">
@@ -262,16 +99,12 @@
                                         </c:forEach>
                                     </c:if>
                                 </div>
-                                <button class="carousel-control-prev" type="button" data-bs-target="#campaignCarousel" data-bs-slide="prev">
-                                    <span class="carousel-control-prev-icon"></span>
-                                </button>
-                                <button class="carousel-control-next" type="button" data-bs-target="#campaignCarousel" data-bs-slide="next">
-                                    <span class="carousel-control-next-icon"></span>
-                                </button>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#campaignCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#campaignCarousel" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
                             </div>
 
                             <!-- Thumbnails -->
-                            <div class="row g-2 mt-3">
+                            <div class="row g-2 mt-3 d-none d-sm-flex">
                                 <div class="col-2">
                                     <img src="${mainImg}" class="thumb-img active" data-bs-target="#campaignCarousel" data-bs-slide-to="0">
                                 </div>
@@ -285,110 +118,93 @@
                             </div>
                         </div>
 
+                        <!-- Right: Action Sidebar -->
                         <div class="col-lg-4">
-                            <div class="donation-action-card-themed shadow-lg">
-                                <div class="d-flex justify-content-between align-items-center mb-4 gap-2">
-                                    <h6 class="fw-bold mb-0 text-uppercase d-none d-sm-block">Thông tin quyên góp</h6>
-                                    <div class="d-flex gap-2 flex-nowrap">
+                            <div class="donation-sidebar-card shadow-lg p-4 p-xl-5">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h6 class="fw-bold mb-0 text-uppercase text-50">Thông tin quyên góp</h6>
+                                    <div class="d-flex gap-2">
                                         <c:choose>
                                             <c:when test="${following}">
                                                 <form action="${pageContext.request.contextPath}/campaign/unfollow" method="post" class="m-0">
                                                     <input type="hidden" name="campaignId" value="${campaign.id}">
-                                                    <button type="submit" class="btn btn-sidebar-action active btn-fixed-action">
-                                                        <i class="fas fa-bookmark me-1"></i> Đã theo dõi
-                                                    </button>
+                                                    <button type="submit" class="btn btn-sm btn-outline-light rounded-pill border-opacity-25 active"><i class="fas fa-bookmark"></i></button>
                                                 </form>
                                             </c:when>
                                             <c:otherwise>
                                                 <form action="${pageContext.request.contextPath}/campaign/follow" method="post" class="m-0">
                                                     <input type="hidden" name="campaignId" value="${campaign.id}">
-                                                    <button type="submit" class="btn btn-sidebar-action btn-fixed-action">
-                                                        <i class="far fa-bookmark me-1"></i> Theo dõi
-                                                    </button>
+                                                    <button type="submit" class="btn btn-sm btn-outline-light rounded-pill border-opacity-25"><i class="far fa-bookmark"></i></button>
                                                 </form>
                                             </c:otherwise>
                                         </c:choose>
-                                        <a href="https://www.facebook.com/sharer/sharer.php?u=${requestScope['javax.servlet.forward.request_uri']}" target="_blank" class="btn btn-sidebar-action btn-fixed-action"><i class="fab fa-facebook-f me-1"></i>Chia sẻ</a>
+                                        <a href="https://www.facebook.com/sharer/sharer.php?u=${requestScope['javax.servlet.forward.request_uri']}" target="_blank" class="btn btn-sm btn-outline-light rounded-pill border-opacity-25"><i class="fab fa-facebook-f"></i></a>
                                     </div>
                                 </div>
 
                                 <div class="sponsor-list">
                                     <c:forEach var="cp" items="${campaign.companions}">
-                                        <div class="d-flex align-items-center mb-3">
-                                            <img src="${cp.logoUrl}" class="rounded border bg-white me-3" width="40" height="40">
-                                            <div><div class="smallest text-white-50">Nhà đồng hành</div><div class="fw-bold small">${cp.name}</div></div>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <img src="${cp.logoUrl}" class="rounded border bg-white me-2" width="32" height="32" style="object-fit: contain;">
+                                            <div class="overflow-hidden"><div class="smallest text-50">Đồng hành</div><div class="fw-bold smallest text-truncate">${cp.name}</div></div>
                                         </div>
                                     </c:forEach>
                                 </div>
 
                                 <div class="funding-stats mt-4">
-                                    <div class="mb-2">
-                                        <span class="fs-3 fw-bold"><fmt:formatNumber value="${campaign.currentMoney}" type="number"/>đ</span>
-                                        <span class="text   -50 small"> / <fmt:formatNumber value="${campaign.targetMoney}" type="number"/>đ</span>
+                                    <div class="mb-3">
+                                        <div class="fs-2 fw-bold brand-primary"><fmt:formatNumber value="${campaign.currentMoney}" type="number"/>đ</div>
+                                        <div class="text-50 small fw-medium">đã đạt được mục tiêu <fmt:formatNumber value="${campaign.targetMoney}" type="number"/>đ</div>
                                     </div>
+                                    
                                     <c:set var="target" value="${campaign.targetMoney.doubleValue() > 0 ? campaign.targetMoney : 1}"/>
                                     <c:set var="percent" value="${(campaign.currentMoney.doubleValue() / target.doubleValue()) * 100}"/>
-                                    <div class="progress liquid-progress-container" style="height: 20px;">
+                                    
+                                    <div class="progress liquid-progress-container" style="height: 24px; background: rgba(255,255,255,0.1); border: none;">
                                         <div class="progress-bar liquid-progress-fill" style="width: ${percent > 100 ? 100 : percent}%">
                                             <div class="liquid-wave"></div>
                                             <div class="liquid-wave"></div>
-                                            <div class="liquid-text">${percent > 100 ? 100 : Math.round(percent)}%</div>
+                                            <div class="liquid-text text-white"><fmt:formatNumber value="${percent}" maxFractionDigits="0"/>%</div>
                                         </div>
                                     </div>
-                                    <table class="table table-borderless mt-3 mb-0" style="font-size: 0.85rem;">
-                                        <tr class="text-white-50">
-                                            <td class="pb-0 ps-0">Lượt quyên góp</td>
-                                            <td class="pb-0 text-center">Đạt được</td>
-                                            <td class="pb-0 text-end pe-0">Thời hạn còn</td>
-                                        </tr>
-                                        <tr class="fw-bold">
-                                            <td class="pt-0 ps-0">${donationCount}</td>
-                                            <td class="pt-0 text-center">${Math.round(percent)}%</td>
-                                            <td class="pt-0 text-end pe-0">${daysRemaining} Ngày</td>
-                                        </tr>
-                                    </table>
+
+                                    <div class="row g-0 mt-4 py-3 border-top border-bottom border-white border-opacity-10 text-center">
+                                        <div class="col-4 border-end border-white border-opacity-10">
+                                            <div class="smallest text-50 text-uppercase fw-bold mb-1">Lượt quyên</div>
+                                            <div class="fw-bold">${donationCount}</div>
+                                        </div>
+                                        <div class="col-4 border-end border-white border-opacity-10">
+                                            <div class="smallest text-50 text-uppercase fw-bold mb-1">Đạt được</div>
+                                            <div class="fw-bold"><fmt:formatNumber value="${percent}" maxFractionDigits="0"/>%</div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="smallest text-50 text-uppercase fw-bold mb-1">Còn lại</div>
+                                            <div class="fw-bold">${daysRemaining} ngày</div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <c:if test="${empty sessionScope.loggedInUser or sessionScope.loggedInUser.role.roleName != 'ADMIN'}">
                                     <c:choose>
                                         <c:when test="${campaign.status == STATUS.CAMPAIGN_ONGOING}">
-                                            <button class="btn btn-brand-primary w-100 py-3 rounded-pill fw-bold mt-4 shadow" data-bs-toggle="modal" data-bs-target="#donateModal">
-                                                QUYÊN GÓP NGAY
-                                            </button>
+                                            <button class="btn btn-brand-primary w-100 py-3 rounded-pill fw-bold mt-4 shadow-lg border-0" data-bs-toggle="modal" data-bs-target="#donateModal">QUYÊN GÓP NGAY</button>
                                         </c:when>
                                         <c:when test="${campaign.status == STATUS.CAMPAIGN_COMPLETED}">
-                                            <button class="btn btn-secondary w-100 py-3 rounded-pill fw-bold mt-4 shadow disabled" style="cursor: not-allowed;">
-                                                CHIẾN DỊCH ĐÃ KẾT THÚC
-                                            </button>
+                                            <button class="btn btn-secondary w-100 py-3 rounded-pill fw-bold mt-4 disabled" style="cursor: not-allowed;">CHIẾN DỊCH ĐÃ KẾT THÚC</button>
                                         </c:when>
                                         <c:when test="${campaign.status == STATUS.CAMPAIGN_CLOSED}">
-                                            <button class="btn btn-secondary w-100 py-3 rounded-pill fw-bold mt-4 shadow disabled" style="cursor: not-allowed;">
-                                                CHIẾN DỊCH ĐÃ ĐÓNG
-                                            </button>
+                                            <button class="btn btn-secondary w-100 py-3 rounded-pill fw-bold mt-4 disabled">CHIẾN DỊCH ĐÃ ĐÓNG</button>
                                         </c:when>
                                         <c:otherwise>
-                                            <button class="btn btn-secondary w-100 py-3 rounded-pill fw-bold mt-4 shadow disabled" style="cursor: not-allowed;">
-                                                SẮP DIỄN RA
-                                            </button>
+                                            <button class="btn btn-outline-light w-100 py-3 rounded-pill fw-bold mt-4 disabled opacity-50">SẮP DIỄN RA</button>
                                         </c:otherwise>
                                     </c:choose>
-                                </c:if>
-                                
-                                <c:if test="${following}">
-                                    <div class="mt-3 text-center">
-                                        <form action="${pageContext.request.contextPath}/campaign/follow" method="post">
-                                            <input type="hidden" name="campaignId" value="${campaign.id}">
-                                            <input type="hidden" name="email" value="${receiveEmail ? 0 : 1}">
-                                            <button type="submit" class="btn btn-link btn-sm text-white-50 text-decoration-none">
-                                                <i class="fas ${receiveEmail ? 'fa-bell' : 'fa-bell-slash'} me-1"></i> ${receiveEmail ? 'Tắt thông báo email' : 'Nhận thông báo qua email'}
-                                            </button>
-                                        </form>
-                                    </div>
                                 </c:if>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Tabs Navigation -->
                     <div class="sticky-tab-bar">
                         <ul class="nav nav-tabs nav-tabs-custom">
                             <li class="nav-item"><a class="nav-link active" href="#story">Hoàn cảnh</a></li>
@@ -398,124 +214,94 @@
                     </div>
 
                     <div class="row g-5 mt-2">
-                        <div class="col-lg-7 col-xl-8">
+                        <div class="col-lg-8">
                             <div class="tab-content">
+                                <!-- Story Tab -->
                                 <div class="py-4" id="story">
-                                    <h4 class="fw-bold mb-4">Hoàn cảnh</h4>
-                                    <div class="rich-text-content">
+                                    <h4 class="fw-bold mb-4 d-flex align-items-center"><i class="fas fa-history brand-primary me-2"></i> Hoàn cảnh</h4>
+                                    <div class="rich-text-content" style="line-height: 1.8; color: #374151; font-size: 1.1rem;">
                                         <c:choose>
-                                            <c:when test="${not empty campaign.background}">
-                                                ${campaign.background}
-                                            </c:when>
-                                            <c:otherwise>
-                                                <p>Trong cuộc hành trình nhân ái này, chúng tôi hướng tới những mảnh đời còn nhiều gian khó, nơi mà sự giúp đỡ kịp thời có thể thay đổi cả một tương lai. Mỗi chiến dịch không chỉ là sự hỗ trợ về vật chất mà còn là niềm an ủi tinh thần to lớn, giúp các hoàn cảnh khó khăn có thêm nghị lực để vươn lên trong cuộc sống.</p>
-                                                <p>Chúng tôi đã chứng kiến biết bao nụ cười rạng rỡ của trẻ em khi được đến trường, sự nhẹ lòng của những người già khi được chăm sóc y tế. Đó chính là động lực để CharityDonation tiếp tục sứ mệnh cầu nối, lan tỏa tình yêu thương đến mọi miền tổ quốc.</p>
-                                            </c:otherwise>
+                                            <c:when test="${not empty campaign.background}">${campaign.background}</c:when>
+                                            <c:otherwise><p class="text-muted italic">Thông tin hoàn cảnh đang được cập nhật...</p></c:otherwise>
                                         </c:choose>
                                     </div>
                                 </div>
                                 
+                                <!-- Content Tab -->
                                 <div class="py-5 border-top" id="details">
-                                    <h4 class="fw-bold mb-4">Nội dung chiến dịch</h4>
-                                    <div class="p-4 bg-light rounded-4 mb-4">
-                                        <table class="table table-borderless m-0">
-                                            <tr><td class="text-muted">Mã dự án:</td><td class="fw-bold">${campaign.code}</td></tr>
-                                            <tr><td class="text-muted">Mục tiêu:</td><td class="fw-bold brand-primary"><fmt:formatNumber value="${campaign.targetMoney}" type="number"/>đ</td></tr>
-                                            <tr><td class="text-muted">SĐT thụ hưởng:</td><td class="fw-bold">${campaign.beneficiaryPhone}</td></tr>
-                                            <tr><td class="text-muted">Ngày bắt đầu:</td><td class="fw-bold">${campaign.startDate}</td></tr>
-                                            <tr>
-                                                <td class="text-muted">Trạng thái:</td>
-                                                <td>
-                                                    <c:choose>
-                                                        <c:when test="${campaign.status == STATUS.CAMPAIGN_NEW}">
-                                                            <span class="badge bg-info rounded-pill">Mới tạo</span>
-                                                        </c:when>
-                                                        <c:when test="${campaign.status == STATUS.CAMPAIGN_ONGOING}">
-                                                            <span class="badge bg-success rounded-pill">Đang quyên góp</span>
-                                                        </c:when>
-                                                        <c:when test="${campaign.status == STATUS.CAMPAIGN_COMPLETED}">
-                                                            <span class="badge bg-warning rounded-pill text-dark">Đã kết thúc</span>
-                                                        </c:when>
-                                                        <c:otherwise>
-                                                            <span class="badge bg-secondary rounded-pill">Đã đóng quỹ</span>
-                                                        </c:otherwise>
-                                                    </c:choose>
-                                                </td>
-                                            </tr>
-                                        </table>
+                                    <h4 class="fw-bold mb-4 d-flex align-items-center"><i class="fas fa-file-alt brand-primary me-2"></i> Nội dung chiến dịch</h4>
+                                    <div class="p-4 bg-light rounded-4 mb-4 border border-opacity-10 border-dark">
+                                        <div class="row row-cols-2 row-cols-md-3 g-3">
+                                            <div><div class="smallest text-muted text-uppercase fw-bold">Mã dự án</div><div class="fw-bold">${campaign.code}</div></div>
+                                            <div><div class="smallest text-muted text-uppercase fw-bold">Mục tiêu</div><div class="fw-bold text-primary"><fmt:formatNumber value="${campaign.targetMoney}" type="number"/>đ</div></div>
+                                            <div><div class="smallest text-muted text-uppercase fw-bold">Trạng thái</div>
+                                                <c:choose>
+                                                    <c:when test="${campaign.status == STATUS.CAMPAIGN_NEW}"><span class="badge bg-info">Mới tạo</span></c:when>
+                                                    <c:when test="${campaign.status == STATUS.CAMPAIGN_ONGOING}"><span class="badge bg-success">Đang diễn ra</span></c:when>
+                                                    <c:when test="${campaign.status == STATUS.CAMPAIGN_COMPLETED}"><span class="badge bg-warning text-dark">Đã kết thúc</span></c:when>
+                                                    <c:otherwise><span class="badge bg-secondary">Đã đóng</span></c:otherwise>
+                                                </c:choose>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="rich-text-content" style="white-space: pre-wrap; line-height: 1.8; color: #374151; font-size: 1.1rem;">
+                                    <div class="rich-text-content ql-editor p-0" style="white-space: pre-wrap; line-height: 1.8; color: #374151; font-size: 1.1rem;">
                                         <c:choose>
-                                            <c:when test="${not empty campaign.content}">
-                                                ${campaign.content}
-                                            </c:when>
-                                            <c:otherwise>
-                                                <p>Nội dung đang được cập nhật...</p>
-                                            </c:otherwise>
+                                            <c:when test="${not empty campaign.content}">${campaign.content}</c:when>
+                                            <c:otherwise><p class="text-muted italic">Nội dung chi tiết đang được cập nhật...</p></c:otherwise>
                                         </c:choose>
                                     </div>
                                 </div>
 
+                                <!-- Donors Tab -->
                                 <div class="py-5 border-top" id="donors">
-                                    <h4 class="fw-bold mb-4">Nhà hảo tâm</h4>
+                                    <h4 class="fw-bold mb-4 d-flex align-items-center"><i class="fas fa-users brand-primary me-2"></i> Nhà hảo tâm</h4>
                                     <div class="row g-4">
-                                        <!-- Table A: Top Donors -->
                                         <div class="col-md-6">
-                                            <div class="donor-container h-100">
-                                                <div class="p-3 donor-header-themed fw-bold">NHÀ HẢO TÂM HÀNG ĐẦU</div>
+                                            <div class="donor-container h-100 shadow-sm">
+                                                <div class="p-3 bg-light fw-bold smallest text-muted text-uppercase">Hàng đầu</div>
                                                 <c:forEach var="d" items="${topDonors10}" varStatus="loop" end="4">
                                                     <div class="donor-row">
                                                         <div class="fw-bold brand-primary me-3" style="width:20px">${loop.index + 1}</div>
                                                         <div class="flex-grow-1 text-truncate">
                                                             <strong>${d.donorName}</strong>
-                                                            <div class="smallest text-muted">
-                                                                <fmt:parseDate value="${d.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedCreatedAt" type="both" />
-                                                                <fmt:formatDate value="${parsedCreatedAt}" pattern="dd/MM/yyyy" />
-                                                            </div>
+                                                            <div class="smallest text-muted"><fmt:parseDate value="${d.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="p" type="both" /><fmt:formatDate value="${p}" pattern="dd/MM/yyyy" /></div>
                                                         </div>
-                                                        <div class="fw-bold brand-primary"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
+                                                        <div class="fw-bold text-dark"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
                                                     </div>
                                                 </c:forEach>
-                                                <c:if test="${empty topDonors10}"><div class="p-4 text-center text-muted small">Chưa có quyên góp nào.</div></c:if>
-                                                <div class="p-3 text-center border-top">
-                                                    <button class="btn btn-link btn-sm fw-bold text-decoration-none brand-primary" data-bs-toggle="modal" data-bs-target="#topDonorsModal">XEM THÊM</button>
-                                                </div>
+                                                <c:if test="${empty topDonors10}"><div class="p-4 text-center text-muted smallest">Chưa có dữ liệu</div></c:if>
+                                                <button class="btn btn-link w-100 smallest fw-bold text-decoration-none py-3 border-top" data-bs-toggle="modal" data-bs-target="#topDonorsModal">XEM TẤT CẢ</button>
                                             </div>
                                         </div>
-                                        <!-- Table B: Latest Donors -->
                                         <div class="col-md-6">
-                                            <div class="donor-container h-100">
-                                                <div class="p-3 donor-header-themed fw-bold  ">NHÀ HẢO TÂM MỚI NHẤT</div>
+                                            <div class="donor-container h-100 shadow-sm">
+                                                <div class="p-3 bg-light fw-bold smallest text-muted text-uppercase">Mới nhất</div>
                                                 <c:forEach var="d" items="${recentDonors10}" varStatus="loop" end="4">
                                                     <div class="donor-row">
                                                         <div class="fw-bold brand-primary me-3" style="width:20px">${loop.index + 1}</div>
                                                         <div class="flex-grow-1 text-truncate">
                                                             <strong>${d.donorName}</strong>
-                                                            <div class="smallest text-muted">
-                                                                <fmt:parseDate value="${d.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedCreatedAt" type="both" />
-                                                                <fmt:formatDate value="${parsedCreatedAt}" pattern="dd/MM/yyyy" />
-                                                            </div>
+                                                            <div class="smallest text-muted"><fmt:parseDate value="${d.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="p" type="both" /><fmt:formatDate value="${p}" pattern="dd/MM/yyyy" /></div>
                                                         </div>
-                                                        <div class="fw-bold brand-primary"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
+                                                        <div class="fw-bold text-dark"><fmt:formatNumber value="${d.amount}" type="number"/>đ</div>
                                                     </div>
                                                 </c:forEach>
-                                                <c:if test="${empty recentDonors10}"><div class="p-4 text-center text-muted small">Chưa có quyên góp nào.</div></c:if>
-                                                <div class="p-3 text-center border-top">
-                                                    <button class="btn btn-link btn-sm fw-bold text-decoration-none brand-primary" data-bs-toggle="modal" data-bs-target="#recentDonorsModal">XEM THÊM</button>
-                                                </div>
+                                                <c:if test="${empty recentDonors10}"><div class="p-4 text-center text-muted smallest">Chưa có dữ liệu</div></c:if>
+                                                <button class="btn btn-link w-100 smallest fw-bold text-decoration-none py-3 border-top" data-bs-toggle="modal" data-bs-target="#recentDonorsModal">XEM TẤT CẢ</button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-5 col-xl-4">
-                            <div class="sticky-top" style="top: 80px;">
-                                <h5 class="fw-bold mb-4">Chương trình khác</h5>
+
+                        <!-- Sidebar: Ongoing Campaigns -->
+                        <div class="col-lg-4">
+                            <div class="sticky-top d-none d-lg-block" style="top: 80px;">
+                                <h5 class="fw-bold mb-4">Dự án đang diễn ra</h5>
                                 <c:forEach var="ongoing" items="${ongoingCampaigns}">
                                     <div class="mb-4">
-                                        <c:set var="campaign" value="${ongoing}" scope="request"/>
-                                        <c:set var="isCompact" value="true" scope="request"/>
+                                        <c:set var="campaign" value="${ongoing}" scope="request"/><c:set var="isCompact" value="true" scope="request"/>
                                         <jsp:include page="fragments/donation-card.jsp"/>
                                     </div>
                                 </c:forEach>
@@ -528,150 +314,57 @@
         </div>
     </div>
 
+    <!-- Mobile Fixed Bottom Action -->
+    <div class="mobile-donate-bar shadow-lg">
+        <div class="flex-grow-1">
+            <div class="smallest text-muted text-uppercase fw-bold">Hiện đạt được</div>
+            <div class="fw-bold brand-primary fs-5"><fmt:formatNumber value="${campaign.currentMoney}" type="number"/>đ</div>
+        </div>
+        <c:if test="${empty sessionScope.loggedInUser or sessionScope.loggedInUser.role.roleName != 'ADMIN'}">
+            <button class="btn btn-brand-primary rounded-pill px-4 py-2 fw-bold" 
+                    data-bs-toggle="modal" data-bs-target="#donateModal" 
+                    ${campaign.status != STATUS.CAMPAIGN_ONGOING ? 'disabled' : ''}>
+                QUYÊN GÓP
+            </button>
+        </c:if>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        function validateDonateForm(form) {
-            const email = form.email ? form.email.value.trim() : null;
-            const phone = form.phone ? form.phone.value.trim() : null;
-            const submitBtn = form.querySelector('button[type="submit"]');
-
-            if (email !== null) {
-                const emailRegex = /^[a-zA-Z0-9_+&*-]+(?:\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,7}$/;
-                if (!emailRegex.test(email)) {
-                    Swal.fire('Lỗi định dạng', 'Địa chỉ email không đúng định dạng. Vui lòng kiểm tra lại.', 'error');
-                    return false;
-                }
-            }
-
-            if (phone !== null) {
-                const phoneRegex = /^((0|84)(3|5|7|8|9)[0-9]{8})$/;
-                if (!phoneRegex.test(phone)) {
-                    Swal.fire('Số điện thoại không hợp lệ', 'Vui lòng nhập đúng số điện thoại Việt Nam (10 chữ số).', 'error');
-                    return false;
-                }
-            }
-
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> ĐANG XỬ LÝ...';
-            }
-            
-            return true;
-        }
-
-        function handlePaymentMethodChange(select) {
-            const selectedOption = select.options[select.selectedIndex];
-            const provider = selectedOption.getAttribute('data-provider');
-            const bankInfoLink = document.getElementById('bankInfoLink');
-            
-            if (provider === 'BANK') {
-                bankInfoLink.classList.remove('d-none');
-            } else {
-                bankInfoLink.classList.add('d-none');
-            }
-        }
-
-        function showBankInfo() {
-            const modalEl = document.getElementById('bankInstructionsModal');
-            // Reset code if it's just a general preview
-            const instrCode = document.getElementById('instrCode');
-            if (instrCode.innerText === 'QG123456' || !instrCode.innerText) {
-                instrCode.innerText = 'QG' + Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
-            }
-            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-            modal.show();
-        }
-
-        function openQuickDonate(id, name) {
-            if (id == '${campaign.id}') {
-                const modalEl = document.getElementById('donateModal');
-                const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                modal.show();
-            } else {
-                window.location.href = '${pageContext.request.contextPath}/campaign/' + id;
-            }
-        }
-
-        // Check for server-side errors passed via RedirectAttributes
-        window.addEventListener('load', function() {
-            const errorElement = document.getElementById('serverErrorMessage');
-            if (errorElement) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi quyên góp',
-                    text: errorElement.innerText,
-                    confirmButtonColor: '#10B981'
-                });
-            }
-
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('success') === 'pending') {
-                const code = urlParams.get('code');
-                if (code) {
-                    document.getElementById('instrCode').innerText = code;
-                    const modalEl = document.getElementById('bankInstructionsModal');
-                    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                    modal.show();
-                }
-            }
-        });
-
-        function copyToClipboard(elementId) {
-            const text = document.getElementById(elementId).innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                alert('Đã sao chép mã nội dung!');
-            });
-        }
-
-        function openLightbox(src) {
-            document.getElementById('lightboxImg').src = src;
-            const modalEl = document.getElementById('lightboxModal');
-            const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-            modal.show();
-        }
-
-        // Sync Carousel with Thumbnails and handle manual clicks
-        const carouselEl = document.getElementById('campaignCarousel');
-        if (carouselEl) {
-            const carousel = new bootstrap.Carousel(carouselEl);
-            const thumbs = document.querySelectorAll('.thumb-img');
-            
-            thumbs.forEach((thumb, index) => {
-                thumb.addEventListener('click', () => {
-                    carousel.to(index);
-                });
-            });
-
-            carouselEl.addEventListener('slide.bs.carousel', event => {
-                thumbs.forEach(t => t.classList.remove('active'));
-                thumbs[event.to].classList.add('active');
-            });
-        }
-
-        // Smooth Scrolling for Tabs
+        // Smooth scrolling for tabs
         document.querySelectorAll('.nav-tabs-custom .nav-link').forEach(link => {
             link.addEventListener('click', e => {
                 e.preventDefault();
                 const target = document.querySelector(link.getAttribute('href'));
                 const scrollable = document.querySelector('.scrollable-main');
                 if (target && scrollable) {
-                    scrollable.scrollTo({
-                        top: target.offsetTop - 80,
-                        behavior: 'smooth'
-                    });
+                    scrollable.scrollTo({ top: target.offsetTop - 80, behavior: 'smooth' });
                     document.querySelectorAll('.nav-tabs-custom .nav-link').forEach(l => l.classList.remove('active'));
                     link.classList.add('active');
                 }
             });
         });
-    </script>
-</body>
-</html>List.remove('active'));
-                    link.classList.add('active');
-                }
+
+        // Carousel Sync
+        const carouselEl = document.getElementById('campaignCarousel');
+        if (carouselEl) {
+            const carousel = new bootstrap.Carousel(carouselEl);
+            const thumbs = document.querySelectorAll('.thumb-img');
+            thumbs.forEach((t, i) => t.addEventListener('click', () => carousel.to(i)));
+            carouselEl.addEventListener('slide.bs.carousel', e => {
+                thumbs.forEach(t => t.classList.remove('active'));
+                thumbs[e.to].classList.add('active');
             });
-        });
+        }
+
+        function openLightbox(src) {
+            const lbImg = document.getElementById('lightboxImg');
+            if(lbImg) {
+                lbImg.src = src;
+                new bootstrap.Modal(document.getElementById('lightboxModal')).show();
+            }
+        }
     </script>
 </body>
 </html>
