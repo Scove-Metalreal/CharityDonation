@@ -115,14 +115,12 @@ public class AuthController {
         User user = userOpt.get();
         session.setAttribute("resetEmail", user.getEmail());
         
-        // Tạo mã OTP 6 số
         String otp = String.format("%06d", new Random().nextInt(999999));
         user.setResetToken(otp);
         user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(5));
         userService.saveUser(user);
 
         if ("LOCAL".equals(user.getAuthProvider())) {
-            // GIẢ LẬP SMS CHO TÀI KHOẢN LOCAL
             String phone = user.getPhoneNumber();
             String maskedPhone = (phone != null && phone.length() > 4) 
                 ? phone.substring(0, 3) + "..." + phone.substring(phone.length() - 3) 
@@ -131,7 +129,6 @@ public class AuthController {
             session.setAttribute("maskedPhone", maskedPhone);
             session.setAttribute("isSMS", true);
             
-            // QUAN TRỌNG: In mã OTP ra Console để bạn copy
             System.out.println("==========================================");
             System.out.println("SMS SIMULATION: Gửi OTP tới " + phone);
             System.out.println("MÃ OTP CỦA BẠN LÀ: " + otp);
@@ -139,7 +136,6 @@ public class AuthController {
             
             redirectAttributes.addFlashAttribute("message", "Mã xác thực đã được gửi tới số điện thoại " + maskedPhone);
         } else {
-            // GỬI QUA EMAIL CHO TÀI KHOẢN GOOGLE
             try {
                 emailService.sendOTPEmail(user.getEmail(), user.getFullName(), otp);
                 redirectAttributes.addFlashAttribute("message", "Mã xác thực đã được gửi tới email " + user.getEmail());
@@ -201,8 +197,14 @@ public class AuthController {
             user.setPassword(password);
             user.setResetToken(null);
             user.setResetTokenExpiry(null);
-            userService.saveUser(user);
             
+            // Tự động nâng cấp khi reset pass thành công
+            if (user.getRole() != null && "GUEST".equalsIgnoreCase(user.getRole().getRoleName())) {
+                roleRepository.findByRoleName("USER").ifPresent(user::setRole);
+                logger.info("Upgraded GUEST to USER during password reset: {}", email);
+            }
+            
+            userService.saveUser(user);
             clearResetSession(session);
             
             redirectAttributes.addFlashAttribute("message", "Đổi mật khẩu thành công! Vui lòng đăng nhập.");
@@ -231,6 +233,12 @@ public class AuthController {
                 if (user.getStatus() != null && user.getStatus() == UserStatus.LOCKED.getValue()) {
                     model.addAttribute("error", "Tài khoản của bạn đã bị khóa!");
                     return "login";
+                }
+
+                // CHUYỂN ĐỔI ROLE GUEST -> USER KHI ĐĂNG NHẬP THÀNH CÔNG
+                if (user.getRole() != null && "GUEST".equalsIgnoreCase(user.getRole().getRoleName())) {
+                    roleRepository.findByRoleName("USER").ifPresent(user::setRole);
+                    logger.info("Auto-upgraded GUEST to legitimate USER upon successful login: {}", cleanEmail);
                 }
 
                 user.setLastLogin(LocalDateTime.now());

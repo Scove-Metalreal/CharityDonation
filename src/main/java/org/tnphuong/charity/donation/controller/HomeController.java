@@ -171,72 +171,84 @@ public class HomeController {
         User user;
 
         if (userId == null) {
-            if (email == null || email.isBlank()) {
-                redirectAttributes.addFlashAttribute("error", "Email is required for guest donations.");
+            String cleanEmail = email != null ? email.trim() : "";
+            String cleanPhone = phone != null ? phone.trim() : "";
+
+            if (cleanEmail.isEmpty() || cleanPhone.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "Email và Số điện thoại là bắt buộc.");
                 return "redirect:/campaign/" + campaignId;
             }
 
-            Optional<User> existingUser = userService.getUserByEmail(email);
-            if (existingUser.isPresent()) {
-                User found = existingUser.get();
-                if (found.getRole() != null && !"GUEST".equalsIgnoreCase(found.getRole().getRoleName())) {
-                    redirectAttributes.addFlashAttribute("error", "Email này đã được đăng ký tài khoản. Vui lòng đăng nhập để quyên góp.");
-                    return "redirect:/auth/login";
-                }
-                user = found;
-            } else {
-                user = new User();
-                user.setFullName(fullName != null && !fullName.isBlank() ? fullName : "Nhà hảo tâm ẩn danh");
-                user.setEmail(email);
-                if (phone == null || phone.isBlank()) {
-                    user.setPhoneNumber("GUEST_" + UUID.randomUUID().toString().substring(0, 8));
+            // KIỂM TRA TRÙNG SĐT TRƯỚC KHI GỌI SERVICE
+            Optional<User> byPhone = userService.getUserByPhoneNumber(cleanPhone);
+            if (byPhone.isPresent() && !byPhone.get().getEmail().equalsIgnoreCase(cleanEmail)) {
+                redirectAttributes.addFlashAttribute("error", "Số điện thoại " + cleanPhone + " đã được sử dụng cho một email khác. Vui lòng dùng SĐT khác.");
+                return "redirect:/campaign/" + campaignId;
+            }
+
+            try {
+                Optional<User> userByEmail = userService.getUserByEmail(cleanEmail);
+                if (userByEmail.isPresent()) {
+                    User found = userByEmail.get();
+                    if (found.getRole() != null && !"GUEST".equalsIgnoreCase(found.getRole().getRoleName())) {
+                        redirectAttributes.addFlashAttribute("error", "Email này đã có tài khoản thành viên. Vui lòng đăng nhập.");
+                        return "redirect:/auth/login?email=" + cleanEmail;
+                    }
+                    
+                    found.setFullName(fullName != null && !fullName.isBlank() ? fullName : found.getFullName());
+                    found.setPhoneNumber(cleanPhone);
+                    if (address != null && !address.isBlank()) found.setAddress(address);
+                    user = userService.saveUser(found);
                 } else {
-                    user.setPhoneNumber(phone);
+                    user = new User();
+                    user.setFullName(fullName != null && !fullName.isBlank() ? fullName : "Nhà hảo tâm ẩn danh");
+                    user.setEmail(cleanEmail);
+                    user.setPhoneNumber(cleanPhone);
+                    user.setAddress(address);
+                    roleRepository.findByRoleName("GUEST").ifPresent(user::setRole);
+                    user.setStatus(UserStatus.ACTIVE.getValue());
+                    user = userService.saveUser(user);
                 }
-                user.setAddress(address);
-                // Assign GUEST role
-                roleRepository.findByRoleName("GUEST").ifPresent(user::setRole);
-                user.setStatus(UserStatus.ACTIVE.getValue());
-                user = userService.saveUser(user);
-                logger.info("Created new GUEST user for donation: {}", email);
+            } catch (Exception e) {
+                logger.error("Error during guest save: {}", e.getMessage());
+                redirectAttributes.addFlashAttribute("error", "Lỗi dữ liệu: " + e.getMessage());
+                return "redirect:/campaign/" + campaignId;
             }
         } else {
             user = userService.getUserById(userId).orElse(null);
             if (user == null) return "redirect:/auth/login";
         }
 
-        Campaign campaign = campaignService.getCampaignById(campaignId).orElseThrow();
-        PaymentMethod pm = paymentMethodService.getPaymentMethodById(paymentMethodId).orElseThrow();
-
-        Donation donation = new Donation();
-        donation.setCampaign(campaign);
-        donation.setUser(user);
-        donation.setAmount(amount);
-        donation.setPaymentMethod(pm);
-        donation.setIsAnonymous(isAnonymous);
-
-        String transactionCode = "QG" + System.currentTimeMillis() % 1000000;
-        if (message != null && !message.isBlank()) {
-            String cleanMessage = message.trim();
-            if (cleanMessage.length() > 450) {
-                cleanMessage = cleanMessage.substring(0, 450) + "...";
-            }
-            donation.setMessage(cleanMessage + " (Code: " + transactionCode + ")");
-        } else {
-            donation.setMessage("Transaction Code: " + transactionCode);
-        }
-
-        donation.setStatus(DonationStatus.PENDING.getValue());
-        donation.setCreatedAt(LocalDateTime.now());
-        donationService.saveDonation(donation);
-        logger.info("New donation submitted. User: {}, Campaign: {}, Amount: {}, Code: {}", user.getEmail(), campaign.getCode(), amount, transactionCode);
-
         try {
-            emailService.sendDonationSubmissionEmail(user.getEmail(), user.getFullName(), campaign.getName(), amount, transactionCode);
-        } catch (Exception e) {
-            logger.error("Failed to send submission email: {}", e.getMessage());
-        }
+            Campaign campaign = campaignService.getCampaignById(campaignId).orElseThrow();
+            PaymentMethod pm = paymentMethodService.getPaymentMethodById(paymentMethodId).orElseThrow();
 
-        return "redirect:/campaign/" + campaignId + "?success=donated&pending=true&code=" + transactionCode;
+            Donation donation = new Donation();
+            donation.setCampaign(campaign);
+            donation.setUser(user);
+            donation.setAmount(amount);
+            donation.setPaymentMethod(pm);
+            donation.setIsAnonymous(isAnonymous);
+
+            String transactionCode = "QG" + System.currentTimeMillis() % 1000000;
+            donation.setMessage((message != null ? message.trim() : "") + " (Code: " + transactionCode + ")");
+            donation.setStatus(DonationStatus.PENDING.getValue());
+            donation.setCreatedAt(LocalDateTime.now());
+            
+            donationService.saveDonation(donation);
+            logger.info("Donation saved successfully for campaign ID: {}", campaignId);
+
+            try {
+                emailService.sendDonationSubmissionEmail(user.getEmail(), user.getFullName(), campaign.getName(), amount, transactionCode);
+            } catch (Exception ex) {
+                logger.warn("Email sending failed: {}", ex.getMessage());
+            }
+
+            return "redirect:/campaign/" + campaignId + "?success=donated&pending=true&code=" + transactionCode;
+        } catch (Exception e) {
+            logger.error("Error during donation save: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra khi lưu khoản quyên góp.");
+            return "redirect:/campaign/" + campaignId;
+        }
     }
 }

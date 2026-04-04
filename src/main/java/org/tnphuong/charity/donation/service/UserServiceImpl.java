@@ -63,59 +63,62 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User saveUser(User user) {
+        String cleanEmail = user.getEmail() != null ? user.getEmail().trim() : null;
+        String cleanPhone = user.getPhoneNumber() != null ? user.getPhoneNumber().trim() : null;
+
+        // 1. Kiểm tra trùng Email thủ công TRƯỚC KHI LƯU
+        if (cleanEmail != null) {
+            Optional<User> uEmail = userRepository.findByEmail(cleanEmail);
+            if (uEmail.isPresent() && (user.getId() == null || !uEmail.get().getId().equals(user.getId()))) {
+                throw new RuntimeException("Email " + cleanEmail + " đã được sử dụng bởi một tài khoản khác.");
+            }
+        }
+
+        // 2. Kiểm tra trùng SĐT thủ công
+        if (cleanPhone != null && !cleanPhone.isEmpty() && !cleanPhone.startsWith("GUEST_")) {
+            Optional<User> uPhone = userRepository.findByPhoneNumber(cleanPhone);
+            if (uPhone.isPresent()) {
+                User existing = uPhone.get();
+                if (user.getId() == null || !existing.getId().equals(user.getId())) {
+                    throw new RuntimeException("Số điện thoại " + cleanPhone + " đã được đăng ký cho email " + existing.getEmail() + ". Vui lòng dùng SĐT khác.");
+                }
+            }
+        }
+
         if (user.getId() == null) {
-            // New user
             String pwd = user.getPassword();
             if (pwd == null || pwd.trim().isEmpty()) {
-                String dPwd = (defaultPassword != null) ? defaultPassword.trim() : "123456";
-                user.setPassword(PasswordUtils.hashPassword(dPwd));
-                logger.info("Using default password for new user: {}", user.getEmail());
+                user.setPassword(PasswordUtils.hashPassword(defaultPassword.trim()));
             } else if (!pwd.startsWith("$2")) {
                 user.setPassword(PasswordUtils.hashPassword(pwd));
             }
-            
-            if (user.getCreatedAt() == null) {
-                user.setCreatedAt(java.time.LocalDateTime.now());
-            }
-            if (user.getStatus() == null) {
-                user.setStatus(UserStatus.ACTIVE.getValue());
-            }
-            
-            // Ensure Role is persistent
-            if (user.getRole() != null && user.getRole().getId() != null) {
-                roleRepository.findById(user.getRole().getId()).ifPresent(user::setRole);
-            } else if (user.getRole() == null) {
+            if (user.getCreatedAt() == null) user.setCreatedAt(java.time.LocalDateTime.now());
+            if (user.getStatus() == null) user.setStatus(UserStatus.ACTIVE.getValue());
+            if (user.getRole() == null) {
                 roleRepository.findByRoleName("USER").ifPresent(user::setRole);
             }
-            
+            user.setEmail(cleanEmail);
+            user.setPhoneNumber(cleanPhone);
             logger.info("Creating new user: {}", user.getEmail());
-            return userRepository.save(user);
+            return userRepository.saveAndFlush(user);
         } else {
-            // Update user
             User existingUser = userRepository.findById(user.getId())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            
-            // Basic Info
-            if (user.getFullName() != null) existingUser.setFullName(user.getFullName());
-            if (user.getEmail() != null) existingUser.setEmail(user.getEmail());
-            if (user.getPhoneNumber() != null) existingUser.setPhoneNumber(user.getPhoneNumber());
-            if (user.getAddress() != null) existingUser.setAddress(user.getAddress());
-            if (user.getStatus() != null) existingUser.setStatus(user.getStatus());
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng!"));
+            existingUser.setFullName(user.getFullName());
+            existingUser.setEmail(cleanEmail);
+            existingUser.setPhoneNumber(cleanPhone);
+            existingUser.setAddress(user.getAddress());
+            existingUser.setStatus(user.getStatus());
             if (user.getRole() != null) existingUser.setRole(user.getRole());
             if (user.getAvatarUrl() != null) existingUser.setAvatarUrl(user.getAvatarUrl());
             if (user.getLastLogin() != null) existingUser.setLastLogin(user.getLastLogin());
             
-            // Password logic: Only hash if it's a NEW raw password
             String inputPwd = user.getPassword();
-            if (inputPwd != null && !inputPwd.trim().isEmpty()) {
-                // If input password is NOT already hashed (doesn't start with $2)
-                if (!inputPwd.startsWith("$2")) {
-                    existingUser.setPassword(PasswordUtils.hashPassword(inputPwd));
-                }
+            if (inputPwd != null && !inputPwd.trim().isEmpty() && !inputPwd.startsWith("$2")) {
+                existingUser.setPassword(PasswordUtils.hashPassword(inputPwd));
             }
-            
             logger.debug("Updating user ID: {}", existingUser.getId());
-            return userRepository.save(existingUser);
+            return userRepository.saveAndFlush(existingUser);
         }
     }
 
@@ -124,8 +127,6 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Integer id) {
         userRepository.findById(id).ifPresent(user -> {
             logger.info("Deleting user: {}", user.getEmail());
-            // Clear donations or handle money subtraction if needed (ideally via a Trigger or a safer Service orchestration)
-            // For now, delete directly to break cycle
             userRepository.deleteById(id);
         });
     }
@@ -173,10 +174,6 @@ public class UserServiceImpl implements UserService {
         dto.setTotalDonatedAmount(totalAmount != null ? totalAmount : java.math.BigDecimal.ZERO);
         dto.setCampaignCount(donationRepository.countCampaignsByUserId(user.getId(), DonationStatus.CONFIRMED.getValue()));
         dto.setFollowingCount(userFollowingRepository.countByUserId(user.getId()));
-        
-        if (dto.getTotalDonatedAmount().compareTo(java.math.BigDecimal.ZERO) == 0) {
-            logger.debug("Stats for user {} (ID: {}) are zero. Role: {}", user.getEmail(), user.getId(), dto.getRoleName());
-        }
         
         dto.setCreatedAt(user.getCreatedAt());
         dto.setLastLogin(user.getLastLogin());

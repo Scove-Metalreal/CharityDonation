@@ -46,7 +46,7 @@
                         <div class="mb-3">
                             <h6 id="donateCampaignName" class="fw-bold brand-primary">${campaign.name}</h6>
                         </div>
-                        <form action="${pageContext.request.contextPath}/campaign/donate" method="post">
+                        <form action="${pageContext.request.contextPath}/campaign/donate" method="post" onsubmit="return validateDonateForm(this)">
                             <input type="hidden" name="campaignId" id="donateCampaignId" value="${campaign.id}">
                             
                             <c:if test="${not empty error}">
@@ -69,7 +69,8 @@
                                             <input type="email" name="email" class="form-control" placeholder="Email (Bắt buộc)" required>
                                         </div>
                                         <div class="col-md-6">
-                                            <input type="text" name="phone" class="form-control" placeholder="Số điện thoại (Tùy chọn)">
+                                            <input type="text" name="phone" class="form-control" placeholder="Số điện thoại (Bắt buộc)" required>
+                                            <div class="invalid-feedback ps-3">Vui lòng nhập số điện thoại để tiếp tục.</div>
                                         </div>
                                         <div class="col-md-6">
                                             <input type="text" name="address" class="form-control" placeholder="Địa chỉ (Tùy chọn)">
@@ -498,7 +499,37 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        function validateDonateForm(form) {
+            const email = form.email ? form.email.value.trim() : null;
+            const phone = form.phone ? form.phone.value.trim() : null;
+            const submitBtn = form.querySelector('button[type="submit"]');
+
+            if (email !== null) {
+                const emailRegex = /^[a-zA-Z0-9_+&*-]+(?:\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,7}$/;
+                if (!emailRegex.test(email)) {
+                    Swal.fire('Lỗi định dạng', 'Địa chỉ email không đúng định dạng. Vui lòng kiểm tra lại.', 'error');
+                    return false;
+                }
+            }
+
+            if (phone !== null) {
+                const phoneRegex = /^((0|84)(3|5|7|8|9)[0-9]{8})$/;
+                if (!phoneRegex.test(phone)) {
+                    Swal.fire('Số điện thoại không hợp lệ', 'Vui lòng nhập đúng số điện thoại Việt Nam (10 chữ số).', 'error');
+                    return false;
+                }
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> ĐANG XỬ LÝ...';
+            }
+            
+            return true;
+        }
+
         function handlePaymentMethodChange(select) {
             const selectedOption = select.options[select.selectedIndex];
             const provider = selectedOption.getAttribute('data-provider');
@@ -532,8 +563,18 @@
             }
         }
 
-        // Check for success parameters on load
+        // Check for server-side errors passed via RedirectAttributes
         window.addEventListener('load', function() {
+            const errorElement = document.getElementById('serverErrorMessage');
+            if (errorElement) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi quyên góp',
+                    text: errorElement.innerText,
+                    confirmButtonColor: '#10B981'
+                });
+            }
+
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('success') === 'pending') {
                 const code = urlParams.get('code');
@@ -590,6 +631,13 @@
                         behavior: 'smooth'
                     });
                     document.querySelectorAll('.nav-tabs-custom .nav-link').forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>List.remove('active'));
                     link.classList.add('active');
                 }
             });
