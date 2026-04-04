@@ -310,9 +310,20 @@
                                                     <a href="${pageContext.request.contextPath}/campaign/${f.campaign.id}" class="fw-bold text-dark text-decoration-none text-truncate d-block">${f.campaign.name}</a>
                                                     <p class="text-muted small text-truncate mb-1">${f.campaign.content.replaceAll("<[^>]*>", "").substring(0, 100)}...</p>
                                                     <div class="d-flex gap-2 align-items-center">
-                                                        <span class="badge ${f.campaign.status == 1 ? 'bg-success' : 'bg-secondary'} bg-opacity-10 ${f.campaign.status == 1 ? 'text-success' : 'text-secondary'} rounded-pill smallest">
-                                                            ${f.campaign.status == 1 ? 'Đang chạy' : (f.campaign.status == 2 ? 'Đã kết thúc' : 'Đã đóng')}
-                                                        </span>
+                                                        <c:choose>
+                                                            <c:when test="${f.campaign.status == STATUS.CAMPAIGN_NEW}">
+                                                                <span class="badge bg-info bg-opacity-10 text-info rounded-pill smallest">Mới tạo</span>
+                                                            </c:when>
+                                                            <c:when test="${f.campaign.status == STATUS.CAMPAIGN_ONGOING}">
+                                                                <span class="badge bg-success bg-opacity-10 text-success rounded-pill smallest">Đang diễn ra</span>
+                                                            </c:when>
+                                                            <c:when test="${f.campaign.status == STATUS.CAMPAIGN_COMPLETED}">
+                                                                <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill smallest">Đã kết thúc</span>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill smallest">Đã đóng</span>
+                                                            </c:otherwise>
+                                                        </c:choose>
                                                         <c:if test="${f.receiveEmail == 1}"><i class="fas fa-bell brand-primary smallest" title="Nhận thông báo email"></i></c:if>
                                                     </div>
                                                 </div>

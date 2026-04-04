@@ -423,7 +423,25 @@
                                             <tr><td class="text-muted">Mục tiêu:</td><td class="fw-bold brand-primary"><fmt:formatNumber value="${campaign.targetMoney}" type="number"/>đ</td></tr>
                                             <tr><td class="text-muted">SĐT thụ hưởng:</td><td class="fw-bold">${campaign.beneficiaryPhone}</td></tr>
                                             <tr><td class="text-muted">Ngày bắt đầu:</td><td class="fw-bold">${campaign.startDate}</td></tr>
-                                            <tr><td class="text-muted">Trạng thái:</td><td><span class="badge ${campaign.status == 1 ? 'bg-success' : 'bg-secondary'} rounded-pill">${campaign.status == 1 ? 'Đang quyên góp' : 'Đã kết thúc'}</span></td></tr>
+                                            <tr>
+                                                <td class="text-muted">Trạng thái:</td>
+                                                <td>
+                                                    <c:choose>
+                                                        <c:when test="${campaign.status == STATUS.CAMPAIGN_NEW}">
+                                                            <span class="badge bg-info rounded-pill">Mới tạo</span>
+                                                        </c:when>
+                                                        <c:when test="${campaign.status == STATUS.CAMPAIGN_ONGOING}">
+                                                            <span class="badge bg-success rounded-pill">Đang quyên góp</span>
+                                                        </c:when>
+                                                        <c:when test="${campaign.status == STATUS.CAMPAIGN_COMPLETED}">
+                                                            <span class="badge bg-warning rounded-pill text-dark">Đã kết thúc</span>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <span class="badge bg-secondary rounded-pill">Đã đóng quỹ</span>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </td>
+                                            </tr>
                                         </table>
                                     </div>
                                     <div class="rich-text-content" style="white-space: pre-wrap; line-height: 1.8; color: #374151; font-size: 1.1rem;">
