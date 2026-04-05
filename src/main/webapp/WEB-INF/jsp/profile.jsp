@@ -413,8 +413,7 @@
         .hover-bg-light:hover { background-color: #f8fafc; }
         .transition { transition: all 0.2s ease-in-out; }
         .object-fit-cover { object-fit: cover; }
-        
-        /* Refined History Card Styles */
+
         .history-card-refined {
             border-radius: 16px;
             transition: all 0.3s ease;

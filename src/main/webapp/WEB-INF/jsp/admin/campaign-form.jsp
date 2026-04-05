@@ -20,14 +20,14 @@
         .bg-brand-primary { background-color: var(--color-primary) !important; }
         .scrollable-main { height: 100vh; overflow-y: auto; scrollbar-width: none; }
         .scrollable-main::-webkit-scrollbar { display: none; }
-        
+
         .ql-container { min-height: 300px; font-size: 1rem; border-bottom-left-radius: 1rem; border-bottom-right-radius: 1rem; background: white; }
         .ql-toolbar { border-top-left-radius: 1rem; border-top-right-radius: 1rem; background: #f8fafc; border-color: #dee2e6 !important; }
 
         .preview-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
         .preview-item { width: 80px; height: 80px; border-radius: 12px; overflow: hidden; position: relative; border: 2px solid #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .preview-item img { width: 100%; height: 100%; object-fit: cover; }
-        .preview-item .remove-btn { 
+        .preview-item .remove-btn {
             position: absolute; top: 2px; right: 2px; width: 20px; height: 20px; 
             background: rgba(239, 68, 68, 0.9); color: white; border: none; 
             border-radius: 50%; font-size: 12px; display: flex; align-items: center; 
@@ -37,7 +37,6 @@
         .drop-zone { cursor: pointer; transition: 0.3s; border: 2px dashed #cbd5e1; min-height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 1rem; }
         .drop-zone:hover, .drop-zone.dragover { background: #edfcf7 !important; border-color: var(--color-primary) !important; }
 
-        /* --- TOM SELECT LUXURY FIXED --- */
         .ts-wrapper.multi .ts-control { 
             border-radius: 50rem !important; 
             padding: 8px 20px !important; 
@@ -46,8 +45,7 @@
             background-color: #f8fafc !important;
         }
         .ts-dropdown { border-radius: 1rem !important; border: 1px solid #e2e8f0 !important; box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important; z-index: 2000 !important; }
-        
-        /* Cố định kích thước ảnh trong danh sách đối tác */
+
         .companion-option, .ts-control .item { display: flex; align-items: center; gap: 10px; overflow: hidden; }
         .companion-avatar, .ts-control .item img { 
             width: 28px !important; 

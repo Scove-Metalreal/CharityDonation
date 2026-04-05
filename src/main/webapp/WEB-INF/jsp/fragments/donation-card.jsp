@@ -2,12 +2,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<%-- 
-    Parameters:
-    - campaign: The Campaign entity/DTO
-    - isCompact: boolean (optional)
---%>
-
 <div class="card h-100 border-0 shadow-sm donation-card ${isCompact ? 'compact-card' : ''} position-relative">
     <!-- Main Link: Stretched to cover the entire card area -->
     <a href="${pageContext.request.contextPath}/campaign/${campaign.id}" class="stretched-link" style="z-index: 1;"></a>

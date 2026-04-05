@@ -32,14 +32,13 @@
         .brand-primary { color: var(--color-primary) !important; }
         .bg-brand-primary { background-color: var(--color-primary) !important; }
 
-        /* Sync Follow & Share Buttons */
         .btn-brand-primary { 
             background-color: var(--color-primary) !important; 
             border-color: var(--color-primary) !important; 
             color: white !important; 
         }
         .btn-brand-primary:hover, .btn-brand-primary:active, .btn-brand-primary.active { 
-            background-color: #059669 !important; /* Đậm hơn một chút */
+            background-color: #059669 !important;
             border-color: #059669 !important;
         }
         
@@ -53,7 +52,6 @@
             color: white !important; 
         }
 
-        /* Mobile Bottom Donate Bar */
         .mobile-donate-bar { 
             position: fixed; bottom: 0; left: 0; right: 0; 
             background: white; padding: 15px 25px; 
@@ -73,7 +71,6 @@
 </head>
 <body class="bg-light">
     <div class="container-fluid">
-        <!-- Modals (Donation, Bank, Lightbox, etc.) -->
         <jsp:include page="fragments/donation-modals.jsp" />
 
         <div class="row flex-nowrap">

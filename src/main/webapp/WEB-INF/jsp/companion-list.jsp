@@ -15,8 +15,7 @@
         .scrollable-main { height: 100vh; overflow-y: auto; scrollbar-width: none; }
         .scrollable-main::-webkit-scrollbar { display: none; }
         .brand-primary { color: var(--color-primary) !important; }
-        
-        /* Master Sidebar Styling */
+
         .companion-sidebar { 
             background: #f8fafc; 
             border-right: 1px solid #e2e8f0; 
@@ -39,8 +38,7 @@
         .companion-item:hover { background: #fff; }
         .companion-item.active { background: #fff; border-left-color: var(--color-primary); }
         .companion-logo-sm { width: 45px; height: 45px; object-fit: contain; border-radius: 10px; background: white; padding: 5px; border: 1px solid #f1f5f9; }
-        
-        /* Detail Section Styling */
+
         .detail-card { border-radius: 24px; border: none; overflow: hidden; background: white; box-shadow: 0 10px 40px rgba(0,0,0,0.04); }
         .detail-header { background: #f8fafc; padding: 40px 20px; text-align: center; border-bottom: 1px solid #f1f5f9; }
         .detail-logo-lg { width: 120px; height: 120px; object-fit: contain; margin-bottom: 20px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05)); }
@@ -62,7 +60,6 @@
         .mini-card:hover { border-color: var(--color-primary); transform: translateX(5px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .mini-card img { border-radius: 10px; object-fit: cover; }
 
-        /* --- RESPONSIVE ADJUSTMENTS --- */
         @media (max-width: 991.98px) {
             .companion-sidebar { 
                 height: auto; 
@@ -76,9 +73,9 @@
                 overflow-x: auto; 
                 padding: 10px 20px;
                 gap: 10px;
-                scrollbar-width: none; /* Firefox */
+                scrollbar-width: none;
             }
-            .companion-list::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+            .companion-list::-webkit-scrollbar { display: none; }
             
             .companion-item { 
                 flex: 0 0 auto; 
@@ -86,7 +83,7 @@
                 border-radius: 50rem; 
                 border: 1px solid #e2e8f0; 
                 background: white;
-                border-left: 1px solid #e2e8f0; /* Reset border-left */
+                border-left: 1px solid #e2e8f0;
             }
             .companion-item.active { 
                 background: var(--color-primary); 
