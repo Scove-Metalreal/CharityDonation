@@ -178,7 +178,6 @@ public class DonationServiceImpl implements DonationService {
     public java.util.Map<String, Long> getDonationStatsByStatus() {
         List<Object[]> results = donationRepository.countDonationsByStatus();
         java.util.Map<String, Long> stats = new java.util.HashMap<>();
-        // Sử dụng String key để JSP EL truy cập dễ dàng hơn
         stats.put("0", 0L);
         stats.put("1", 0L);
         stats.put("2", 0L);

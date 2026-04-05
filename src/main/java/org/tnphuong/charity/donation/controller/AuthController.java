@@ -10,11 +10,11 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.tnphuong.charity.donation.dao.RoleRepository;
 import org.tnphuong.charity.donation.entity.User;
 import org.tnphuong.charity.donation.entity.UserStatus;
 import org.tnphuong.charity.donation.service.UserService;
 import org.tnphuong.charity.donation.service.EmailService;
+import org.tnphuong.charity.donation.service.RoleService;
 import org.tnphuong.charity.donation.utils.PasswordUtils;
 
 import java.time.LocalDateTime;
@@ -31,7 +31,7 @@ public class AuthController {
     private UserService userService;
 
     @Autowired
-    private RoleRepository roleRepository;
+    private RoleService roleService;
 
     @Autowired
     private EmailService emailService;
@@ -63,7 +63,7 @@ public class AuthController {
         }
 
         try {
-            roleRepository.findByRoleName("USER").ifPresent(user::setRole);
+            roleService.getRoleByName("USER").ifPresent(user::setRole);
             user.setStatus(UserStatus.ACTIVE.getValue());
             
             if ("GOOGLE".equals(user.getAuthProvider())) {
@@ -193,7 +193,7 @@ public class AuthController {
             
             // Auto-upgrade GUEST to USER
             if (user.getRole() != null && "GUEST".equalsIgnoreCase(user.getRole().getRoleName())) {
-                roleRepository.findByRoleName("USER").ifPresent(user::setRole);
+                roleService.getRoleByName("USER").ifPresent(user::setRole);
                 logger.info("Auto-upgraded GUEST to USER during password reset: {}", email);
             }
             
@@ -230,7 +230,7 @@ public class AuthController {
 
                 // Auto-upgrade GUEST to USER upon successful login
                 if (user.getRole() != null && "GUEST".equalsIgnoreCase(user.getRole().getRoleName())) {
-                    roleRepository.findByRoleName("USER").ifPresent(user::setRole);
+                    roleService.getRoleByName("USER").ifPresent(user::setRole);
                     logger.info("Auto-upgraded GUEST to USER upon successful login: {}", cleanEmail);
                 }
 
