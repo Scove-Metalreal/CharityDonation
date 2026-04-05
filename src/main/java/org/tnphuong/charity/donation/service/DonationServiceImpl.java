@@ -193,9 +193,21 @@ public class DonationServiceImpl implements DonationService {
     public java.util.Map<String, Long> getDonationStatsByPaymentMethod() {
         List<Object[]> results = donationRepository.countDonationsByPaymentMethod();
         java.util.Map<String, Long> stats = new java.util.HashMap<>();
-        for (Object[] result : results) {
-            stats.put((String) result[0], (Long) result[1]);
+        for (Object[] row : results) {
+            stats.put((String) row[0], (Long) row[1]);
         }
         return stats;
     }
-}
+
+    @Override
+    public java.math.BigDecimal getTotalDonatedAmountByUserId(Integer userId) {
+        java.math.BigDecimal amount = donationRepository.sumDonationsByUserId(userId, org.tnphuong.charity.donation.entity.DonationStatus.CONFIRMED.getValue());
+        return amount != null ? amount : java.math.BigDecimal.ZERO;
+    }
+
+    @Override
+    public long countCampaignsByUserId(Integer userId) {
+        return donationRepository.countCampaignsByUserId(userId, org.tnphuong.charity.donation.entity.DonationStatus.CONFIRMED.getValue());
+    }
+    }
+

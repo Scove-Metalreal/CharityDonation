@@ -35,4 +35,9 @@ public class UserFollowingServiceImpl implements UserFollowingService {
     public void deleteFollowing(UserFollowing following) {
         userFollowingRepository.delete(following);
     }
+
+    @Override
+    public long countByUserId(Integer userId) {
+        return userFollowingRepository.countByUserId(userId);
+    }
 }

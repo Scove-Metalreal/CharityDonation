@@ -9,13 +9,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tnphuong.charity.donation.dao.UserRepository;
-import org.tnphuong.charity.donation.dao.DonationRepository;
-import org.tnphuong.charity.donation.dao.RoleRepository;
 import org.tnphuong.charity.donation.dto.UserDTO;
 import org.tnphuong.charity.donation.entity.User;
-import org.tnphuong.charity.donation.entity.Donation;
 import org.tnphuong.charity.donation.entity.UserStatus;
-import org.tnphuong.charity.donation.entity.DonationStatus;
 import org.tnphuong.charity.donation.utils.PasswordUtils;
 
 import java.util.List;
@@ -33,17 +29,13 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private DonationRepository donationRepository;
+    private DonationService donationService;
 
     @Autowired
-    @org.springframework.context.annotation.Lazy
-    private CampaignService campaignService;
+    private RoleService roleService;
 
     @Autowired
-    private RoleRepository roleRepository;
-
-    @Autowired
-    private org.tnphuong.charity.donation.dao.UserFollowingRepository userFollowingRepository;
+    private UserFollowingService userFollowingService;
 
     @Override
     public List<User> getAllUsers() {
@@ -95,7 +87,7 @@ public class UserServiceImpl implements UserService {
             if (user.getCreatedAt() == null) user.setCreatedAt(java.time.LocalDateTime.now());
             if (user.getStatus() == null) user.setStatus(UserStatus.ACTIVE.getValue());
             if (user.getRole() == null) {
-                roleRepository.findByRoleName("USER").ifPresent(user::setRole);
+                roleService.getRoleByName("USER").ifPresent(user::setRole);
             }
             user.setEmail(cleanEmail);
             user.setPhoneNumber(cleanPhone);
@@ -170,10 +162,9 @@ public class UserServiceImpl implements UserService {
         dto.setRoleName(user.getRole() != null ? user.getRole().getRoleName() : null);
         dto.setStatus(user.getStatus());
         
-        java.math.BigDecimal totalAmount = donationRepository.sumDonationsByUserId(user.getId(), DonationStatus.CONFIRMED.getValue());
-        dto.setTotalDonatedAmount(totalAmount != null ? totalAmount : java.math.BigDecimal.ZERO);
-        dto.setCampaignCount(donationRepository.countCampaignsByUserId(user.getId(), DonationStatus.CONFIRMED.getValue()));
-        dto.setFollowingCount(userFollowingRepository.countByUserId(user.getId()));
+        dto.setTotalDonatedAmount(donationService.getTotalDonatedAmountByUserId(user.getId()));
+        dto.setCampaignCount(donationService.countCampaignsByUserId(user.getId()));
+        dto.setFollowingCount(userFollowingService.countByUserId(user.getId()));
         
         dto.setCreatedAt(user.getCreatedAt());
         dto.setLastLogin(user.getLastLogin());
@@ -223,7 +214,7 @@ public class UserServiceImpl implements UserService {
             guest.setFullName(fullName != null && !fullName.isBlank() ? fullName : "Nhà hảo tâm ẩn danh");
             guest.setAddress(address);
             guest.setStatus(UserStatus.ACTIVE.getValue());
-            roleRepository.findByRoleName("GUEST").ifPresent(guest::setRole);
+            roleService.getRoleByName("GUEST").ifPresent(guest::setRole);
             return userRepository.saveAndFlush(guest);
         }
     }

@@ -34,4 +34,6 @@ public interface DonationService {
     DonationDTO convertToDTO(Donation donation);
     java.util.Map<String, Long> getDonationStatsByStatus();
     java.util.Map<String, Long> getDonationStatsByPaymentMethod();
+    java.math.BigDecimal getTotalDonatedAmountByUserId(Integer userId);
+    long countCampaignsByUserId(Integer userId);
 }

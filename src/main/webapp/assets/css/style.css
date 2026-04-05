@@ -149,10 +149,10 @@ img {
     object-fit: contain !important; /* Logos should usually not be cropped */
 }
 
-/* LIQUID PROGRESS BAR - PIPE EFFECT (2/3 Height) */
+/* LIQUID PROGRESS BAR */
 .liquid-progress-container {
     width: 100%;
-    height: 30px; /* Cố định chiều cao để dễ căn chỉnh */
+    height: 30px;
     background-color: #e2e8f0;
     border-radius: 50rem;
     position: relative;
@@ -163,9 +163,9 @@ img {
 }
 
 .liquid-progress-fill {
-    height: 75%; /* Nước chỉ dâng lên 3/4 (hoặc 2/3) chiều dọc của thanh */
+    height: 100%;
     width: 0;
-    background: linear-gradient(to bottom, #34D399, #10B981); /* Gradient dọc cho nước */
+    background: linear-gradient(to bottom, #34D399, #10B981);
     position: absolute;
     bottom: 0;
     left: 0;
@@ -178,16 +178,15 @@ img {
     position: absolute;
     width: 200%;
     height: 400%;
-    top: -360%; /* Đẩy khối xoay lên cao để phần cong chạm mặt nước */
+    top: -360%;
     left: -50%;
-    background-color: #e2e8f0; /* Màu của sóng trùng với màu nền của container để tạo vết cắt */
+    background-color: #45debd;
     border-radius: 40%;
     animation: liquid-wave-anim 8s infinite linear;
     z-index: 1;
-    filter: blur(1px); /* Làm mềm nét cắt của sóng */
+    filter: blur(1px);
 }
 
-/* Tạo lớp sóng thứ 2 để có sự nhấp nhô đan xen */
 .liquid-wave:nth-child(2) {
     top: -365%;
     left: -45%;
@@ -212,7 +211,7 @@ img {
     align-items: center;
     justify-content: center;
     z-index: 10;
-    color: #064e3b; /* Chữ đậm màu hơn để dễ nhìn trên nền sáng */
+    color: #064e3b;
     font-weight: 800;
     font-size: 0.75rem;
     pointer-events: auto;
@@ -516,7 +515,6 @@ img {
     text-transform: uppercase;
 }
 
-/* REFINED SUMMARY SIDEBAR */
 .sidebar-section-title {
     font-size: 0.9rem;
     font-weight: 800;
@@ -526,7 +524,7 @@ img {
 }
 
 .btn-sidebar-action {
-    background-color: #334155 !important; /* Dark grey */
+    background-color: #334155 !important;
     color: white !important;
     border-radius: 50rem !important;
     padding: 8px 20px !important;
@@ -539,7 +537,7 @@ img {
     gap: 8px;
     transition: all 0.2s;
     text-decoration: none;
-    flex: 1; /* Make them equal width in the flex container */
+    flex: 1;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -650,8 +648,6 @@ img {
     font-weight: 600;
     color: var(--color-text-muted);
 }
-
-/* Ensure the close sidebar button is visible on mobile */
 @media (max-width: 991.98px) {
     .sidebar-header .btn.d-lg-none {
         display: block !important;

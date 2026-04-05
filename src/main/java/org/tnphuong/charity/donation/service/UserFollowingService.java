@@ -9,4 +9,5 @@ public interface UserFollowingService {
     Optional<UserFollowing> getFollowing(Integer userId, Integer campaignId);
     void saveFollowing(UserFollowing following);
     void deleteFollowing(UserFollowing following);
+    long countByUserId(Integer userId);
 }
