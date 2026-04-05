@@ -22,7 +22,7 @@
                     </c:if>
 
                     <div class="mb-4">
-                        <label class="form-label small fw-bold text-muted text-uppercase">Số tiền quyên góp (VNĐ)</label>
+                        <label class="form-label small fw-bold text-muted text-uppercase">Số tiền quyên góp ( VNĐ)</label>
                         <input type="number" name="amount" class="form-control form-control-lg rounded-pill px-4 shadow-none border" placeholder="Nhập số tiền..." required min="1000">
                     </div>
 

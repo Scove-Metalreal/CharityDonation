@@ -165,7 +165,11 @@ public class AdminController {
 
     @PostMapping("/users/toggle-status")
     @ResponseBody
-    public ResponseEntity<?> toggleStatus(@RequestParam Integer userId) {
+    public ResponseEntity<?> toggleStatus(@RequestParam Integer userId, jakarta.servlet.http.HttpSession session) {
+        Integer currentAdminId = (Integer) session.getAttribute("userId");
+        if (userId.equals(currentAdminId)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Bạn không thể tự khóa tài khoản của chính mình!"));
+        }
         try {
             User user = userService.getUserById(userId).orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng!"));
             user.setStatus(user.getStatus() == UserStatus.ACTIVE.getValue() ? UserStatus.LOCKED.getValue() : UserStatus.ACTIVE.getValue());
@@ -179,7 +183,11 @@ public class AdminController {
 
     @PostMapping("/users/delete")
     @ResponseBody
-    public ResponseEntity<?> deleteUser(@RequestParam Integer userId) {
+    public ResponseEntity<?> deleteUser(@RequestParam Integer userId, jakarta.servlet.http.HttpSession session) {
+        Integer currentAdminId = (Integer) session.getAttribute("userId");
+        if (userId.equals(currentAdminId)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Bạn không thể tự xóa tài khoản của chính mình!"));
+        }
         try {
             userService.deleteUser(userId);
             return ResponseEntity.ok().body(Map.of("message", "Xóa người dùng thành công!"));
@@ -242,6 +250,7 @@ public class AdminController {
         model.addAttribute("activePage", "admin-campaigns");
         addCommonData(model, session);
         model.addAttribute("campaign", new Campaign());
+        model.addAttribute("allCompanions", companionService.getAllCompanions());
         return "admin/campaign-form";
     }
 
@@ -250,6 +259,7 @@ public class AdminController {
         model.addAttribute("activePage", "admin-campaigns");
         addCommonData(model, session);
         campaignService.getCampaignById(id).ifPresent(campaign -> model.addAttribute("campaign", campaign));
+        model.addAttribute("allCompanions", companionService.getAllCompanions());
         return "admin/campaign-form";
     }
 
@@ -264,6 +274,18 @@ public class AdminController {
             Map<String, String> errors = new HashMap<>();
             result.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
             return ResponseEntity.badRequest().body(errors);
+        }
+
+        if (campaign.getId() != null) {
+            Optional<Campaign> existingOpt = campaignService.getCampaignById(campaign.getId());
+            if (existingOpt.isPresent()) {
+                Campaign existing = existingOpt.get();
+                if (files == null || files.length == 0 || files[0].isEmpty()) {
+                    campaign.setImageUrl(existing.getImageUrl());
+                    campaign.setGalleryUrls(existing.getGalleryUrls());
+                }
+                campaign.setCreatedAt(existing.getCreatedAt());
+            }
         }
 
         if (files != null && files.length > 0 && !files[0].isEmpty()) {

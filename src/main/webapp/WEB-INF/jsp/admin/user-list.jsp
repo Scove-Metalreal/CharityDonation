@@ -99,10 +99,6 @@
                         </form>
                     </div>
 
-                    <form action="${pageContext.request.contextPath}/admin/users/delete" method="post" id="deleteUserForm" style="display:none;">
-                        <input type="hidden" name="userId" id="deleteUserId">
-                    </form>
-
                     <!-- User Table -->
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
                         <div class="table-responsive">
@@ -137,9 +133,20 @@
                                                 </div>
                                             </td>
                                             <td class="py-3">
-                                                <span class="badge ${u.roleName == 'ADMIN' ? 'bg-danger' : (u.roleName == 'GUEST' ? 'bg-secondary' : 'bg-primary')} bg-opacity-10 ${u.roleName == 'ADMIN' ? 'text-danger' : (u.roleName == 'GUEST' ? 'text-secondary' : 'text-primary')} rounded-pill px-3">
-                                                    ${u.roleName}
-                                                </span>
+                                                <c:choose>
+                                                    <c:when test="${u.id != sessionScope.userId}">
+                                                        <select class="form-select form-select-sm border-0 fw-bold rounded-pill px-3 
+                                                                ${u.roleName == 'ADMIN' ? 'bg-danger bg-opacity-10 text-danger' : (u.roleName == 'GUEST' ? 'bg-secondary bg-opacity-10 text-secondary' : 'bg-primary bg-opacity-10 text-primary')}" 
+                                                                onchange="confirmRoleChange(${u.id}, this, '${u.roleName}')" style="cursor: pointer;">
+                                                            <c:forEach var="r" items="${roles}">
+                                                                <option value="${r.id}" ${u.roleName == r.roleName ? 'selected' : ''}>${r.roleName}</option>
+                                                            </c:forEach>
+                                                        </select>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3">${u.roleName}</span>
+                                                    </c:otherwise>
+                                                </c:choose>
                                             </td>
                                             <td class="py-3 smallest text-muted">
                                                 <c:choose>
@@ -158,17 +165,20 @@
                                             <td class="text-end px-4 py-3">
                                                 <div class="d-flex justify-content-end gap-2">
                                                     <a href="${pageContext.request.contextPath}/admin/users/detail/${u.id}" class="action-btn bg-info bg-opacity-10 text-info" title="Chi tiết"><i class="far fa-eye"></i></a>
-                                                    <form action="${pageContext.request.contextPath}/admin/users/toggle-status" method="post" class="m-0 d-inline status-form">
-                                                        <input type="hidden" name="userId" value="${u.id}">
+                                                    
+                                                    <c:if test="${u.id != sessionScope.userId}">
                                                         <button type="button" class="action-btn ${u.status == STATUS.USER_ACTIVE ? 'bg-warning bg-opacity-10 text-warning' : 'bg-success bg-opacity-10 text-success'}" 
-                                                                onclick="confirmToggleStatus(this.form, ${u.status})" title="${u.status == STATUS.USER_ACTIVE ? 'Khóa' : 'Mở khóa'}">
+                                                                onclick="toggleUserStatus(${u.id}, ${u.status})" title="${u.status == STATUS.USER_ACTIVE ? 'Khóa' : 'Mở khóa'}">
                                                             <i class="fas ${u.status == STATUS.USER_ACTIVE ? 'fa-user-lock' : 'fa-user-check'}"></i>
                                                         </button>
-                                                    </form>
-                                                    <button type="button" class="action-btn bg-danger bg-opacity-10 text-danger" 
-                                                            onclick="confirmDeleteUser(${u.id}, '${u.fullName}')" title="Xóa">
-                                                        <i class="fas fa-trash-alt"></i>
-                                                    </button>
+                                                        <button type="button" class="action-btn bg-danger bg-opacity-10 text-danger" 
+                                                                onclick="confirmDeleteUser(${u.id}, '${u.fullName}')" title="Xóa">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    </c:if>
+                                                    <c:if test="${u.id == sessionScope.userId}">
+                                                        <span class="smallest text-muted fw-bold p-2"><i class="fas fa-user-shield me-1"></i> Đang dùng</span>
+                                                    </c:if>
                                                 </div>
                                             </td>
                                         </tr>
@@ -314,54 +324,26 @@
         const addUserForm = document.getElementById('addUserForm');
         addUserForm.addEventListener('submit', async function(e) {
             e.preventDefault();
-            
-            if (!this.checkValidity()) {
-                this.classList.add('was-validated');
-                return;
-            }
-
+            if (!this.checkValidity()) { this.classList.add('was-validated'); return; }
             const pass = document.getElementById('adminPwdInput').value;
             const rePass = document.getElementById('adminRePwd').value;
-            if (pass && pass !== rePass) {
-                Swal.fire('Lỗi', 'Mật khẩu xác nhận không khớp!', 'warning');
-                return;
-            }
-
+            if (pass && pass !== rePass) { Swal.fire('Lỗi', 'Mật khẩu xác nhận không khớp!', 'warning'); return; }
             const submitBtn = document.getElementById('userSubmitBtn');
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang lưu...';
-
             try {
-                const response = await fetch(this.action, {
-                    method: 'POST',
-                    body: new FormData(this)
-                });
-
+                const response = await fetch(this.action, { method: 'POST', body: new FormData(this) });
                 const result = await response.json();
-                if (response.ok) {
-                    await Swal.fire({ icon: 'success', title: 'Thành công', text: result.message, timer: 1500, showConfirmButton: false }).then(() => location.reload());
-                } else {
-                    const errorMsg = result.error || (typeof result === 'object' ? Object.values(result)[0] : "Vui lòng kiểm tra lại thông tin.");
-                    Swal.fire({ 
-                        icon: 'error', 
-                        title: 'Không thể lưu người dùng', 
-                        text: errorMsg,
-                        confirmButtonColor: '#10B981'
-                    });
-                }
-            } catch (error) {
-                Swal.fire('Lỗi hệ thống', 'Không thể kết nối tới máy chủ. Vui lòng thử lại sau!', 'error');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerText = 'LƯU NGƯỜI DÙNG';
-            }
+                if (response.ok) { await Swal.fire({ icon: 'success', title: 'Thành công', text: result.message, timer: 1500, showConfirmButton: false }).then(() => location.reload()); }
+                else { Swal.fire({ icon: 'error', title: 'Lỗi', text: result.error || "Vui lòng kiểm tra lại thông tin." }); }
+            } catch (error) { Swal.fire('Lỗi hệ thống', 'Không thể kết nối tới máy chủ.', 'error'); }
+            finally { submitBtn.disabled = false; submitBtn.innerText = 'LƯU NGƯỜI DÙNG'; }
         });
 
         // --- Role Change Logic ---
         async function confirmRoleChange(userId, selectElement, oldRoleName) {
             const newRoleName = selectElement.options[selectElement.selectedIndex].text;
             const newRoleId = selectElement.value;
-
             const confirm = await Swal.fire({
                 title: `Thay đổi vai trò?`,
                 text: `Chuyển người dùng từ "${oldRoleName}" sang "${newRoleName}"?`,
@@ -370,65 +352,76 @@
                 confirmButtonText: 'Đồng ý',
                 cancelButtonText: 'Hủy'
             });
-
             if (confirm.isConfirmed) {
                 try {
                     const params = new URLSearchParams();
                     params.append('userId', userId);
                     params.append('roleId', newRoleId);
-
                     const response = await fetch(`${pageContext.request.contextPath}/admin/users/update-role`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body: params
                     });
-
                     const result = await response.json();
-                    if (response.ok) {
-                        await Swal.fire({ icon: 'success', title: 'Thành công', text: result.message, timer: 1500, showConfirmButton: false }).then(() => location.reload());
-                    } else {
-                        Swal.fire('Lỗi', result.error, 'error').then(() => location.reload());
-                    }
-                } catch (error) {
-                    Swal.fire('Lỗi', 'Kết nối thất bại!', 'error').then(() => location.reload());
-                }
-            } else {
-                location.reload(); // Revert selection if cancelled
-            }
+                    if (response.ok) { await Swal.fire({ icon: 'success', title: 'Thành công', text: result.message, timer: 1500, showConfirmButton: false }).then(() => location.reload()); }
+                    else { Swal.fire('Lỗi', result.error, 'error').then(() => location.reload()); }
+                } catch (error) { Swal.fire('Lỗi', 'Kết nối thất bại!', 'error').then(() => location.reload()); }
+            } else { location.reload(); }
         }
 
-        function confirmToggleStatus(form, currentStatus) {
+        // --- AJAX Toggle Status Logic ---
+        async function toggleUserStatus(userId, currentStatus) {
             const action = currentStatus === 1 ? 'Khóa' : 'Mở khóa';
-            Swal.fire({
+            const confirm = await Swal.fire({
                 title: `${action} tài khoản?`,
                 text: `Bạn có chắc muốn ${action.toLowerCase()} người dùng này không?`,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: currentStatus === 1 ? '#d33' : '#28a745',
+                confirmButtonColor: currentStatus === 1 ? '#f59e0b' : '#10b981',
                 confirmButtonText: 'Đồng ý',
                 cancelButtonText: 'Hủy'
-            }).then((result) => {
-                if (result.isConfirmed) form.submit();
             });
+            if (confirm.isConfirmed) {
+                try {
+                    const params = new URLSearchParams();
+                    params.append('userId', userId);
+                    const response = await fetch(`${pageContext.request.contextPath}/admin/users/toggle-status`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: params
+                    });
+                    const result = await response.json();
+                    if (response.ok) { await Swal.fire({ icon: 'success', title: 'Thành công', text: result.message, timer: 1500, showConfirmButton: false }); location.reload(); }
+                    else { Swal.fire('Lỗi', result.error, 'error'); }
+                } catch (error) { Swal.fire('Lỗi', 'Kết nối server thất bại!', 'error'); }
+            }
         }
 
-        // --- New function for delete confirmation ---
-        function confirmDeleteUser(userId, userName) {
-            Swal.fire({
+        // --- AJAX Delete User Logic ---
+        async function confirmDeleteUser(userId, userName) {
+            const confirm = await Swal.fire({
                 title: `Xóa người dùng ${userName}?`,
-                text: `Bạn có chắc muốn xóa người dùng "${userName}" không? Hành động này không thể hoàn tác.`,
+                text: `Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?`,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33', // Red color for delete
+                confirmButtonColor: '#ef4444',
                 confirmButtonText: 'Xóa ngay',
                 cancelButtonText: 'Hủy bỏ'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Submit via the hidden POST form
-                    document.getElementById('deleteUserId').value = userId;
-                    document.getElementById('deleteUserForm').submit();
-                }
             });
+            if (confirm.isConfirmed) {
+                try {
+                    const params = new URLSearchParams();
+                    params.append('userId', userId);
+                    const response = await fetch(`${pageContext.request.contextPath}/admin/users/delete`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: params
+                    });
+                    const result = await response.json();
+                    if (response.ok) { await Swal.fire({ icon: 'success', title: 'Đã xóa!', text: result.message, timer: 1500, showConfirmButton: false }); location.reload(); }
+                    else { Swal.fire('Lỗi', result.error, 'error'); }
+                } catch (error) { Swal.fire('Lỗi', 'Kết nối server thất bại!', 'error'); }
+            }
         }
     </script>
 </body>

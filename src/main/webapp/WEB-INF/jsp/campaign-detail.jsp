@@ -32,6 +32,27 @@
         .brand-primary { color: var(--color-primary) !important; }
         .bg-brand-primary { background-color: var(--color-primary) !important; }
 
+        /* Sync Follow & Share Buttons */
+        .btn-brand-primary { 
+            background-color: var(--color-primary) !important; 
+            border-color: var(--color-primary) !important; 
+            color: white !important; 
+        }
+        .btn-brand-primary:hover, .btn-brand-primary:active, .btn-brand-primary.active { 
+            background-color: #059669 !important; /* Đậm hơn một chút */
+            border-color: #059669 !important;
+        }
+        
+        .btn-outline-brand-primary { 
+            border-color: var(--color-primary) !important; 
+            color: var(--color-primary) !important; 
+            background: transparent !important;
+        }
+        .btn-outline-brand-primary:hover, .btn-outline-brand-primary:active, .btn-outline-brand-primary.active { 
+            background-color: var(--color-primary) !important; 
+            color: white !important; 
+        }
+
         /* Mobile Bottom Donate Bar */
         .mobile-donate-bar { 
             position: fixed; bottom: 0; left: 0; right: 0; 
@@ -128,17 +149,24 @@
                                             <c:when test="${following}">
                                                 <form action="${pageContext.request.contextPath}/campaign/unfollow" method="post" class="m-0">
                                                     <input type="hidden" name="campaignId" value="${campaign.id}">
-                                                    <button type="submit" class="btn btn-sm btn-outline-light rounded-pill border-opacity-25 active"><i class="fas fa-bookmark"></i></button>
+                                                    <button type="submit" class="btn btn-sm btn-brand-primary rounded-pill px-3 shadow-sm active" title="Đang theo dõi">
+                                                        <i class="fas fa-bookmark me-1"></i> <span class="smallest fw-bold">ĐÃ THEO DÕI</span>
+                                                    </button>
                                                 </form>
                                             </c:when>
                                             <c:otherwise>
                                                 <form action="${pageContext.request.contextPath}/campaign/follow" method="post" class="m-0">
                                                     <input type="hidden" name="campaignId" value="${campaign.id}">
-                                                    <button type="submit" class="btn btn-sm btn-outline-light rounded-pill border-opacity-25"><i class="far fa-bookmark"></i></button>
+                                                    <button type="submit" class="btn btn-sm btn-outline-brand-primary rounded-pill px-3 shadow-sm" title="Theo dõi chiến dịch">
+                                                        <i class="far fa-bookmark me-1"></i> <span class="smallest fw-bold">THEO DÕI</span>
+                                                    </button>
                                                 </form>
                                             </c:otherwise>
                                         </c:choose>
-                                        <a href="https://www.facebook.com/sharer/sharer.php?u=${requestScope['javax.servlet.forward.request_uri']}" target="_blank" class="btn btn-sm btn-outline-light rounded-pill border-opacity-25"><i class="fab fa-facebook-f"></i></a>
+                                        <a href="https://www.facebook.com/sharer/sharer.php?u=${requestScope['javax.servlet.forward.request_uri']}" 
+                                           target="_blank" class="btn btn-sm btn-outline-brand-primary rounded-pill px-3 shadow-sm" title="Chia sẻ">
+                                            <i class="fab fa-facebook-f me-1"></i> <span class="smallest fw-bold">CHIA SẺ</span>
+                                        </a>
                                     </div>
                                 </div>
 

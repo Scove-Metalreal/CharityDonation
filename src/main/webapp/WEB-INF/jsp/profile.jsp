@@ -308,7 +308,17 @@
                                                      class="rounded-3 me-3 object-fit-cover" width="80" height="80">
                                                 <div class="flex-grow-1 overflow-hidden me-3">
                                                     <a href="${pageContext.request.contextPath}/campaign/${f.campaign.id}" class="fw-bold text-dark text-decoration-none text-truncate d-block">${f.campaign.name}</a>
-                                                    <p class="text-muted small text-truncate mb-1">${f.campaign.content.replaceAll("<[^>]*>", "").substring(0, 100)}...</p>
+                                                    <c:set var="strippedContent" value='${f.campaign.content.replaceAll("<[^>]*>", "")}' />
+                                                    <p class="text-muted small text-truncate mb-1">
+                                                        <c:choose>
+                                                            <c:when test="${strippedContent.length() > 100}">
+                                                                ${strippedContent.substring(0, 100)}...
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                ${strippedContent}
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </p>
                                                     <div class="d-flex gap-2 align-items-center">
                                                         <c:choose>
                                                             <c:when test="${f.campaign.status == STATUS.CAMPAIGN_NEW}">
@@ -451,7 +461,11 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Email</label>
-                            <input type="email" name="email" class="form-control" value="${user.email}" required>
+                            <input type="email" name="email" class="form-control ${user.authProvider == 'GOOGLE' ? 'bg-light text-muted' : ''}" 
+                                   value="${user.email}" required ${user.authProvider == 'GOOGLE' ? 'readonly' : ''}>
+                            <c:if test="${user.authProvider == 'GOOGLE'}">
+                                <small class="text-muted smallest"><i class="fab fa-google me-1"></i> Email liên kết Google không thể thay đổi</small>
+                            </c:if>
                             <div class="invalid-feedback">Vui lòng nhập địa chỉ email hợp lệ.</div>
                         </div>
                         <div class="mb-3">
