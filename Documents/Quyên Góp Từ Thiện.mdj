@@ -51,7 +51,7 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": -1376,
-											"top": -128,
+											"top": -80,
 											"height": 13
 										},
 										{
@@ -65,7 +65,7 @@
 											"font": "Arial;13;1",
 											"parentStyle": true,
 											"left": 1925,
-											"top": 790,
+											"top": 814,
 											"width": 535,
 											"height": 13,
 											"text": "Identify Access Management"
@@ -82,7 +82,7 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": -1376,
-											"top": -128,
+											"top": -80,
 											"width": 185.65625,
 											"height": 13,
 											"text": "(from Overall Use Cases Model)"
@@ -99,7 +99,7 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": -1376,
-											"top": -128,
+											"top": -80,
 											"height": 13,
 											"horizontalAlignment": 1
 										}
@@ -109,7 +109,7 @@
 									"font": "Arial;13;0",
 									"parentStyle": true,
 									"left": 1920,
-									"top": 783,
+									"top": 807,
 									"width": 545,
 									"height": 25,
 									"stereotypeLabel": {
@@ -132,7 +132,7 @@
 							"parentStyle": false,
 							"containerChangeable": true,
 							"left": 1920,
-							"top": 768,
+							"top": 792,
 							"width": 544,
 							"height": 296,
 							"nameCompartment": {
@@ -996,8 +996,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1512,
-									"top": -216,
+									"left": 1656,
+									"top": -720,
 									"width": 10,
 									"height": 10
 								},
@@ -1013,8 +1013,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1512,
-									"top": -216,
+									"left": 1656,
+									"top": -720,
 									"width": 10,
 									"height": 10
 								},
@@ -1030,8 +1030,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1512,
-									"top": -216,
+									"left": 1656,
+									"top": -720,
 									"width": 10,
 									"height": 10
 								},
@@ -1047,8 +1047,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1512,
-									"top": -216,
+									"left": 1656,
+									"top": -720,
 									"width": 10,
 									"height": 10
 								},
@@ -1064,8 +1064,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1512,
-									"top": -216,
+									"left": 1656,
+									"top": -720,
 									"width": 10,
 									"height": 10
 								}
@@ -1159,9 +1159,9 @@
 											"parentStyle": true,
 											"left": 3600,
 											"top": 96,
-											"width": 185.65625,
+											"width": 205.18798828125,
 											"height": 13,
-											"text": "(from User Management)"
+											"text": "(from Identify Access Management)"
 										},
 										{
 											"_type": "LabelView",
@@ -1209,7 +1209,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1984,
+									"left": 2128,
+									"top": -504,
 									"width": 10,
 									"height": 10
 								},
@@ -1225,7 +1226,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1984,
+									"left": 2128,
+									"top": -504,
 									"width": 10,
 									"height": 10
 								},
@@ -1241,7 +1243,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1984,
+									"left": 2128,
+									"top": -504,
 									"width": 10,
 									"height": 10
 								},
@@ -1257,7 +1260,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1984,
+									"left": 2128,
+									"top": -504,
 									"width": 10,
 									"height": 10
 								},
@@ -1273,7 +1277,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1984,
+									"left": 2128,
+									"top": -504,
 									"width": 10,
 									"height": 10
 								}
@@ -1367,9 +1372,9 @@
 											"parentStyle": true,
 											"left": 3576,
 											"top": 248,
-											"width": 185.65625,
+											"width": 205.18798828125,
 											"height": 13,
-											"text": "(from User Management)"
+											"text": "(from Identify Access Management)"
 										},
 										{
 											"_type": "LabelView",
@@ -1417,8 +1422,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1960,
-									"top": 72,
+									"left": 2104,
+									"top": -432,
 									"width": 10,
 									"height": 10
 								},
@@ -1434,8 +1439,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1960,
-									"top": 72,
+									"left": 2104,
+									"top": -432,
 									"width": 10,
 									"height": 10
 								},
@@ -1451,8 +1456,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1960,
-									"top": 72,
+									"left": 2104,
+									"top": -432,
 									"width": 10,
 									"height": 10
 								},
@@ -1468,8 +1473,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1960,
-									"top": 72,
+									"left": 2104,
+									"top": -432,
 									"width": 10,
 									"height": 10
 								},
@@ -1485,8 +1490,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1960,
-									"top": 72,
+									"left": 2104,
+									"top": -432,
 									"width": 10,
 									"height": 10
 								}
@@ -1580,9 +1585,9 @@
 											"parentStyle": true,
 											"left": 3424,
 											"top": 288,
-											"width": 185.65625,
+											"width": 205.18798828125,
 											"height": 13,
-											"text": "(from User Management)"
+											"text": "(from Identify Access Management)"
 										},
 										{
 											"_type": "LabelView",
@@ -1630,8 +1635,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1864,
-									"top": 96,
+									"left": 2008,
+									"top": -408,
 									"width": 10,
 									"height": 10
 								},
@@ -1647,8 +1652,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1864,
-									"top": 96,
+									"left": 2008,
+									"top": -408,
 									"width": 10,
 									"height": 10
 								},
@@ -1664,8 +1669,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1864,
-									"top": 96,
+									"left": 2008,
+									"top": -408,
 									"width": 10,
 									"height": 10
 								},
@@ -1681,8 +1686,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1864,
-									"top": 96,
+									"left": 2008,
+									"top": -408,
 									"width": 10,
 									"height": 10
 								},
@@ -1698,8 +1703,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1864,
-									"top": 96,
+									"left": 2008,
+									"top": -408,
 									"width": 10,
 									"height": 10
 								}
@@ -1793,9 +1798,9 @@
 											"parentStyle": true,
 											"left": 3592,
 											"top": 112,
-											"width": 185.65625,
+											"width": 205.18798828125,
 											"height": 13,
-											"text": "(from User Management)"
+											"text": "(from Identify Access Management)"
 										},
 										{
 											"_type": "LabelView",
@@ -1843,8 +1848,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1992,
-									"top": -24,
+									"left": 2136,
+									"top": -528,
 									"width": 10,
 									"height": 10
 								},
@@ -1860,8 +1865,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1992,
-									"top": -24,
+									"left": 2136,
+									"top": -528,
 									"width": 10,
 									"height": 10
 								},
@@ -1877,8 +1882,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1992,
-									"top": -24,
+									"left": 2136,
+									"top": -528,
 									"width": 10,
 									"height": 10
 								},
@@ -1894,8 +1899,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1992,
-									"top": -24,
+									"left": 2136,
+									"top": -528,
 									"width": 10,
 									"height": 10
 								},
@@ -1911,8 +1916,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1992,
-									"top": -24,
+									"left": 2136,
+									"top": -528,
 									"width": 10,
 									"height": 10
 								}
@@ -2056,8 +2061,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1856,
-									"top": 64,
+									"left": 2000,
+									"top": -440,
 									"width": 10,
 									"height": 10
 								},
@@ -2073,8 +2078,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1856,
-									"top": 64,
+									"left": 2000,
+									"top": -440,
 									"width": 10,
 									"height": 10
 								},
@@ -2090,8 +2095,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1856,
-									"top": 64,
+									"left": 2000,
+									"top": -440,
 									"width": 10,
 									"height": 10
 								},
@@ -2107,8 +2112,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1856,
-									"top": 64,
+									"left": 2000,
+									"top": -440,
 									"width": 10,
 									"height": 10
 								},
@@ -2124,8 +2129,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1856,
-									"top": 64,
+									"left": 2000,
+									"top": -440,
 									"width": 10,
 									"height": 10
 								}
@@ -3530,8 +3535,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1584,
-									"top": -464,
+									"left": 1728,
+									"top": -968,
 									"width": 10,
 									"height": 10
 								},
@@ -3547,8 +3552,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1584,
-									"top": -464,
+									"left": 1728,
+									"top": -968,
 									"width": 10,
 									"height": 10
 								},
@@ -3564,8 +3569,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1584,
-									"top": -464,
+									"left": 1728,
+									"top": -968,
 									"width": 10,
 									"height": 10
 								},
@@ -3581,8 +3586,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1584,
-									"top": -464,
+									"left": 1728,
+									"top": -968,
 									"width": 10,
 									"height": 10
 								},
@@ -3598,8 +3603,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1584,
-									"top": -464,
+									"left": 1728,
+									"top": -968,
 									"width": 10,
 									"height": 10
 								}
@@ -3693,9 +3698,9 @@
 											"parentStyle": true,
 											"left": 3480,
 											"top": 528,
-											"width": 185.65625,
+											"width": 205.18798828125,
 											"height": 13,
-											"text": "(from User Management)"
+											"text": "(from Identify Access Management)"
 										},
 										{
 											"_type": "LabelView",
@@ -3743,8 +3748,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1928,
-									"top": 264,
+									"left": 2072,
+									"top": -240,
 									"width": 10,
 									"height": 10
 								},
@@ -3760,8 +3765,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1928,
-									"top": 264,
+									"left": 2072,
+									"top": -240,
 									"width": 10,
 									"height": 10
 								},
@@ -3777,8 +3782,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1928,
-									"top": 264,
+									"left": 2072,
+									"top": -240,
 									"width": 10,
 									"height": 10
 								},
@@ -3794,8 +3799,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1928,
-									"top": 264,
+									"left": 2072,
+									"top": -240,
 									"width": 10,
 									"height": 10
 								},
@@ -3811,8 +3816,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1928,
-									"top": 264,
+									"left": 2072,
+									"top": -240,
 									"width": 10,
 									"height": 10
 								}
@@ -3908,7 +3913,7 @@
 											"top": 208,
 											"width": 185.65625,
 											"height": 13,
-											"text": "(from Overall Use Cases Model)"
+											"text": "(from User Management)"
 										},
 										{
 											"_type": "LabelView",
@@ -4118,7 +4123,7 @@
 											"top": 48,
 											"width": 185.65625,
 											"height": 13,
-											"text": "(from Overall Use Cases Model)"
+											"text": "(from User Management)"
 										},
 										{
 											"_type": "LabelView",
@@ -4524,9 +4529,9 @@
 											"parentStyle": true,
 											"left": 2872,
 											"top": 376,
-											"width": 185.65625,
+											"width": 205.18798828125,
 											"height": 13,
-											"text": "(from User Management)"
+											"text": "(from Identify Access Management)"
 										},
 										{
 											"_type": "LabelView",
@@ -4574,8 +4579,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1576,
-									"top": 176,
+									"left": 1720,
+									"top": -328,
 									"width": 10,
 									"height": 10
 								},
@@ -4591,8 +4596,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1576,
-									"top": 176,
+									"left": 1720,
+									"top": -328,
 									"width": 10,
 									"height": 10
 								},
@@ -4608,8 +4613,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1576,
-									"top": 176,
+									"left": 1720,
+									"top": -328,
 									"width": 10,
 									"height": 10
 								},
@@ -4625,8 +4630,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1576,
-									"top": 176,
+									"left": 1720,
+									"top": -328,
 									"width": 10,
 									"height": 10
 								},
@@ -4642,8 +4647,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1576,
-									"top": 176,
+									"left": 1720,
+									"top": -328,
 									"width": 10,
 									"height": 10
 								}
@@ -10123,98 +10128,6 @@
 						},
 						{
 							"_type": "UMLUseCase",
-							"_id": "AAAAAAGcBRZnS7erBQY=",
-							"_parent": {
-								"$ref": "AAAAAAGcBRNDVLZSSws="
-							},
-							"name": "Khóa User",
-							"ownedElements": [
-								{
-									"_type": "UMLExtend",
-									"_id": "AAAAAAGcBRv270ym+Tk=",
-									"_parent": {
-										"$ref": "AAAAAAGcBRZnS7erBQY="
-									},
-									"source": {
-										"$ref": "AAAAAAGcBRZnS7erBQY="
-									},
-									"target": {
-										"$ref": "AAAAAAGcBRrutS+Raeo="
-									}
-								}
-							]
-						},
-						{
-							"_type": "UMLUseCase",
-							"_id": "AAAAAAGcBRYjErdPjuU=",
-							"_parent": {
-								"$ref": "AAAAAAGcBRNDVLZSSws="
-							},
-							"name": "Tìm kiếm User",
-							"ownedElements": [
-								{
-									"_type": "UMLExtend",
-									"_id": "AAAAAAGcBRvzDUlx5CM=",
-									"_parent": {
-										"$ref": "AAAAAAGcBRYjErdPjuU="
-									},
-									"source": {
-										"$ref": "AAAAAAGcBRYjErdPjuU="
-									},
-									"target": {
-										"$ref": "AAAAAAGcBRrutS+Raeo="
-									}
-								}
-							]
-						},
-						{
-							"_type": "UMLUseCase",
-							"_id": "AAAAAAGcBRa13bfZQZg=",
-							"_parent": {
-								"$ref": "AAAAAAGcBRNDVLZSSws="
-							},
-							"name": "Mở khóa User",
-							"ownedElements": [
-								{
-									"_type": "UMLExtend",
-									"_id": "AAAAAAGcBRv7QU+rT1w=",
-									"_parent": {
-										"$ref": "AAAAAAGcBRa13bfZQZg="
-									},
-									"source": {
-										"$ref": "AAAAAAGcBRa13bfZQZg="
-									},
-									"target": {
-										"$ref": "AAAAAAGcBRrutS+Raeo="
-									}
-								}
-							]
-						},
-						{
-							"_type": "UMLUseCase",
-							"_id": "AAAAAAGcBRZEL7d91hc=",
-							"_parent": {
-								"$ref": "AAAAAAGcBRNDVLZSSws="
-							},
-							"name": "Thêm mới User",
-							"ownedElements": [
-								{
-									"_type": "UMLExtend",
-									"_id": "AAAAAAGcBRv+n1JQf3I=",
-									"_parent": {
-										"$ref": "AAAAAAGcBRZEL7d91hc="
-									},
-									"source": {
-										"$ref": "AAAAAAGcBRZEL7d91hc="
-									},
-									"target": {
-										"$ref": "AAAAAAGcBRrutS+Raeo="
-									}
-								}
-							]
-						},
-						{
-							"_type": "UMLUseCase",
 							"_id": "AAAAAAGcBRPA2bZxKLc=",
 							"_parent": {
 								"$ref": "AAAAAAGcBRNDVLZSSws="
@@ -10231,34 +10144,49 @@
 						},
 						{
 							"_type": "UMLUseCase",
-							"_id": "AAAAAAGcBRXm27cg9CY=",
+							"_id": "AAAAAAGcBRn2cPe2c20=",
 							"_parent": {
 								"$ref": "AAAAAAGcBRNDVLZSSws="
 							},
-							"name": "Xem danh sách User",
+							"name": "Đổi mật khẩu",
 							"ownedElements": [
 								{
 									"_type": "UMLExtend",
-									"_id": "AAAAAAGcBRvuS0WICiY=",
+									"_id": "AAAAAAGcBRqE/R+Q9SY=",
 									"_parent": {
-										"$ref": "AAAAAAGcBRXm27cg9CY="
+										"$ref": "AAAAAAGcBRn2cPe2c20="
 									},
 									"source": {
-										"$ref": "AAAAAAGcBRXm27cg9CY="
+										"$ref": "AAAAAAGcBRn2cPe2c20="
 									},
 									"target": {
-										"$ref": "AAAAAAGcBRrutS+Raeo="
+										"$ref": "AAAAAAGcBRcjhrgMlGs="
 									}
 								}
 							]
 						},
 						{
 							"_type": "UMLUseCase",
-							"_id": "AAAAAAGcBRrutS+Raeo=",
+							"_id": "AAAAAAGcBRnM4PYOfas=",
 							"_parent": {
 								"$ref": "AAAAAAGcBRNDVLZSSws="
 							},
-							"name": "Quản lý User"
+							"name": "Cập nhập thông tin cá nhân",
+							"ownedElements": [
+								{
+									"_type": "UMLExtend",
+									"_id": "AAAAAAGcBRpyEBBpQXs=",
+									"_parent": {
+										"$ref": "AAAAAAGcBRnM4PYOfas="
+									},
+									"source": {
+										"$ref": "AAAAAAGcBRnM4PYOfas="
+									},
+									"target": {
+										"$ref": "AAAAAAGcBRcjhrgMlGs="
+									}
+								}
+							]
 						}
 					]
 				},
@@ -10675,84 +10603,6 @@
 				},
 				{
 					"_type": "UMLPackage",
-					"_id": "AAAAAAGcBRWsMLb3IME=",
-					"_parent": {
-						"$ref": "AAAAAAGcBRCfCLXv+Ew="
-					},
-					"name": "Package1"
-				},
-				{
-					"_type": "UMLUseCase",
-					"_id": "AAAAAAGcBRd9Gbg6MrY=",
-					"_parent": {
-						"$ref": "AAAAAAGcBRCfCLXv+Ew="
-					},
-					"name": "UseCase1"
-				},
-				{
-					"_type": "UMLUseCase",
-					"_id": "AAAAAAGcBReDAbhn+DY=",
-					"_parent": {
-						"$ref": "AAAAAAGcBRCfCLXv+Ew="
-					},
-					"name": "UseCase2"
-				},
-				{
-					"_type": "UMLUseCase",
-					"_id": "AAAAAAGcBRnM4PYOfas=",
-					"_parent": {
-						"$ref": "AAAAAAGcBRCfCLXv+Ew="
-					},
-					"name": "Cập nhập thông tin cá nhân",
-					"ownedElements": [
-						{
-							"_type": "UMLExtend",
-							"_id": "AAAAAAGcBRpyEBBpQXs=",
-							"_parent": {
-								"$ref": "AAAAAAGcBRnM4PYOfas="
-							},
-							"source": {
-								"$ref": "AAAAAAGcBRnM4PYOfas="
-							},
-							"target": {
-								"$ref": "AAAAAAGcBRcjhrgMlGs="
-							}
-						}
-					]
-				},
-				{
-					"_type": "UMLUseCase",
-					"_id": "AAAAAAGcBRn2cPe2c20=",
-					"_parent": {
-						"$ref": "AAAAAAGcBRCfCLXv+Ew="
-					},
-					"name": "Đổi mật khẩu",
-					"ownedElements": [
-						{
-							"_type": "UMLExtend",
-							"_id": "AAAAAAGcBRqE/R+Q9SY=",
-							"_parent": {
-								"$ref": "AAAAAAGcBRn2cPe2c20="
-							},
-							"source": {
-								"$ref": "AAAAAAGcBRn2cPe2c20="
-							},
-							"target": {
-								"$ref": "AAAAAAGcBRcjhrgMlGs="
-							}
-						}
-					]
-				},
-				{
-					"_type": "UMLUseCaseSubject",
-					"_id": "AAAAAAGcBRyDgGE5e+w=",
-					"_parent": {
-						"$ref": "AAAAAAGcBRCfCLXv+Ew="
-					},
-					"name": "Donation Management"
-				},
-				{
-					"_type": "UMLPackage",
 					"_id": "AAAAAAGcBRyozGSc7UI=",
 					"_parent": {
 						"$ref": "AAAAAAGcBRCfCLXv+Ew="
@@ -10819,19 +10669,136 @@
 				},
 				{
 					"_type": "UMLPackage",
-					"_id": "AAAAAAGcBR5TqsChtLg=",
-					"_parent": {
-						"$ref": "AAAAAAGcBRCfCLXv+Ew="
-					},
-					"name": "Donation Action"
-				},
-				{
-					"_type": "UMLPackage",
 					"_id": "AAAAAAGcHO0NGMzs9Zo=",
 					"_parent": {
 						"$ref": "AAAAAAGcBRCfCLXv+Ew="
 					},
-					"name": "Identify Access Management"
+					"name": "Identify Access Management",
+					"ownedElements": [
+						{
+							"_type": "UMLUseCase",
+							"_id": "AAAAAAGcBRZnS7erBQY=",
+							"_parent": {
+								"$ref": "AAAAAAGcHO0NGMzs9Zo="
+							},
+							"name": "Khóa User",
+							"ownedElements": [
+								{
+									"_type": "UMLExtend",
+									"_id": "AAAAAAGcBRv270ym+Tk=",
+									"_parent": {
+										"$ref": "AAAAAAGcBRZnS7erBQY="
+									},
+									"source": {
+										"$ref": "AAAAAAGcBRZnS7erBQY="
+									},
+									"target": {
+										"$ref": "AAAAAAGcBRrutS+Raeo="
+									}
+								}
+							]
+						},
+						{
+							"_type": "UMLUseCase",
+							"_id": "AAAAAAGcBRrutS+Raeo=",
+							"_parent": {
+								"$ref": "AAAAAAGcHO0NGMzs9Zo="
+							},
+							"name": "Quản lý User"
+						},
+						{
+							"_type": "UMLUseCase",
+							"_id": "AAAAAAGcBRXm27cg9CY=",
+							"_parent": {
+								"$ref": "AAAAAAGcHO0NGMzs9Zo="
+							},
+							"name": "Xem danh sách User",
+							"ownedElements": [
+								{
+									"_type": "UMLExtend",
+									"_id": "AAAAAAGcBRvuS0WICiY=",
+									"_parent": {
+										"$ref": "AAAAAAGcBRXm27cg9CY="
+									},
+									"source": {
+										"$ref": "AAAAAAGcBRXm27cg9CY="
+									},
+									"target": {
+										"$ref": "AAAAAAGcBRrutS+Raeo="
+									}
+								}
+							]
+						},
+						{
+							"_type": "UMLUseCase",
+							"_id": "AAAAAAGcBRZEL7d91hc=",
+							"_parent": {
+								"$ref": "AAAAAAGcHO0NGMzs9Zo="
+							},
+							"name": "Thêm mới User",
+							"ownedElements": [
+								{
+									"_type": "UMLExtend",
+									"_id": "AAAAAAGcBRv+n1JQf3I=",
+									"_parent": {
+										"$ref": "AAAAAAGcBRZEL7d91hc="
+									},
+									"source": {
+										"$ref": "AAAAAAGcBRZEL7d91hc="
+									},
+									"target": {
+										"$ref": "AAAAAAGcBRrutS+Raeo="
+									}
+								}
+							]
+						},
+						{
+							"_type": "UMLUseCase",
+							"_id": "AAAAAAGcBRa13bfZQZg=",
+							"_parent": {
+								"$ref": "AAAAAAGcHO0NGMzs9Zo="
+							},
+							"name": "Mở khóa User",
+							"ownedElements": [
+								{
+									"_type": "UMLExtend",
+									"_id": "AAAAAAGcBRv7QU+rT1w=",
+									"_parent": {
+										"$ref": "AAAAAAGcBRa13bfZQZg="
+									},
+									"source": {
+										"$ref": "AAAAAAGcBRa13bfZQZg="
+									},
+									"target": {
+										"$ref": "AAAAAAGcBRrutS+Raeo="
+									}
+								}
+							]
+						},
+						{
+							"_type": "UMLUseCase",
+							"_id": "AAAAAAGcBRYjErdPjuU=",
+							"_parent": {
+								"$ref": "AAAAAAGcHO0NGMzs9Zo="
+							},
+							"name": "Tìm kiếm User",
+							"ownedElements": [
+								{
+									"_type": "UMLExtend",
+									"_id": "AAAAAAGcBRvzDUlx5CM=",
+									"_parent": {
+										"$ref": "AAAAAAGcBRYjErdPjuU="
+									},
+									"source": {
+										"$ref": "AAAAAAGcBRYjErdPjuU="
+									},
+									"target": {
+										"$ref": "AAAAAAGcBRrutS+Raeo="
+									}
+								}
+							]
+						}
+					]
 				},
 				{
 					"_type": "UMLUseCaseDiagram",
@@ -44896,7 +44863,8 @@
 										"$ref": "AAAAAAGceLkrVsCJ5lk="
 									},
 									"name": "CampaignService campaignServie",
-									"visibility": "private"
+									"visibility": "private",
+									"type": ""
 								},
 								{
 									"_type": "UMLPort",
@@ -44977,7 +44945,8 @@
 										"$ref": "AAAAAAGceLlCQsCzxQs="
 									},
 									"name": "CampaignService campaignServie",
-									"visibility": "private"
+									"visibility": "private",
+									"type": ""
 								},
 								{
 									"_type": "UMLPort",
@@ -45654,7 +45623,8 @@
 										"$ref": "AAAAAAGceLol7sExges="
 									},
 									"name": "ICampaignDAO campaignDAO",
-									"visibility": "private"
+									"visibility": "private",
+									"type": ""
 								},
 								{
 									"_type": "UMLPort",
@@ -45728,7 +45698,8 @@
 											"_parent": {
 												"$ref": "AAAAAAGceN7jEh/wCi0="
 											},
-											"name": "Campaign campaign"
+											"name": "Campaign campaign",
+											"type": ""
 										},
 										{
 											"_type": "UMLParameter",
@@ -45755,7 +45726,8 @@
 											"_parent": {
 												"$ref": "AAAAAAGceN8MIx/9kVo="
 											},
-											"name": "Campaign campaign"
+											"name": "Campaign campaign",
+											"type": ""
 										},
 										{
 											"_type": "UMLParameter",
@@ -45782,7 +45754,8 @@
 											"_parent": {
 												"$ref": "AAAAAAGceN8pkyAIDV8="
 											},
-											"name": "int id"
+											"name": "int id",
+											"type": ""
 										},
 										{
 											"_type": "UMLParameter",
@@ -45841,7 +45814,8 @@
 										"$ref": "AAAAAAGceLpUycFbKNI="
 									},
 									"name": "ICampaignDAO campaignDAO",
-									"visibility": "private"
+									"visibility": "private",
+									"type": ""
 								},
 								{
 									"_type": "UMLPort",
@@ -46453,7 +46427,8 @@
 											"_parent": {
 												"$ref": "AAAAAAGceUszi3YY9q4="
 											},
-											"name": "Campaign campaign"
+											"name": "Campaign campaign",
+											"type": ""
 										},
 										{
 											"_type": "UMLParameter",
@@ -46480,7 +46455,8 @@
 											"_parent": {
 												"$ref": "AAAAAAGceUtgJ3YjsB4="
 											},
-											"name": "Campaign campaign"
+											"name": "Campaign campaign",
+											"type": ""
 										},
 										{
 											"_type": "UMLParameter",
@@ -47412,7 +47388,8 @@
 										"$ref": "AAAAAAGceL5hEPzbMOc="
 									},
 									"name": "int campaignId",
-									"visibility": "private"
+									"visibility": "private",
+									"type": ""
 								},
 								{
 									"_type": "UMLPort",
@@ -48250,7 +48227,8 @@
 								"$ref": "AAAAAAGcmuFAjuNekfg="
 							},
 							"name": "CampaignService campaignServie",
-							"visibility": "private"
+							"visibility": "private",
+							"type": ""
 						},
 						{
 							"_type": "UMLPort",
@@ -69980,7 +69958,8 @@
 										"$ref": "AAAAAAGcb7iJ4DHVK4s="
 									},
 									"name": "int campaignId",
-									"visibility": "private"
+									"visibility": "private",
+									"type": ""
 								},
 								{
 									"_type": "UMLAttribute",
@@ -70729,7 +70708,8 @@
 										"$ref": "AAAAAAGccCVGbxmA4TA="
 									},
 									"name": "ICampaignDAO campaignDAO",
-									"visibility": "private"
+									"visibility": "private",
+									"type": ""
 								},
 								{
 									"_type": "UMLAttribute",
@@ -70757,7 +70737,8 @@
 											"_parent": {
 												"$ref": "AAAAAAGccCj1Gj+VHk0="
 											},
-											"name": "Campaign campaign"
+											"name": "Campaign campaign",
+											"type": ""
 										},
 										{
 											"_type": "UMLParameter",
@@ -70784,7 +70765,8 @@
 											"_parent": {
 												"$ref": "AAAAAAGccCkbjz/uU/Y="
 											},
-											"name": "Campaign campaign"
+											"name": "Campaign campaign",
+											"type": ""
 										},
 										{
 											"_type": "UMLParameter",
@@ -70811,7 +70793,8 @@
 											"_parent": {
 												"$ref": "AAAAAAGccCk75UBH8as="
 											},
-											"name": "int id"
+											"name": "int id",
+											"type": ""
 										},
 										{
 											"_type": "UMLParameter",
@@ -71097,7 +71080,8 @@
 										"$ref": "AAAAAAGccCVa+xnyfu4="
 									},
 									"name": "ICampaignDAO campaignDAO",
-									"visibility": "private"
+									"visibility": "private",
+									"type": ""
 								},
 								{
 									"_type": "UMLAttribute",
@@ -71500,7 +71484,8 @@
 										"$ref": "AAAAAAGccDv31JS82kk="
 									},
 									"name": "CampaignService campaignServie",
-									"visibility": "private"
+									"visibility": "private",
+									"type": ""
 								}
 							],
 							"operations": [
@@ -71661,7 +71646,8 @@
 										"$ref": "AAAAAAGccDz0XprudUA="
 									},
 									"name": "CampaignService campaignServie",
-									"visibility": "private"
+									"visibility": "private",
+									"type": ""
 								},
 								{
 									"_type": "UMLAttribute",
@@ -71924,7 +71910,8 @@
 										"$ref": "AAAAAAGcmqR2gGXvvIE="
 									},
 									"name": "CampaignService campaignServie",
-									"visibility": "private"
+									"visibility": "private",
+									"type": ""
 								},
 								{
 									"_type": "UMLAttribute",
@@ -72474,7 +72461,8 @@
 											"_parent": {
 												"$ref": "AAAAAAGcb+A7Aa9IxLY="
 											},
-											"name": "CampaignService campaignServie"
+											"name": "CampaignService campaignServie",
+											"type": ""
 										},
 										{
 											"_type": "UMLParameter",
@@ -72501,7 +72489,8 @@
 											"_parent": {
 												"$ref": "AAAAAAGcb+BlSrG9V7w="
 											},
-											"name": "Campaign campaign"
+											"name": "Campaign campaign",
+											"type": ""
 										},
 										{
 											"_type": "UMLParameter",
@@ -72863,7 +72852,8 @@
 											"_parent": {
 												"$ref": "AAAAAAGcb+5jje78p8Q="
 											},
-											"name": "Campaign campaign"
+											"name": "Campaign campaign",
+											"type": ""
 										},
 										{
 											"_type": "UMLParameter",
@@ -72890,7 +72880,8 @@
 											"_parent": {
 												"$ref": "AAAAAAGcb+6hM+9VWkk="
 											},
-											"name": "Campaign campaign"
+											"name": "Campaign campaign",
+											"type": ""
 										},
 										{
 											"_type": "UMLParameter",
@@ -72975,7 +72966,8 @@
 											"_parent": {
 												"$ref": "AAAAAAGcb+7zSfBgxX4="
 											},
-											"name": "int page"
+											"name": "int page",
+											"type": ""
 										},
 										{
 											"_type": "UMLParameter",
@@ -72983,7 +72975,8 @@
 											"_parent": {
 												"$ref": "AAAAAAGcb+7zSfBgxX4="
 											},
-											"name": "int size"
+											"name": "int size",
+											"type": ""
 										},
 										{
 											"_type": "UMLParameter",
@@ -73113,7 +73106,8 @@
 											"_parent": {
 												"$ref": "AAAAAAGccBUeMvTiMuk="
 											},
-											"name": "int campaignId"
+											"name": "int campaignId",
+											"type": ""
 										},
 										{
 											"_type": "UMLParameter",
