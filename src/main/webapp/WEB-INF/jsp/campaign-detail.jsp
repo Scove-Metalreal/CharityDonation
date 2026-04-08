@@ -179,7 +179,16 @@
                                 <div class="funding-stats mt-4">
                                     <div class="mb-3">
                                         <div class="fs-2 fw-bold brand-primary"><fmt:formatNumber value="${campaign.currentMoney}" type="number"/>đ</div>
-                                        <div class="text-50 small fw-medium">đã đạt được mục tiêu <fmt:formatNumber value="${campaign.targetMoney}" type="number"/>đ</div>
+                                        <div class="text-50 small fw-medium">
+                                            <c:choose>
+                                                <c:when test="${campaign.currentMoney >= campaign.targetMoney}">
+                                                    <i class="fas fa-check-circle text-success me-1"></i> Đã đạt được mục tiêu <fmt:formatNumber value="${campaign.targetMoney}" type="number"/>đ
+                                                </c:when>
+                                                <c:otherwise>
+                                                    Mục tiêu: <fmt:formatNumber value="${campaign.targetMoney}" type="number"/>đ
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
                                     </div>
                                     
                                     <c:set var="target" value="${campaign.targetMoney.doubleValue() > 0 ? campaign.targetMoney : 1}"/>
@@ -256,9 +265,11 @@
                                 <div class="py-5 border-top" id="details">
                                     <h4 class="fw-bold mb-4 d-flex align-items-center"><i class="fas fa-file-alt brand-primary me-2"></i> Nội dung chiến dịch</h4>
                                     <div class="p-4 bg-light rounded-4 mb-4 border border-opacity-10 border-dark">
-                                        <div class="row row-cols-2 row-cols-md-3 g-3">
+                                        <div class="row row-cols-2 row-cols-md-3 g-4">
                                             <div><div class="smallest text-muted text-uppercase fw-bold">Mã dự án</div><div class="fw-bold">${campaign.code}</div></div>
                                             <div><div class="smallest text-muted text-uppercase fw-bold">Mục tiêu</div><div class="fw-bold text-primary"><fmt:formatNumber value="${campaign.targetMoney}" type="number"/>đ</div></div>
+                                            <div><div class="smallest text-muted text-uppercase fw-bold">Thời gian</div><div class="fw-bold">${campaign.startDate} đến ${campaign.endDate}</div></div>
+                                            <div><div class="smallest text-muted text-uppercase fw-bold">Người thụ hưởng</div><div class="fw-bold">${not empty campaign.beneficiaryPhone ? campaign.beneficiaryPhone : 'Đang cập nhật'}</div></div>
                                             <div><div class="smallest text-muted text-uppercase fw-bold">Trạng thái</div>
                                                 <c:choose>
                                                     <c:when test="${campaign.status == STATUS.CAMPAIGN_NEW}"><span class="badge bg-info">Mới tạo</span></c:when>
