@@ -109,33 +109,20 @@ public class UserController {
         Integer userId = (Integer) session.getAttribute("userId");
         if (userId == null) return "redirect:/auth/login";
 
-        User user = userService.getUserById(userId).get();
-        
-        String newEmail = userUpdate.getEmail().trim();
-        String newPhone = userUpdate.getPhoneNumber() != null ? userUpdate.getPhoneNumber().trim() : "";
-
-        Optional<User> existingEmailUser = userService.getUserByEmail(newEmail);
-        if (existingEmailUser.isPresent() && !existingEmailUser.get().getId().equals(userId)) {
-            return "redirect:/user/profile?error=duplicate-email";
+        try {
+            User user = userService.getUserById(userId).get();
+            user.setFullName(userUpdate.getFullName());
+            user.setEmail(userUpdate.getEmail());
+            user.setPhoneNumber(userUpdate.getPhoneNumber());
+            user.setAddress(userUpdate.getAddress());
+            
+            userService.saveUser(user);
+            session.setAttribute("loggedInUser", user);
+            logger.info("User ID {} updated profile info", userId);
+            return "redirect:/user/profile?message=updated";
+        } catch (Exception e) {
+            return "redirect:/user/profile?error=custom&msg=" + e.getMessage();
         }
-
-        if (!newPhone.isEmpty()) {
-            Optional<User> existingPhoneUser = userService.getUserByPhoneNumber(newPhone);
-            if (existingPhoneUser.isPresent() && !existingPhoneUser.get().getId().equals(userId)) {
-                return "redirect:/user/profile?error=duplicate-phone";
-            }
-        }
-
-        user.setFullName(userUpdate.getFullName());
-        user.setEmail(newEmail);
-        user.setPhoneNumber(newPhone);
-        user.setAddress(userUpdate.getAddress());
-        
-        userService.saveUser(user);
-        session.setAttribute("loggedInUser", user);
-        logger.info("User ID {} updated profile info", userId);
-        
-        return "redirect:/user/profile?message=updated";
     }
 
     @PostMapping("/change-password")
@@ -150,20 +137,24 @@ public class UserController {
             return "redirect:/user/profile?errorPw=mismatch";
         }
 
-        User user = userService.getUserById(userId).get();
-        
-        if (!PasswordUtils.checkPassword(oldPassword, user.getPassword())) {
-            return "redirect:/user/profile?errorPw=wrong-old";
-        }
+        try {
+            User user = userService.getUserById(userId).get();
+            
+            if (!PasswordUtils.checkPassword(oldPassword, user.getPassword())) {
+                return "redirect:/user/profile?errorPw=wrong-old";
+            }
 
-        if (PasswordUtils.checkPassword(newPassword, user.getPassword())) {
-            return "redirect:/user/profile?errorPw=same-password";
-        }
+            if (PasswordUtils.checkPassword(newPassword, user.getPassword())) {
+                return "redirect:/user/profile?errorPw=same-password";
+            }
 
-        user.setPassword(PasswordUtils.hashPassword(newPassword));
-        userService.saveUser(user);
-        logger.info("User ID {} changed password", userId);
-        
-        return "redirect:/user/profile?messagePw=success";
+            user.setPassword(newPassword); // Service will handle hashing and validation
+            userService.saveUser(user);
+            logger.info("User ID {} changed password", userId);
+            
+            return "redirect:/user/profile?messagePw=success";
+        } catch (Exception e) {
+            return "redirect:/user/profile?errorPw=custom&msg=" + e.getMessage();
+        }
     }
 }

@@ -184,24 +184,29 @@ public class AuthController {
             return "redirect:/auth/reset-password";
         }
 
-        Optional<User> userOpt = userService.getUserByEmail(email);
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            user.setPassword(password);
-            user.setResetToken(null);
-            user.setResetTokenExpiry(null);
-            
-            // Auto-upgrade GUEST to USER
-            if (user.getRole() != null && "GUEST".equalsIgnoreCase(user.getRole().getRoleName())) {
-                roleService.getRoleByName("USER").ifPresent(user::setRole);
-                logger.info("Auto-upgraded GUEST to USER during password reset: {}", email);
+        try {
+            Optional<User> userOpt = userService.getUserByEmail(email);
+            if (userOpt.isPresent()) {
+                User user = userOpt.get();
+                user.setPassword(password);
+                user.setResetToken(null);
+                user.setResetTokenExpiry(null);
+                
+                // Auto-upgrade GUEST to USER
+                if (user.getRole() != null && "GUEST".equalsIgnoreCase(user.getRole().getRoleName())) {
+                    roleService.getRoleByName("USER").ifPresent(user::setRole);
+                    logger.info("Auto-upgraded GUEST to USER during password reset: {}", email);
+                }
+                
+                userService.saveUser(user);
+                clearResetSession(session);
+                
+                redirectAttributes.addFlashAttribute("message", "Đổi mật khẩu thành công! Vui lòng đăng nhập.");
+                return "redirect:/auth/login?email=" + email;
             }
-            
-            userService.saveUser(user);
-            clearResetSession(session);
-            
-            redirectAttributes.addFlashAttribute("message", "Đổi mật khẩu thành công! Vui lòng đăng nhập.");
-            return "redirect:/auth/login?email=" + email;
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/auth/reset-password";
         }
 
         return "redirect:/auth/forgot-password";

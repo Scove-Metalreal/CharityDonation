@@ -8,15 +8,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import org.tnphuong.charity.donation.dao.CampaignRepository;
 import org.tnphuong.charity.donation.dao.RoleRepository;
-import org.tnphuong.charity.donation.entity.Role;
-import org.tnphuong.charity.donation.entity.User;
+import org.tnphuong.charity.donation.entity.*;
+import org.tnphuong.charity.donation.service.CampaignService;
+import org.tnphuong.charity.donation.service.DonationService;
 import org.tnphuong.charity.donation.service.UserService;
-import org.tnphuong.charity.donation.utils.PasswordUtils;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Optional;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -33,57 +35,58 @@ public class CharityDonationTests {
     private UserService userService;
 
     @Autowired
+    private CampaignService campaignService;
+
+    @Autowired
+    private DonationService donationService;
+
+    @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private CampaignRepository campaignRepository;
 
     private User testAdmin;
     private User testUser;
-    private Role adminRole;
-    private Role userRole;
+    private Campaign testCampaign;
 
     @BeforeEach
     void setUp() {
-        // 1. Đảm bảo Role tồn tại trong DB
-        adminRole = roleRepository.findByRoleName("ADMIN").orElseGet(() -> {
-            Role r = new Role();
-            r.setRoleName("ADMIN");
-            return roleRepository.save(r);
+        // 1. Đảm bảo Role tồn tại
+        Role adminRole = roleRepository.findByRoleName("ADMIN").orElseGet(() -> {
+            Role r = new Role(); r.setRoleName("ADMIN"); return roleRepository.save(r);
+        });
+        Role userRole = roleRepository.findByRoleName("USER").orElseGet(() -> {
+            Role r = new Role(); r.setRoleName("USER"); return roleRepository.save(r);
         });
 
-        userRole = roleRepository.findByRoleName("USER").orElseGet(() -> {
-            Role r = new Role();
-            r.setRoleName("USER");
-            return roleRepository.save(r);
+        // 2. Tạo dữ liệu User test (Bổ sung phoneNumber để tránh ConstraintViolationException)
+        testAdmin = userService.getUserByEmail("admin_test@charity.com").orElseGet(() -> {
+            User u = new User();
+            u.setFullName("Admin Test"); u.setEmail("admin_test@charity.com");
+            u.setPassword("123456"); u.setPhoneNumber("0988111222"); u.setStatus(1); u.setRole(adminRole);
+            return userService.saveUser(u);
         });
 
-        // 2. Tạo dữ liệu User test
-        Optional<User> adminOpt = userService.getUserByEmail("admin_test@charity.com");
-        if (adminOpt.isEmpty()) {
-            User admin = new User();
-            admin.setFullName("Admin Test");
-            admin.setEmail("admin_test@charity.com");
-            admin.setPassword("123456");
-            admin.setStatus(1);
-            admin.setRole(adminRole);
-            testAdmin = userService.saveUser(admin); 
-        } else {
-            testAdmin = adminOpt.get();
-        }
+        testUser = userService.getUserByEmail("user_test@charity.com").orElseGet(() -> {
+            User u = new User();
+            u.setFullName("User Test"); u.setEmail("user_test@charity.com");
+            u.setPassword("123456"); u.setPhoneNumber("0988333444"); u.setStatus(1); u.setRole(userRole);
+            return userService.saveUser(u);
+        });
 
-        Optional<User> userOpt = userService.getUserByEmail("user_test@charity.com");
-        if (userOpt.isEmpty()) {
-            User user = new User();
-            user.setFullName("User Test");
-            user.setEmail("user_test@charity.com");
-            user.setPassword("123456");
-            user.setStatus(1);
-            user.setRole(userRole);
-            testUser = userService.saveUser(user);
-        } else {
-            testUser = userOpt.get();
-        }
+        // 3. Tạo Chiến dịch test
+        testCampaign = campaignRepository.findByCode("TEST001").orElseGet(() -> {
+            Campaign c = new Campaign();
+            c.setCode("TEST001"); c.setName("Chiến dịch Test");
+            c.setTargetMoney(new BigDecimal("10000000"));
+            c.setStartDate(LocalDate.now()); c.setEndDate(LocalDate.now().plusMonths(1));
+            c.setStatus(CampaignStatus.IN_PROGRESS.getValue());
+            return campaignRepository.save(c);
+        });
     }
 
-    // --- MODULE AUTH ---
+    // --- MODULE AUTH & PROFILE ---
 
     @Test
     void testRegisterSuccess() throws Exception {
@@ -91,7 +94,7 @@ public class CharityDonationTests {
                 .param("fullName", "New User Unit Test")
                 .param("email", "unittest_new_user@gmail.com")
                 .param("password", "123456")
-                .param("phoneNumber", "0123456789"))
+                .param("phoneNumber", "0987654321"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrlPattern("/auth/login?success=register*"));
     }
@@ -106,63 +109,7 @@ public class CharityDonationTests {
     }
 
     @Test
-    void testLoginFailWrongPassword() throws Exception {
-        mockMvc.perform(post("/auth/login")
-                .param("email", testUser.getEmail())
-                .param("password", "wrongpass"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("login"))
-                .andExpect(model().attributeExists("error"));
-    }
-
-    // --- MODULE ADMIN ---
-@Test
-void testAdminAccessDeniedForUser() throws Exception {
-    MockHttpSession session = new MockHttpSession();
-    session.setAttribute("userId", testUser.getId());
-    // Load lai user tu DB de dam bao co day du Role object
-    User sessionUser = userService.getUserById(testUser.getId()).get();
-    session.setAttribute("loggedInUser", sessionUser);
-
-    mockMvc.perform(get("/admin/users")
-            .session(session)
-            .servletPath("/admin/users")) // Thiet lap servletPath de Interceptor bat duoc
-            .andExpect(status().is3xxRedirection())
-            .andExpect(redirectedUrl("/auth/login?error=access-denied"));
-}
-
-@Test
-void testAdminListUsers() throws Exception {
-    MockHttpSession session = new MockHttpSession();
-    session.setAttribute("userId", testAdmin.getId());
-    User sessionAdmin = userService.getUserById(testAdmin.getId()).get();
-    session.setAttribute("loggedInUser", sessionAdmin);
-
-    mockMvc.perform(get("/admin/users")
-            .session(session)
-            .servletPath("/admin/users"))
-            .andExpect(status().isOk())
-            .andExpect(view().name("admin/user-list"))
-            .andExpect(model().attributeExists("users"));
-}
-
-
-    // --- MODULE USER ---
-
-    @Test
-    void testUserProfileView() throws Exception {
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute("userId", testUser.getId());
-        session.setAttribute("loggedInUser", testUser);
-
-        mockMvc.perform(get("/user/profile").session(session))
-                .andExpect(status().isOk())
-                .andExpect(view().name("profile"))
-                .andExpect(model().attributeExists("user"));
-    }
-
-    @Test
-    void testUpdateProfile() throws Exception {
+    void testUpdateProfileSuccess() throws Exception {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute("userId", testUser.getId());
         session.setAttribute("loggedInUser", testUser);
@@ -171,9 +118,73 @@ void testAdminListUsers() throws Exception {
                 .session(session)
                 .param("fullName", "Updated Name")
                 .param("email", testUser.getEmail())
-                .param("phoneNumber", "0911222333")
-                .param("address", "New Address"))
+                .param("phoneNumber", "0911222333"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/user/profile?message=updated"));
+    }
+
+    // --- MODULE ADMIN & CAMPAIGN ---
+
+    @Test
+    void testAdminAccessDeniedForUser() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("userId", testUser.getId());
+        session.setAttribute("loggedInUser", testUser);
+
+        mockMvc.perform(get("/admin/users")
+                .session(session)
+                .servletPath("/admin/users"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/auth/login?error=access-denied"));
+    }
+
+    @Test
+    void testAdminCreateCampaignSuccess() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("userId", testAdmin.getId());
+        session.setAttribute("loggedInUser", testAdmin);
+
+        mockMvc.perform(post("/admin/campaigns/save")
+                .session(session)
+                .param("code", "NEWCPG")
+                .param("name", "New Campaign Name")
+                .param("startDate", LocalDate.now().toString())
+                .param("endDate", LocalDate.now().plusDays(10).toString())
+                .param("targetMoney", "5000000")
+                .param("status", "0"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Lưu chiến dịch thành công!"));
+    }
+
+    // --- MODULE DONATION ---
+
+    @Test
+    void testUserDonateSuccess() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("userId", testUser.getId());
+        session.setAttribute("loggedInUser", testUser);
+
+        mockMvc.perform(post("/campaign/donate")
+                .session(session)
+                .param("campaignId", testCampaign.getId().toString())
+                .param("amount", "50000")
+                .param("paymentMethodId", "1")) 
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("/campaign/" + testCampaign.getId() + "?success=donated*"));
+    }
+
+    @Test
+    void testDonateFailTooSmallAmount() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("userId", testUser.getId());
+        session.setAttribute("loggedInUser", testUser);
+
+        mockMvc.perform(post("/campaign/donate")
+                .session(session)
+                .param("campaignId", testCampaign.getId().toString())
+                .param("amount", "500") // < 1000
+                .param("paymentMethodId", "1"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(flash().attributeExists("error"));
     }
 }

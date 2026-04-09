@@ -1,6 +1,9 @@
 package org.tnphuong.charity.donation.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,20 +23,26 @@ public class Donation {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @NotNull(message = "Người dùng không được để trống")
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "campaign_id", nullable = false)
+    @NotNull(message = "Chiến dịch không được để trống")
     private Campaign campaign;
 
     @ManyToOne
     @JoinColumn(name = "payment_method_id", nullable = false)
+    @NotNull(message = "Phương thức thanh toán không được để trống")
     private PaymentMethod paymentMethod;
 
     @Column(name = "amount", precision = 15, scale = 2, nullable = false)
+    @NotNull(message = "Số tiền quyên góp không được để trống")
+    @DecimalMin(value = "1000", message = "Số tiền quyên góp tối thiểu là 1,000 VNĐ")
     private BigDecimal amount;
 
     @Column(name = "message", length = 500)
+    @Size(max = 500, message = "Lời nhắn không được vượt quá 500 ký tự")
     private String message;
 
     @Column(name = "is_anonymous")

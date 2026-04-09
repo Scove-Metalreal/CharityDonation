@@ -43,7 +43,11 @@ public class DonationServiceImpl implements DonationService {
     }
 
     @Override
+    @Transactional
     public Donation saveDonation(Donation donation) {
+        if (donation.getAmount() == null || donation.getAmount().compareTo(new java.math.BigDecimal("1000")) < 0) {
+            throw new RuntimeException("Số tiền quyên góp tối thiểu là 1,000 VNĐ.");
+        }
         return donationRepository.save(donation);
     }
 

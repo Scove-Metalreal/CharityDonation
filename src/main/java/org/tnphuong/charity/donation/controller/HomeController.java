@@ -169,10 +169,6 @@ public class HomeController {
 
         try {
             if (userId == null) {
-                if (email == null || email.isBlank() || phone == null || phone.isBlank()) {
-                    redirectAttributes.addFlashAttribute("error", "Email và Số điện thoại là bắt buộc.");
-                    return "redirect:/campaign/" + campaignId;
-                }
                 user = userService.getOrCreateGuest(email, phone, fullName, address);
             } else {
                 user = userService.getUserById(userId).orElseThrow(() -> new RuntimeException("Phiên đăng nhập hết hạn."));

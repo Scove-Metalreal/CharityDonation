@@ -58,6 +58,14 @@ public class UserServiceImpl implements UserService {
         String cleanEmail = user.getEmail() != null ? user.getEmail().trim() : null;
         String cleanPhone = user.getPhoneNumber() != null ? user.getPhoneNumber().trim() : null;
 
+        // Validation: Password length check if it's new or being updated
+        String pwd = user.getPassword();
+        if (pwd != null && !pwd.trim().isEmpty() && !pwd.startsWith("$2")) {
+            if (pwd.length() < 6 || pwd.length() > 100) {
+                throw new RuntimeException("Mật khẩu phải từ 6 đến 100 ký tự.");
+            }
+        }
+
         // 1. Kiểm tra trùng Email thủ công TRƯỚC KHI LƯU
         if (cleanEmail != null) {
             Optional<User> uEmail = userRepository.findByEmail(cleanEmail);
@@ -78,7 +86,6 @@ public class UserServiceImpl implements UserService {
         }
 
         if (user.getId() == null) {
-            String pwd = user.getPassword();
             if (pwd == null || pwd.trim().isEmpty()) {
                 user.setPassword(PasswordUtils.hashPassword(defaultPassword.trim()));
             } else if (!pwd.startsWith("$2")) {
@@ -105,9 +112,8 @@ public class UserServiceImpl implements UserService {
             if (user.getAvatarUrl() != null) existingUser.setAvatarUrl(user.getAvatarUrl());
             if (user.getLastLogin() != null) existingUser.setLastLogin(user.getLastLogin());
             
-            String inputPwd = user.getPassword();
-            if (inputPwd != null && !inputPwd.trim().isEmpty() && !inputPwd.startsWith("$2")) {
-                existingUser.setPassword(PasswordUtils.hashPassword(inputPwd));
+            if (pwd != null && !pwd.trim().isEmpty() && !pwd.startsWith("$2")) {
+                existingUser.setPassword(PasswordUtils.hashPassword(pwd));
             }
             logger.debug("Updating user ID: {}", existingUser.getId());
             return userRepository.saveAndFlush(existingUser);
@@ -184,8 +190,16 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User getOrCreateGuest(String email, String phone, String fullName, String address) {
+        if (email == null || email.isBlank() || phone == null || phone.isBlank()) {
+            throw new RuntimeException("Email và Số điện thoại là bắt buộc.");
+        }
+        
         String cleanEmail = email.trim();
         String cleanPhone = phone.trim();
+
+        if (!cleanEmail.matches("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$")) {
+            throw new RuntimeException("Định dạng email không hợp lệ.");
+        }
 
         // 1. Kiểm tra SĐT có bị dùng bởi người khác chưa
         Optional<User> byPhone = userRepository.findByPhoneNumber(cleanPhone);

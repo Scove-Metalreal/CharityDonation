@@ -65,6 +65,7 @@ public class Campaign {
     private BigDecimal targetMoney = BigDecimal.ZERO;
 
     @Column(name = "current_money", precision = 15, scale = 2)
+    @Min(value = 0, message = "Số tiền hiện tại không được âm")
     private BigDecimal currentMoney = BigDecimal.ZERO;
 
     @Column(name = "beneficiary_phone", length = 20)
@@ -91,4 +92,12 @@ public class Campaign {
         inverseJoinColumns = @JoinColumn(name = "companion_id")
     )
     private List<Companion> companions;
+
+    @AssertTrue(message = "Ngày kết thúc phải sau hoặc cùng ngày bắt đầu")
+    public boolean isEndDateAfterStartDate() {
+        if (startDate == null || endDate == null) {
+            return true; 
+        }
+        return !endDate.isBefore(startDate);
+    }
 }

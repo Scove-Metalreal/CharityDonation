@@ -49,6 +49,11 @@ public class CampaignServiceImpl implements CampaignService {
     @Override
     @Transactional
     public Campaign saveCampaign(Campaign campaign) {
+        if (campaign.getStartDate() != null && campaign.getEndDate() != null) {
+            if (campaign.getEndDate().isBefore(campaign.getStartDate())) {
+                throw new RuntimeException("Ngày kết thúc phải sau hoặc cùng ngày bắt đầu.");
+            }
+        }
         return campaignRepository.save(campaign);
     }
 
@@ -113,7 +118,7 @@ public class CampaignServiceImpl implements CampaignService {
             if (campaign.getStatus() == CampaignStatus.COMPLETED.getValue()) {
                 campaign.setStatus(CampaignStatus.IN_PROGRESS.getValue());
             }
-            campaignRepository.save(campaign);
+            saveCampaign(campaign); // Use saveCampaign for validation
         });
     }
 
