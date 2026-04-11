@@ -12,7 +12,7 @@
                 <p class="text-secondary small">Nền tảng quyên góp cộng đồng lớn nhất Việt Nam, nơi kết nối triệu trái tim chung tay vì những giá trị tốt đẹp.</p>
                 <div class="d-flex gap-3 mt-4">
                     <a href="#" class="text-secondary fs-5"><i class="fab fa-facebook"></i></a>
-                    <a href="#" class="text-secondary fs-5"><i class="fab fa-youtube"></i></a>
+                    <a href="https://www.youtube.com/@Scovy303/" class="text-secondary fs-5"><i class="fab fa-youtube"></i></a>
                     <a href="#" class="text-secondary fs-5"><i class="fab fa-tiktok"></i></a>
                 </div>
             </div>
