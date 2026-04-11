@@ -12,6 +12,7 @@ import org.tnphuong.charity.donation.entity.CampaignStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -100,5 +101,20 @@ public class CampaignServiceTests {
 
         assertEquals(newDate, testCampaign.getEndDate());
         verify(campaignRepository, times(1)).save(testCampaign);
+    }
+
+    @Test
+    void testAutoCloseExpiredCampaign() {
+        // Set end date to yesterday
+        testCampaign.setEndDate(LocalDate.now().minusDays(1));
+        testCampaign.setStatus(CampaignStatus.IN_PROGRESS.getValue());
+        
+        when(campaignRepository.findAll()).thenReturn(List.of(testCampaign));
+        
+        // This should trigger checkAndUpdateExpiredCampaigns internally
+        campaignService.getAllCampaigns();
+
+        assertEquals(CampaignStatus.CLOSED.getValue(), testCampaign.getStatus());
+        verify(campaignRepository, times(1)).saveAll(anyList());
     }
 }

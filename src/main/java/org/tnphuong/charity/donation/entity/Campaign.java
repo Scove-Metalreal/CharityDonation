@@ -14,12 +14,6 @@ import java.util.List;
 @Data
 public class Campaign {
 
-    // Status constants
-    public static final int STATUS_NEW = 0;
-    public static final int STATUS_IN_PROGRESS = 1;
-    public static final int STATUS_ENDED = 2;
-    public static final int STATUS_CLOSED = 3;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -72,14 +66,14 @@ public class Campaign {
     private String beneficiaryPhone;
 
     @Column(name = "status")
-    private Integer status = 0;
+    private Integer status = CampaignStatus.NEW.getValue();
 
     public CampaignStatus getStatusEnum() {
         return CampaignStatus.fromInt(this.status);
     }
 
     public void setStatusEnum(CampaignStatus status) {
-        this.status = (status != null) ? status.getValue() : 0;
+        this.status = (status != null) ? status.getValue() : CampaignStatus.NEW.getValue();
     }
 
     @Column(name = "created_at", updatable = false)

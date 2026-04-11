@@ -18,8 +18,7 @@ public interface CampaignService {
     
     Page<Campaign> searchCampaigns(Integer status, String phone, String code, Pageable pageable);
     Page<Campaign> getCampaignsByStatus(Integer status, Pageable pageable);
-    
-    // Core Logic for Task 6
+
     void addCurrentMoney(Integer campaignId, BigDecimal amount);
     void subtractCurrentMoney(Integer campaignId, BigDecimal amount);
     

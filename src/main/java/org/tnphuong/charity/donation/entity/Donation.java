@@ -13,10 +13,6 @@ import java.time.LocalDateTime;
 @Data
 public class Donation {
 
-    public static final int STATUS_PENDING = 0;
-    public static final int STATUS_CONFIRMED = 1;
-    public static final int STATUS_REJECTED = 2;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -49,14 +45,14 @@ public class Donation {
     private Integer isAnonymous = 0;
 
     @Column(name = "status")
-    private Integer status = 0;
+    private Integer status = DonationStatus.PENDING.getValue();
 
     public DonationStatus getStatusEnum() {
         return DonationStatus.fromInt(this.status);
     }
 
     public void setStatusEnum(DonationStatus status) {
-        this.status = (status != null) ? status.getValue() : 0;
+        this.status = (status != null) ? status.getValue() : DonationStatus.PENDING.getValue();
     }
 
     @Column(name = "created_at", updatable = false)

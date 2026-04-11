@@ -187,4 +187,29 @@ public class CharityDonationTests {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(flash().attributeExists("error"));
     }
+
+    @Test
+    void testAdminDashboardStatsPresent() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("userId", testAdmin.getId());
+        session.setAttribute("loggedInUser", testAdmin);
+
+        mockMvc.perform(get("/admin/dashboard").session(session).servletPath("/admin/dashboard"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("totalAmount", "totalUsers", "activeCampaigns", "pendingDonations"));
+    }
+
+    @Test
+    void testHomePageFilteringByStatus() throws Exception {
+        mockMvc.perform(get("/").param("status", "2")) // 2 = COMPLETED
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("campaigns", "currentStatus"));
+    }
+
+    @Test
+    void testViewHistorySecurityForGuest() throws Exception {
+        mockMvc.perform(get("/user/profile")) // Không có session
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/auth/login"));
+    }
 }

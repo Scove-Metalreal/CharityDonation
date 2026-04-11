@@ -21,6 +21,8 @@ CREATE TABLE users (
     phone_number VARCHAR(20) UNIQUE,
     address VARCHAR(255),
     avatar_url VARCHAR(500),
+    auth_provider VARCHAR(20) DEFAULT 'LOCAL',
+    provider_id VARCHAR(100),
     role_id INT NOT NULL, 
     status TINYINT DEFAULT 1, 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

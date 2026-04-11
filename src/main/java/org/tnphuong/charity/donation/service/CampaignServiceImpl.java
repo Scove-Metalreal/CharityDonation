@@ -16,6 +16,7 @@ import org.tnphuong.charity.donation.entity.CampaignStatus;
 import org.tnphuong.charity.donation.entity.Companion;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,18 +32,37 @@ public class CampaignServiceImpl implements CampaignService {
     @Lazy
     private DonationService donationService;
 
+    private void checkAndUpdateExpiredCampaigns() {
+        LocalDate today = LocalDate.now();
+        List<Campaign> activeCampaigns = campaignRepository.findAll().stream()
+                .filter(c -> (c.getStatus() == CampaignStatus.NEW.getValue() || c.getStatus() == CampaignStatus.IN_PROGRESS.getValue())
+                        && c.getEndDate() != null && c.getEndDate().isBefore(today))
+                .toList();
+
+        if (!activeCampaigns.isEmpty()) {
+            activeCampaigns.forEach(c -> {
+                c.setStatus(CampaignStatus.CLOSED.getValue());
+                logger.info("Auto-closed expired campaign: ID={}, Code={}", c.getId(), c.getCode());
+            });
+            campaignRepository.saveAll(activeCampaigns);
+        }
+    }
+
     @Override
     public List<Campaign> getAllCampaigns() {
+        checkAndUpdateExpiredCampaigns();
         return campaignRepository.findAll();
     }
 
     @Override
     public Page<Campaign> getAllCampaigns(Pageable pageable) {
+        checkAndUpdateExpiredCampaigns();
         return campaignRepository.findAll(pageable);
     }
 
     @Override
     public Optional<Campaign> getCampaignById(Integer id) {
+        checkAndUpdateExpiredCampaigns();
         return campaignRepository.findById(id);
     }
 
@@ -70,11 +90,13 @@ public class CampaignServiceImpl implements CampaignService {
 
     @Override
     public Page<Campaign> searchCampaigns(Integer status, String phone, String code, Pageable pageable) {
+        checkAndUpdateExpiredCampaigns();
         return campaignRepository.searchCampaigns(status, phone, code, pageable);
     }
 
     @Override
     public Page<Campaign> getCampaignsByStatus(Integer status, Pageable pageable) {
+        checkAndUpdateExpiredCampaigns();
         return campaignRepository.findByStatus(status, pageable);
     }
 
@@ -115,7 +137,7 @@ public class CampaignServiceImpl implements CampaignService {
     public void extendCampaign(Integer campaignId, java.time.LocalDate newEndDate) {
         campaignRepository.findById(campaignId).ifPresent(campaign -> {
             campaign.setEndDate(newEndDate);
-            if (campaign.getStatus() == CampaignStatus.COMPLETED.getValue()) {
+            if (campaign.getStatus() == CampaignStatus.COMPLETED.getValue() || campaign.getStatus() == CampaignStatus.CLOSED.getValue()) {
                 campaign.setStatus(CampaignStatus.IN_PROGRESS.getValue());
             }
             saveCampaign(campaign); // Use saveCampaign for validation
