@@ -194,23 +194,23 @@ Hãy cùng chung tay giúp bà con vượt qua giai đoạn khó khăn này.', '
 /uploads/campaigns/be_an.jpg
 
 Hy vọng cộng đồng sẽ cùng chung tay cứu lấy trái tim bé bỏng này.', '2025-12-01', '2026-02-28', 80000000, 25000000, 1, '0904445556'),
-('CMP004', 'Xây cầu Trà Vinh', 'Bà con đi lại khó khăn', '2026-01-01', '2026-06-30', 200000000, 0, 0, '0905556667'),
-('CMP005', 'Bữa cơm vùng cao', 'Thêm thịt vào bữa ăn cho bé', '2026-01-15', '2026-12-31', 150000000, 5000000, 1, '0906667778'),
-('CMP006', 'Tặng xe đạp', 'Học sinh nghèo hiếu học', '2025-08-01', '2025-09-05', 120000000, 120000000, 3, '0907778889'),
-('CMP007', 'Thư viện ước mơ', 'Xây phòng đọc sách cho trẻ', '2026-02-01', '2026-05-31', 60000000, 0, 0, '0908889990'),
-('CMP008', 'Học bổng SV nghèo', 'Giúp SV không bỏ học', '2026-03-01', '2026-09-30', 300000000, 0, 0, '0909990001'),
-('CMP009', 'Nước sạch miền Tây', 'Lắp máy lọc nước mặn', '2026-04-01', '2026-08-31', 250000000, 0, 0, '0901113334'),
-('CMP010', 'Nhà tình thương cụ Bảy', 'Xây lại nhà dột nát', '2025-12-15', '2026-01-30', 50000000, 30000000, 1, '0902224445'),
-('CMP011', 'Tết ấm tình thân', 'Quà tết cho người nghèo', '2025-12-20', '2026-01-25', 40000000, 38000000, 1, '0903335556'),
-('CMP012', 'Chuyến xe 0 đồng', 'Đưa công nhân về quê', '2025-12-01', '2026-01-20', 80000000, 80000000, 2, '0904446667'),
-('CMP013', 'Bảo vệ rùa biển', 'Côn Đảo mùa rùa đẻ', '2026-05-01', '2026-12-31', 100000000, 0, 0, '0905557778'),
-('CMP014', 'Cứu trợ chó mèo', 'Trạm cứu hộ quá tải', '2026-01-01', '2026-12-31', 50000000, 2000000, 1, '0906668889'),
-('CMP015', 'Cháo sáng BV Nhi', 'Nồi cháo yêu thương', '2026-01-01', '2026-06-30', 30000000, 10000000, 1, '0907779990'),
-('CMP016', 'Mắt sáng cho người già', 'Mổ đục thủy tinh thể', '2026-02-15', '2026-04-15', 100000000, 0, 0, '0908880001'),
-('CMP017', 'Vắc xin cho em', 'Tiêm chủng vùng sâu', '2026-03-10', '2026-05-10', 70000000, 0, 0, '0909991112'),
-('CMP018', 'Trường mới cho bản', 'Xây điểm trường mầm non', '2026-04-20', '2026-10-20', 500000000, 0, 0, '0901112223'),
-('CMP019', 'Hỗ trợ nạn nhân hỏa hoạn', 'Chung tay giúp gia đình', '2025-12-25', '2026-01-25', 200000000, 150000000, 1, '0902223334'),
-('CMP020', 'Máy tính cho em', 'Phòng tin học vùng xa', '2026-05-15', '2026-08-15', 120000000, 0, 0, '0903334445');
+('CMP004', 'Xây cầu Trà Vinh', 'Bà con đi lại khó khăn', 'Dự án xây cầu bê tông thay thế cầu khỉ giúp các em nhỏ đi học an toàn.', '2026-01-01', '2026-06-30', 200000000, 0, 0, '0905556667'),
+('CMP005', 'Bữa cơm vùng cao', 'Thêm thịt vào bữa ăn cho bé', 'Cung cấp các bữa ăn đầy đủ dinh dưỡng cho trẻ em nghèo vùng sâu vùng xa.', '2026-01-15', '2026-12-31', 150000000, 5000000, 1, '0906667778'),
+('CMP006', 'Tặng xe đạp', 'Học sinh nghèo hiếu học', 'Tặng 100 chiếc xe đạp cho học sinh vượt khó học giỏi tại các tỉnh miền Tây.', '2025-08-01', '2025-09-05', 120000000, 120000000, 3, '0907778889'),
+('CMP007', 'Thư viện ước mơ', 'Xây phòng đọc sách cho trẻ', 'Thiết lập không gian đọc sách hiện đại với hàng ngàn đầu sách cho trẻ em nông thôn.', '2026-02-01', '2026-05-31', 60000000, 0, 0, '0908889990'),
+('CMP008', 'Học bổng SV nghèo', 'Giúp SV không bỏ học', 'Hỗ trợ học phí và sinh hoạt phí cho các sinh viên có hoàn cảnh đặc biệt khó khăn.', '2026-03-01', '2026-09-30', 300000000, 0, 0, '0909990001'),
+('CMP009', 'Nước sạch miền Tây', 'Lắp máy lọc nước mặn', 'Giải quyết vấn đề nước sinh hoạt cho bà con trong mùa hạn mặn kéo dài.', '2026-04-01', '2026-08-31', 250000000, 0, 0, '0901113334'),
+('CMP010', 'Nhà tình thương cụ Bảy', 'Xây lại nhà dột nát', 'Hỗ trợ xây dựng lại căn nhà đã xuống cấp trầm trọng cho người già neo đơn.', '2025-12-15', '2026-01-30', 50000000, 30000000, 1, '0902224445'),
+('CMP011', 'Tết ấm tình thân', 'Quà tết cho người nghèo', 'Mang niềm vui và hơi ấm ngày Tết đến với những gia đình có hoàn cảnh khó khăn.', '2025-12-20', '2026-01-25', 40000000, 38000000, 1, '0903335556'),
+('CMP012', 'Chuyến xe 0 đồng', 'Đưa công nhân về quê', 'Hỗ trợ vé xe miễn phí giúp công nhân nghèo về quê đoàn viên dịp Tết Nguyên Đán.', '2025-12-01', '2026-01-20', 80000000, 80000000, 2, '0904446667'),
+('CMP013', 'Bảo vệ rùa biển', 'Côn Đảo mùa rùa đẻ', 'Các hoạt động bảo tồn rùa biển và thả rùa con về đại dương tại Côn Đảo.', '2026-05-01', '2026-12-31', 100000000, 0, 0, '0905557778'),
+('CMP014', 'Cứu trợ chó mèo', 'Trạm cứu hộ quá tải', 'Hỗ trợ chi phí thức ăn, thuốc men và cải tạo nơi ở cho các bé thú cưng bị bỏ rơi.', '2026-01-01', '2026-12-31', 50000000, 2000000, 1, '0906668889'),
+('CMP015', 'Cháo sáng BV Nhi', 'Nồi cháo yêu thương', 'Cung cấp suất ăn sáng đủ chất và miễn phí cho bệnh nhi nghèo đang điều trị.', '2026-01-01', '2026-06-30', 30000000, 10000000, 1, '0907779990'),
+('CMP016', 'Mắt sáng cho người già', 'Mổ đục thủy tinh thể', 'Hỗ trợ toàn bộ chi phí phẫu thuật thay thủy tinh thể cho người cao tuổi nghèo.', '2026-02-15', '2026-04-15', 100000000, 0, 0, '0908880001'),
+('CMP017', 'Vắc xin cho em', 'Tiêm chủng vùng sâu', 'Đưa các loại vắc xin quan trọng đến với trẻ em ở các bản làng xa xôi.', '2026-03-10', '2026-05-10', 70000000, 0, 0, '0909991112'),
+('CMP018', 'Trường mới cho bản', 'Xây điểm trường mầm non', 'Xây dựng trường học khang trang thay thế các lớp học tạm bợ cho trẻ mầm non.', '2026-04-20', '2026-10-20', 500000000, 0, 0, '0901112223'),
+('CMP019', 'Hỗ trợ nạn nhân hỏa hoạn', 'Chung tay giúp gia đình', 'Hỗ trợ tài chính khẩn cấp giúp các nạn nhân hỏa hoạn sớm ổn định cuộc sống.', '2025-12-25', '2026-01-25', 200000000, 150000000, 1, '0902223334'),
+('CMP020', 'Máy tính cho em', 'Phòng tin học vùng xa', 'Trang bị phòng máy tính giúp học sinh vùng sâu tiếp cận tri thức công nghệ.', '2026-05-15', '2026-08-15', 120000000, 0, 0, '0903334445');
 
 -- 6. Campaign Companions (25 relationships)
 INSERT INTO campaign_companions (campaign_id, companion_id) VALUES 
