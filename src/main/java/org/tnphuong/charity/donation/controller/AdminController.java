@@ -299,7 +299,7 @@ public class AdminController {
                     if (file == null || file.isEmpty()) continue;
                     if (count >= 5) break;
 
-                    String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename().replaceAll("\\s+", "_");
+                    String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename().replaceAll("\\s+", "_");
                     Path filePath = uploadPath.resolve(fileName);
                     Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
                     

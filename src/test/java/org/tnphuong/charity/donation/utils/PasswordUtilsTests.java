@@ -39,4 +39,25 @@ public class PasswordUtilsTests {
         assertTrue(PasswordUtils.checkPassword(password, hash1));
         assertTrue(PasswordUtils.checkPassword(password, hash2));
     }
+
+    @Test
+    void testHashAndCheck_EmptyPassword_Success() {
+        String emptyPassword = "";
+        String hash = PasswordUtils.hashPassword(emptyPassword);
+        assertNotNull(hash);
+        assertTrue(PasswordUtils.checkPassword(emptyPassword, hash));
+    }
+
+    @Test
+    void testCheckPassword_NullValues_ReturnsFalse() {
+        assertFalse(PasswordUtils.checkPassword(null, "$2a$10$abcdefghij"));
+        assertFalse(PasswordUtils.checkPassword("password", null));
+    }
+
+    @Test
+    void testCheckPassword_InvalidHashFormat_ReturnsFalse() {
+        // Một chuỗi không phải định dạng BCrypt
+        String invalidHash = "not-a-bcrypt-hash";
+        assertFalse(PasswordUtils.checkPassword("password", invalidHash));
+    }
 }

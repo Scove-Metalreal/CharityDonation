@@ -27,6 +27,17 @@
         .preview-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
         .preview-item { width: 80px; height: 80px; border-radius: 12px; overflow: hidden; position: relative; border: 2px solid #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .preview-item img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .path-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); color: white; display: flex;
+            align-items: center; justify-content: center; opacity: 0;
+            transition: 0.2s; cursor: pointer; padding: 5px;
+            font-size: 9px; word-break: break-all; text-align: center;
+            z-index: 5;
+        }
+        .preview-item:hover .path-overlay { opacity: 1; }
+
         .preview-item .remove-btn {
             position: absolute; top: 2px; right: 2px; width: 20px; height: 20px; 
             background: rgba(239, 68, 68, 0.9); color: white; border: none; 
@@ -148,7 +159,8 @@
                                         <c:if test="${not empty campaign.imageUrl}">
                                             <div class="preview-item shadow-sm old-image" title="Ảnh đại diện hiện tại">
                                                 <img src="${campaign.imageUrl}">
-                                                <span class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-75 text-white smallest text-center py-1">Cover</span>
+                                                <div class="path-overlay" onclick="copyPathToClipboard('${campaign.imageUrl}', this)">${campaign.imageUrl}</div>
+                                                <span class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-75 text-white smallest text-center py-1" style="z-index: 6; pointer-events: none;">Cover</span>
                                             </div>
                                         </c:if>
                                         <c:if test="${not empty campaign.galleryUrls}">
@@ -156,6 +168,7 @@
                                                 <c:if test="${url.trim() != campaign.imageUrl}">
                                                     <div class="preview-item shadow-sm old-image">
                                                         <img src="${url.trim()}">
+                                                        <div class="path-overlay" onclick="copyPathToClipboard('${url.trim()}', this)">${url.trim()}</div>
                                                     </div>
                                                 </c:if>
                                             </c:forEach>
@@ -285,6 +298,18 @@
         window.removeSelectedFile = function(index) {
             selectedFiles.splice(index, 1);
             renderPreviews();
+        };
+
+        window.copyPathToClipboard = function(path, element) {
+            navigator.clipboard.writeText(path).then(() => {
+                const originalText = element.innerText;
+                element.innerText = "ĐÃ SAO CHÉP!";
+                element.style.background = "rgba(16, 185, 129, 0.9)";
+                setTimeout(() => {
+                    element.innerText = originalText;
+                    element.style.background = "";
+                }, 1000);
+            });
         };
 
         // --- AJAX FORM SUBMISSION ---

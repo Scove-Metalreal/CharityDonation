@@ -96,4 +96,49 @@ public class UserServiceTests {
 
         assertEquals("Email này đã có tài khoản thành viên. Vui lòng đăng nhập.", exception.getMessage());
     }
+
+    @Test
+    void testSaveUser_EmailAlreadyExists_ThrowsException() {
+        when(userRepository.findByEmail(testUser.getEmail())).thenReturn(Optional.of(new User()));
+        testUser.setPassword("password123");
+
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            userService.saveUser(testUser);
+        });
+
+        assertTrue(exception.getMessage().contains("đã được sử dụng bởi một tài khoản khác"));
+    }
+
+    @Test
+    void testGetUserByEmail_NotFound_ReturnsEmpty() {
+        String email = "notfound@test.com";
+        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        Optional<User> result = userService.getUserByEmail(email);
+
+        assertFalse(result.isPresent());
+    }
+
+    @Test
+    void testGetOrCreateGuest_ExistingGuest_ReturnsExisting() {
+        String email = "existing@guest.com";
+        String phone = "0999888777";
+        User existingGuest = new User();
+        Role guestRole = new Role();
+        guestRole.setRoleName("GUEST");
+        existingGuest.setRole(guestRole);
+        existingGuest.setEmail(email);
+        existingGuest.setPhoneNumber(phone);
+
+        // Mock cho kiểm tra SĐT
+        when(userRepository.findByPhoneNumber(phone)).thenReturn(Optional.of(existingGuest));
+        // Mock cho kiểm tra Email
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(existingGuest));
+        // Mock cho việc lưu/cập nhật
+        when(userRepository.saveAndFlush(any())).thenReturn(existingGuest);
+
+        User result = userService.getOrCreateGuest(email, phone, "Guest", "");
+
+        assertEquals(existingGuest, result);
+    }
 }
