@@ -62,6 +62,7 @@ public class Campaign {
     @Min(value = 0, message = "Số tiền hiện tại không được âm")
     private BigDecimal currentMoney = BigDecimal.ZERO;
 
+    @Pattern(regexp = "^(0|84)(3|5|7|8|9)[0-9]{8}$", message = "Số điện thoại người thụ hưởng không đúng định dạng Việt Nam")
     @Column(name = "beneficiary_phone", length = 20)
     private String beneficiaryPhone;
 

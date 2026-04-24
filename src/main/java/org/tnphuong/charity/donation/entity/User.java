@@ -35,15 +35,19 @@ public class User {
     @Column(name = "phone_number", length = 20, unique = true)
     private String phoneNumber;
 
+    @Size(max = 255, message = "Địa chỉ không được vượt quá 255 ký tự")
     @Column(name = "address", length = 255)
     private String address;
 
+    @Size(max = 500, message = "Link ảnh đại diện không được vượt quá 500 ký tự")
     @Column(name = "avatar_url", length = 500)
     private String avatarUrl;
 
+    @Size(max = 20, message = "Loại xác thực không được vượt quá 20 ký tự")
     @Column(name = "auth_provider", length = 20)
     private String authProvider = "LOCAL"; // "LOCAL", "GOOGLE"
 
+    @Size(max = 100, message = "Mã định danh bên thứ ba không được vượt quá 100 ký tự")
     @Column(name = "provider_id", length = 100)
     private String providerId;
 

@@ -1,6 +1,7 @@
 package org.tnphuong.charity.donation.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import java.time.LocalDateTime;
 
@@ -12,10 +13,12 @@ public class UserFollowing {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @NotNull(message = "Người dùng không được để trống")
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
+    @NotNull(message = "Chiến dịch không được để trống")
     @ManyToOne
     @JoinColumn(name = "campaign_id")
     private Campaign campaign;

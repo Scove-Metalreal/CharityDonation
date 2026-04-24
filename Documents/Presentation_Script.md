@@ -90,23 +90,26 @@ Lý do em chọn Spring Boot là vì nó cung cấp Embedded Tomcat, giúp em ch
 
 ## PHẦN 7: THIẾT KẾ CƠ SỞ DỮ LIỆU (CHI TIẾT QUAN HỆ)
 
-ERD của hệ thống được chuẩn hóa đến dạng chuẩn 3 (3NF) để loại bỏ dư thừa dữ liệu. Dưới đây là các đặc điểm thực thể nổi bật và mối quan hệ giữa chúng:
+ERD của hệ thống được chuẩn hóa đến dạng chuẩn 3 (3NF) để loại bỏ dư thừa dữ liệu. Cấu trúc dữ liệu bao gồm:
 
-**Các thực thể nổi bật (Entities):**
-*   **Users:** Lưu trữ thông tin định danh và hỗ trợ đa dạng phương thức xác thực (`auth_provider` LOCAL/GOOGLE).
-*   **Campaigns:** Sử dụng kiểu dữ liệu `DECIMAL(15,2)` để đảm bảo độ chính xác tài chính; trường `content` cho phép lưu trữ mô tả phong phú kèm hình ảnh minh họa.
-*   **Donations:** Thực thể trung tâm lưu vết mọi giao dịch, hỗ trợ cờ `is_anonymous` để bảo vệ quyền riêng tư của nhà hảo tâm.
-*   **Companions:** Lưu trữ thông tin các đối tác đồng hành chuyên nghiệp (Ví MoMo, UNICEF, VTV...).
+**1. Các thực thể trong hệ thống (Entities):**
+*   **Roles:** Định nghĩa các cấp độ truy cập và quyền hạn (ADMIN, USER, GUEST).
+*   **Users:** Lưu trữ thông tin định danh, hồ sơ người dùng và phương thức xác thực (LOCAL/GOOGLE).
+*   **Campaigns:** Thực thể trung tâm lưu thông tin chiến dịch, mục tiêu tài chính, mô tả và tiến độ thực tế.
+*   **Donations:** Lưu vết chi tiết từng giao dịch quyên góp, bao gồm số tiền, lời nhắn và trạng thái phê duyệt.
+*   **Payment Methods:** Quản lý danh sách các kênh thanh toán hỗ trợ (Ví MoMo, Chuyển khoản, VNPay...).
+*   **Companions:** Lưu trữ thông tin về các đối tác, tổ chức cùng đồng hành thực hiện chiến dịch.
+*   **User Following:** Lưu trạng thái quan tâm và đăng ký nhận cập nhật từ các chiến dịch của người dùng.
 
-**Mối quan hệ giữa các thực thể (Relationships):**
-*   **Roles 1 -> N Users:** Phân quyền hệ thống một cách chặt chẽ (ADMIN, USER, GUEST).
-*   **Users 1 -> N Donations:** Lưu vết toàn bộ lịch sử ủng hộ của từng thành viên.
-*   **Campaigns 1 -> N Donations:** Theo dõi chi tiết dòng tiền đổ vào từng chiến dịch để tính toán tiến độ.
-*   **PaymentMethods 1 -> N Donations:** Liên kết mỗi khoản quyên góp với một kênh thanh toán cụ thể.
-*   **Campaigns N <-> N Companions:** (Thông qua bảng `campaign_companions`) Thể hiện sự đồng hành của nhiều tổ chức trong một dự án.
-*   **Users N <-> N Campaigns:** (Thông qua bảng `user_following`) Tính năng quan tâm và theo dõi sát sao tiến độ chiến dịch.
+**2. Mối quan hệ giữa các thực thể (Relationships):**
+*   **Roles (1) --- (N) Users:** Một vai trò được gán cho nhiều người dùng để phân quyền truy cập.
+*   **Users (1) --- (N) Donations:** Một người dùng có thể thực hiện nhiều khoản quyên góp khác nhau.
+*   **Campaigns (1) --- (N) Donations:** Một chiến dịch tiếp nhận dòng tiền từ nhiều nguồn ủng hộ.
+*   **Payment Methods (1) --- (N) Donations:** Một phương thức thanh toán được dùng cho nhiều giao dịch.
+*   **Campaigns (N) --- (N) Companions:** Một chiến dịch có nhiều đối tác và một đối tác tham gia nhiều dự án (thông qua bảng `campaign_companions`).
+*   **Users (N) --- (N) Campaigns:** Người dùng có thể theo dõi nhiều chiến dịch để nhận thông báo (thông qua bảng `user_following`).
 
-**Điểm đặc biệt trong thiết kế:** Em sử dụng khóa ngoại (Foreign Key) với các ràng buộc `ON DELETE CASCADE` ở các bảng liên kết như `Donations` và `User_Following`. Nghĩa là nếu một chiến dịch bị xóa (trong trường hợp chưa có giao dịch xác nhận), các dữ liệu liên quan sẽ tự động được dọn dẹp, đảm bảo database luôn nhất quán và sạch sẽ.
+**Điểm đặc biệt trong thiết kế:** Em sử dụng các ràng buộc `ON DELETE CASCADE` ở các bảng liên kết. Điều này giúp duy trì tính nhất quán: khi một chiến dịch bị xóa, các bản ghi liên quan trong `Donations` (nếu chưa có tiền) và `User_Following` sẽ tự động được dọn dẹp, giúp database luôn "sạch". Ngoài ra, kiểu dữ liệu `DECIMAL(15,2)` được dùng xuyên suốt cho các trường tiền tệ để đảm bảo độ chính xác tuyệt đối trong tính toán tài chính.
 
 ---
 

@@ -247,6 +247,21 @@ public class ValidationTests {
         assertFalse(violations.isEmpty());
     }
 
+    @Test
+    void testCampaign_BeneficiaryPhoneInvalid_Fails() {
+        Campaign campaign = new Campaign();
+        campaign.setCode("CMP_PHONE");
+        campaign.setName("Test Phone");
+        campaign.setStartDate(LocalDate.now());
+        campaign.setEndDate(LocalDate.now().plusDays(1));
+        campaign.setTargetMoney(new BigDecimal("2000000"));
+        campaign.setBeneficiaryPhone("0912.333.444"); // Sai định dạng (có dấu chấm)
+
+        Set<ConstraintViolation<Campaign>> violations = validator.validate(campaign);
+        assertFalse(violations.isEmpty());
+        assertTrue(violations.stream().anyMatch(v -> v.getMessage().contains("người thụ hưởng")));
+    }
+
 
     @Test
     void testDonation_ValidData_Passes() {
