@@ -328,17 +328,31 @@
 
             try {
                 const response = await fetch(this.action, { method: 'POST', body: formData });
-                const result = await response.json();
-                if (response.ok) {
-                    await Swal.fire({ icon: 'success', title: 'Thành công!', text: result.message, timer: 1500, showConfirmButton: false });
-                    window.location.href = '${pageContext.request.contextPath}/admin/campaigns';
+                const contentType = response.headers.get("content-type");
+                
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    const result = await response.json();
+                    if (response.ok) {
+                        await Swal.fire({ icon: 'success', title: 'Thành công!', text: result.message, timer: 1500, showConfirmButton: false });
+                        window.location.href = '${pageContext.request.contextPath}/admin/campaigns';
+                    } else {
+                        let errorMsg = "";
+                        if (typeof result === 'object') {
+                            for (const key in result) errorMsg += `\${result[key]}<br>`;
+                        } else {
+                            errorMsg = result;
+                        }
+                        Swal.fire({ icon: 'error', title: 'Lỗi nghiệp vụ!', html: errorMsg });
+                    }
                 } else {
-                    let errorMsg = "";
-                    for (const key in result) errorMsg += `\${result[key]}<br>`;
-                    Swal.fire({ icon: 'error', title: 'Lỗi!', html: errorMsg });
+                    // Nếu server trả về HTML (lỗi 500, 404...) thay vì JSON
+                    const textError = await response.text();
+                    console.error("Server Error HTML:", textError);
+                    Swal.fire({ icon: 'error', title: 'Lỗi hệ thống!', text: 'Server trả về lỗi không xác định (mã ' + response.status + '). Vui lòng kiểm tra Console log.' });
                 }
             } catch (error) {
-                Swal.fire('Lỗi!', 'Có lỗi xảy ra!', 'error');
+                console.error("Fetch Error:", error);
+                Swal.fire('Lỗi!', 'Không thể kết nối đến máy chủ hoặc dữ liệu quá lớn!', 'error');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerText = originalText;

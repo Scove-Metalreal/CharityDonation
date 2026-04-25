@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.tnphuong.charity.donation.entity.User;
+import org.tnphuong.charity.donation.entity.UserStatus;
 import org.tnphuong.charity.donation.service.UserService;
 
 import java.util.Optional;
@@ -22,7 +23,6 @@ public class SecurityInterceptor implements HandlerInterceptor {
         HttpSession session = request.getSession();
         Integer userId = (Integer) session.getAttribute("userId");
         
-        // Lay duong dan hien tai (loai bo context path)
         String path = request.getRequestURI().substring(request.getContextPath().length());
 
         User user = null;
@@ -30,7 +30,20 @@ public class SecurityInterceptor implements HandlerInterceptor {
             Optional<User> userOpt = userService.getUserById(userId);
             if (userOpt.isPresent()) {
                 user = userOpt.get();
+                
+                // KIỂM TRA TÀI KHOẢN CÓ BỊ KHÓA KHÔNG (Real-time check)
+                if (user.getStatus() == UserStatus.LOCKED.getValue()) {
+                    session.invalidate(); // Hủy toàn bộ session
+                    response.sendRedirect(request.getContextPath() + "/auth/login?error=account-locked");
+                    return false;
+                }
+                
                 session.setAttribute("loggedInUser", user);
+            } else {
+                // Nếu User ID có trong session nhưng không tìm thấy trong DB (có thể bị xóa)
+                session.invalidate();
+                response.sendRedirect(request.getContextPath() + "/auth/login");
+                return false;
             }
         }
 

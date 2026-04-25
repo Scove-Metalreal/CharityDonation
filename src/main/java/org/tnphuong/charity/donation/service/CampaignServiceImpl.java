@@ -74,6 +74,18 @@ public class CampaignServiceImpl implements CampaignService {
                 throw new RuntimeException("Ngày kết thúc phải sau hoặc cùng ngày bắt đầu.");
             }
         }
+
+        // Kiểm tra trùng mã chiến dịch
+        if (campaign.getCode() != null) {
+            Optional<Campaign> existing = campaignRepository.findByCode(campaign.getCode());
+            if (existing.isPresent()) {
+                // Nếu tạo mới, hoặc cập nhật nhưng trùng mã với một chiến dịch KHÁC
+                if (campaign.getId() == null || !existing.get().getId().equals(campaign.getId())) {
+                    throw new RuntimeException("Mã chiến dịch '" + campaign.getCode() + "' đã tồn tại trong hệ thống. Vui lòng dùng mã khác.");
+                }
+            }
+        }
+        
         return campaignRepository.save(campaign);
     }
 

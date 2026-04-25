@@ -14,6 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.tnphuong.charity.donation.entity.User;
+import org.tnphuong.charity.donation.entity.UserStatus;
 import org.tnphuong.charity.donation.service.UserService;
 
 import java.io.IOException;
@@ -68,6 +69,14 @@ public class OAuth2SecurityConfig {
 
             if (userOpt.isPresent()) {
                 User user = userOpt.get();
+
+                // KIỂM TRA TÀI KHOẢN BỊ KHÓA
+                if (user.getStatus() == UserStatus.LOCKED.getValue()) {
+                    session.invalidate(); // Hủy session vừa tạo của Spring Security
+                    response.sendRedirect(request.getContextPath() + "/auth/login?error=account-locked");
+                    return;
+                }
+
                 // Link Google account if not already linked
                 if (user.getProviderId() == null) {
                     user.setAuthProvider("GOOGLE");
